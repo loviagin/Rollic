@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="10dp"
+    android:background="@color/white"
+    app:cardCornerRadius="15dp"
+    app:strokeColor="@color/white">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="15dp"
+        android:background="@color/white"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/white"
+            android:orientation="horizontal">
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/ivAvatarRegister"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_gravity="center_vertical"
+                android:padding="1dp"
+                android:scaleType="centerCrop"
+                app:shapeAppearanceOverlay="@style/ImageCircle"
+                app:srcCompat="@drawable/fav"
+                app:strokeColor="@color/blue50"
+                app:strokeWidth="3dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="15dp"
+                android:background="@color/white"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tvNamePost"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="User name" />
+
+                <TextView
+                    android:id="@+id/tvNicknamePost"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:text="\@nickname" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/ivPhoto1Post"
+            android:layout_width="wrap_content"
+            android:layout_height="300dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginVertical="10dp"
+            android:background="@color/white"
+            android:scaleType="centerInside"
+            app:srcCompat="@drawable/add" />
+
+        <TextView
+            android:id="@+id/tvTitlePost"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="18sp"
+            android:layout_marginVertical="10dp"
+            android:textColor="@color/black"
+            android:text="TextView" />
+
+        <TextView
+            android:id="@+id/tvDescriptionPost"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="TextView" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:background="@color/white"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/bLikePost"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:backgroundTint="@color/blue50"
+                android:paddingHorizontal="3dp"
+                android:text="25К"
+                app:icon="@drawable/fi_rr_like"
+                app:iconGravity="textStart"
+                app:iconPadding="10dp" />
+
+            <Button
+                android:id="@+id/bCommentPost"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="10dp"
+                android:layout_weight="1"
+                android:backgroundTint="@color/blue50"
+                android:paddingHorizontal="3dp"
+                android:text="10К"
+                app:icon="@drawable/fi_rr_messages"
+                app:iconGravity="textStart"
+                app:iconPadding="10dp" />
+
+            <Button
+                android:id="@+id/bRepost"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:backgroundTint="@color/blue50"
+                android:paddingHorizontal="3dp"
+                android:text="3,3К"
+                app:icon="@drawable/fi_rr_repost"
+                app:iconGravity="textStart"
+                app:iconPadding="10dp" />
+
+            <Space
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="10" />
+
+            <ImageButton
+                android:id="@+id/bDislikePost"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="1"
+                android:background="@color/transparent"
+                android:clickable="false"
+                app:srcCompat="@drawable/fi_rr_dislike" />
+        </LinearLayout>
+
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

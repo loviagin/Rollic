@@ -1,0 +1,12 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Base.Theme.Rollic" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="android:background">@color/ground</item>
+    </style>
+
+    <style name="Theme.Rollic" parent="Base.Theme.Rollic" />
+    <style name="ImageCircle">
+        <item name="cornerSize">50%</item>
+        <item name="strokeWidth">3dp</item>
+    </style>
+</resources>
