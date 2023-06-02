@@ -4,6 +4,9 @@ import static com.loviagin.rollic.Constants.USERS_COLLECTION;
 import static com.loviagin.rollic.Constants.USER_UID;
 import static com.loviagin.rollic.UserData.email;
 import static com.loviagin.rollic.UserData.name;
+import static com.loviagin.rollic.UserData.posts;
+import static com.loviagin.rollic.UserData.subscribers;
+import static com.loviagin.rollic.UserData.subscriptions;
 import static com.loviagin.rollic.UserData.uid;
 import static com.loviagin.rollic.UserData.username;
 import static com.loviagin.rollic.models.Objects.currentUser;
@@ -66,6 +69,9 @@ public class MainActivity extends AppCompatActivity {
                 email = user.getEmail();
                 name = user.getF_name();
                 username = user.getUsername();
+                posts = user.getPosts();
+                subscriptions = user.getSubscriptions();
+                subscribers = user.getSubscribers();
                 uid = u;
                 progressBar.setVisibility(View.GONE);
             });
@@ -131,6 +137,15 @@ public class MainActivity extends AppCompatActivity {
         synchronized (postsAdapter) {
             postsAdapter.notifyAll();
         }
+
+        postsAdapter.setOnPostClickListener(new PostsAdapter.OnPostClickListener() {
+            @Override
+            public void onClickAvatar(String usrUid) {
+                Log.e("Account_Activity_TAG", "ZDEC" + usrUid);
+                startActivity(new Intent(MainActivity.this, AccountActivity.class).putExtra("user", usrUid));
+            }
+        });
+
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
     }
 

@@ -11,9 +11,9 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="15dp"
         android:background="@color/white"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:padding="15dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -27,14 +27,15 @@
                 android:layout_height="40dp"
                 android:layout_gravity="center_vertical"
                 android:padding="1dp"
-                android:scaleType="centerCrop"
+                android:scaleType="centerInside"
                 app:shapeAppearanceOverlay="@style/ImageCircle"
                 app:srcCompat="@drawable/fav"
                 app:strokeColor="@color/blue50"
                 app:strokeWidth="3dp" />
 
             <LinearLayout
-                android:layout_width="match_parent"
+                android:id="@+id/llPostMain"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="15dp"
                 android:background="@color/white"
@@ -53,6 +54,20 @@
                     android:layout_gravity="center_vertical"
                     android:text="\@nickname" />
             </LinearLayout>
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
+            <ImageButton
+                android:id="@+id/bSubscribePost"
+                android:layout_width="30dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical|end"
+                android:background="@color/transparent"
+                android:clickable="false"
+                app:srcCompat="@drawable/fi_rr_user_add" />
         </LinearLayout>
 
         <ImageView
@@ -69,10 +84,10 @@
             android:id="@+id/tvTitlePost"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="18sp"
             android:layout_marginVertical="10dp"
+            android:text="TextView"
             android:textColor="@color/black"
-            android:text="TextView" />
+            android:textSize="18sp" />
 
         <TextView
             android:id="@+id/tvDescriptionPost"

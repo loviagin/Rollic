@@ -281,8 +281,6 @@ public class AuthActivity extends AppCompatActivity implements AuthTabAdapter.On
                     Toast.makeText(AuthActivity.this, "Ошибка проверки пользователя Recaptcha", Toast.LENGTH_SHORT).show();
                     // reCAPTCHA verification attempted with null Activity
                 }
-
-                // Show a message and update the UI
             }
 
             @Override

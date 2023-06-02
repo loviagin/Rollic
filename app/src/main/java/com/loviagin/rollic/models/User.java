@@ -7,15 +7,19 @@ import java.util.List;
 
 public class User {
     private String username, f_name, avatarUrl, bio, email;
-    private List<Post> posts;
+    private List<String> posts;
+    private List<String> subscribers;
+    private List<String> subscriptions;
 
-    public User(String email, String username, String f_name, String avatarUrl, String bio, List<Post> posts) {
+    public User(String username, String f_name, String avatarUrl, String bio, String email, List<String> posts, List<String> subscribers, List<String> subscriptions) {
         this.username = username;
         this.f_name = f_name;
         this.avatarUrl = avatarUrl;
         this.bio = bio;
-        this.posts = posts;
         this.email = email;
+        this.posts = posts;
+        this.subscribers = subscribers;
+        this.subscriptions = subscriptions;
     }
 
     public User() {
@@ -25,6 +29,24 @@ public class User {
         this.email = email;
         this.username = NicknameGenerator.generateRandomNickname();
         this.posts = new ArrayList<>();
+        this.subscribers = new ArrayList<>();
+        this.subscriptions = new ArrayList<>();
+    }
+
+    public List<String> getSubscribers() {
+        return subscribers;
+    }
+
+    public void setSubscribers(List<String> subscribers) {
+        this.subscribers = subscribers;
+    }
+
+    public List<String> getSubscriptions() {
+        return subscriptions;
+    }
+
+    public void setSubscriptions(List<String> subscriptions) {
+        this.subscriptions = subscriptions;
     }
 
     public String getEmail() {
@@ -67,11 +89,11 @@ public class User {
         this.bio = bio;
     }
 
-    public List<Post> getPosts() {
+    public List<String> getPosts() {
         return posts;
     }
 
-    public void setPosts(List<Post> posts) {
+    public void setPosts(List<String> posts) {
         this.posts = posts;
     }
 }

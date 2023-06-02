@@ -19,6 +19,9 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.loviagin.rollic.R;
 import com.loviagin.rollic.UserData;
@@ -60,7 +63,13 @@ public class PhotoAddFragment extends Fragment {
                         .add(new Post("", editTextDescription.getText().toString().trim(),
                         editTextTags.getText().toString().trim(), uid, name,
                         "https://firebasestorage.googleapis.com/v0/b/workisland.appspot.com/o/avatars%2FfMClAWEqOybSPf8pFqYvc4OhSPu2cropped3876546716996985108.jpg?alt=media&token=149bcfcf-4e86-4460-bf99-a72e58c87baa",
-                        username, strings, likes,0,0));
+                        username, strings, likes,0,0)).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                            @Override
+                            public void onSuccess(DocumentReference documentReference) {
+                                db.collection("users").document(uid).update("posts", FieldValue.arrayUnion(documentReference.getId()));
+                            }
+                        });
+
                 progressBar.setVisibility(View.GONE);
                 startActivity(new Intent(getActivity(), MainActivity.class));
             }

@@ -1,35 +1,29 @@
 package com.loviagin.rollic.adapters;
 
-import static com.loviagin.rollic.Constants.USERS_COLLECTION;
+import static com.loviagin.rollic.UserData.subscriptions;
 import static com.loviagin.rollic.UserData.uid;
 
 import android.graphics.Color;
 import android.net.Uri;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewOverlay;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.imageview.ShapeableImageView;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.loviagin.rollic.Constants;
 import com.loviagin.rollic.R;
 import com.loviagin.rollic.UserData;
 import com.loviagin.rollic.models.Post;
-import com.loviagin.rollic.workers.PostUploader;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -38,6 +32,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostsViewHol
 
     private List<Post> posts;
     private OnReachListener onReachListener;
+    private OnPostClickListener onPostClickListener;
 
     public PostsAdapter(List<Post> posts) {
         this.posts = posts;
@@ -45,6 +40,10 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostsViewHol
 
     public interface OnReachListener {
         void onReachEnd();
+    }
+
+    public interface OnPostClickListener {
+        void onClickAvatar(String usrUid);
     }
 
     @NonNull
@@ -58,6 +57,10 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostsViewHol
         this.posts = posts;
     }
 
+    public void setOnPostClickListener(OnPostClickListener onPostClickListener) {
+        this.onPostClickListener = onPostClickListener;
+    }
+
     @Override
     public void onBindViewHolder(@NonNull PostsViewHolder holder, int position) {
         if (position == posts.size() - 1 && onReachListener != null) {
@@ -66,7 +69,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostsViewHol
         Post post = posts.get(position);
         holder.textViewNickname.setText("@" + post.getAuthorNickname());
 
-        if (post.getAuthorName() == null || post.getAuthorName().equals("")){
+        if (post.getAuthorName() == null || post.getAuthorName().equals("")) {
             holder.textViewName.setVisibility(View.GONE);
         } else {
             holder.textViewName.setVisibility(View.VISIBLE);
@@ -75,7 +78,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostsViewHol
 
         Picasso.get().load(Uri.parse(post.getAuthorAvatarUrl())).fit().centerInside().into(holder.imageViewAvatar);
         holder.textViewDescription.setText(post.getDescription());
-        if (post.getTitle().equals("")){
+        if (post.getTitle().equals("")) {
             holder.imageView1.setVisibility(View.VISIBLE);
             Picasso.get().load(Uri.parse(post.getImagesUrls().get(0))).into(holder.imageView1);
             holder.textViewTitle.setVisibility(View.GONE);
@@ -84,41 +87,44 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostsViewHol
             holder.textViewTitle.setVisibility(View.VISIBLE);
             holder.imageView1.setVisibility(View.GONE);
         }
-//        holder.buttonDislike.setOnClickListener(v -> {
-//            posts.remove(post);
-//            setPosts(posts);
-//            FirebaseFirestore db = FirebaseFirestore.getInstance();
-//            db.collection(USERS_COLLECTION).document(uid).update("hiddenPosts", FieldValue.arrayUnion(post.getUid()));
-//            synchronized (holder){
-//                holder.notifyAll();
-//            }
-//            holder.imageView1.setVisibility(View.GONE);
-//            holder.textViewTitle.setVisibility(View.GONE);
-//            holder.textViewDescription.setText("ПОСТ СКРЫТ");
-//            holder.buttonLike.setVisibility(View.GONE);
-//            holder.buttonComment.setVisibility(View.GONE);
-//            holder.buttonRepost.setVisibility(View.GONE);
-//            holder.buttonDislike.setVisibility(View.GONE);
-//            UserData.hiddenPosts.add(post.getUid());
-//
-//        });
-        counter(holder, post);
-        holder.buttonLike.setOnClickListener(new View.OnClickListener() {
+        View.OnClickListener clnr = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (post.getLikes().contains(uid)) {
-                    post.deleteLike(uid);
-                    counter(holder, post);
-                    FirebaseFirestore db = FirebaseFirestore.getInstance();
-                    DocumentReference docRef = db.collection("posts").document(post.getUid());
-                    docRef.update("likes", FieldValue.arrayRemove(uid));
-                } else {
-                    post.addLike(uid);
-                    counter(holder, post);
-                    FirebaseFirestore db = FirebaseFirestore.getInstance();
-                    DocumentReference docRef = db.collection("posts").document(post.getUid());
-                    docRef.update("likes", FieldValue.arrayUnion(uid));
+                if (onPostClickListener != null) {
+                    onPostClickListener.onClickAvatar(post.getUidAuthor());
                 }
+            }
+        };
+        holder.layout.setOnClickListener(clnr);
+        holder.imageViewAvatar.setOnClickListener(clnr);
+        if (subscriptions.contains(post.getUidAuthor()) || post.getUidAuthor().equals(uid)){
+            holder.buttonSubscribe.setVisibility(View.GONE);
+        } else {
+            holder.buttonSubscribe.setVisibility(View.VISIBLE);
+            holder.buttonSubscribe.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    subscriptions.add(post.getUidAuthor());
+                    FirebaseFirestore db = FirebaseFirestore.getInstance();
+                    db.collection("users").document(uid).update("subscriptions", FieldValue.arrayUnion(post.getUidAuthor()));
+                    holder.buttonSubscribe.setVisibility(View.GONE);
+                }
+            });
+        }
+        counter(holder, post);
+        holder.buttonLike.setOnClickListener(v -> {
+            if (post.getLikes().contains(uid)) {
+                post.deleteLike(uid);
+                counter(holder, post);
+                FirebaseFirestore db = FirebaseFirestore.getInstance();
+                DocumentReference docRef = db.collection("posts").document(post.getUid());
+                docRef.update("likes", FieldValue.arrayRemove(uid));
+            } else {
+                post.addLike(uid);
+                counter(holder, post);
+                FirebaseFirestore db = FirebaseFirestore.getInstance();
+                DocumentReference docRef = db.collection("posts").document(post.getUid());
+                docRef.update("likes", FieldValue.arrayUnion(uid));
             }
         });
     }
@@ -147,13 +153,14 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostsViewHol
         }
     }
 
-    class PostsViewHolder extends RecyclerView.ViewHolder {
+    static class PostsViewHolder extends RecyclerView.ViewHolder {
 
         private ShapeableImageView imageViewAvatar;
         private TextView textViewName, textViewNickname, textViewDescription, textViewTitle;
         private ImageView imageView1;
         private Button buttonLike, buttonComment, buttonRepost;
-        private ImageButton buttonDislike;
+        private ImageButton buttonDislike, buttonSubscribe;
+        private LinearLayout layout;
 
         public PostsViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -168,6 +175,8 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostsViewHol
             buttonRepost = itemView.findViewById(R.id.bRepost);
             buttonDislike = itemView.findViewById(R.id.bDislikePost);
             textViewDescription = itemView.findViewById(R.id.tvDescriptionPost);
+            layout = itemView.findViewById(R.id.llPostMain);
+            buttonSubscribe = itemView.findViewById(R.id.bSubscribePost);
         }
     }
 }
