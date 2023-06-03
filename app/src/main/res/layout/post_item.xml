@@ -45,14 +45,14 @@
                     android:id="@+id/tvNamePost"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="User name" />
+                    android:text="@string/user_name_str" />
 
                 <TextView
                     android:id="@+id/tvNicknamePost"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
-                    android:text="\@nickname" />
+                    android:text="@string/nicknameofuser_str" />
             </LinearLayout>
 
             <Space
@@ -67,7 +67,8 @@
                 android:layout_gravity="center_vertical|end"
                 android:background="@color/transparent"
                 android:clickable="false"
-                app:srcCompat="@drawable/fi_rr_user_add" />
+                app:srcCompat="@drawable/fi_rr_user_add"
+                android:contentDescription="@string/button_subscribe_str" />
         </LinearLayout>
 
         <ImageView
@@ -78,14 +79,15 @@
             android:layout_marginVertical="10dp"
             android:background="@color/white"
             android:scaleType="centerInside"
-            app:srcCompat="@drawable/add" />
+            app:srcCompat="@drawable/add"
+            android:contentDescription="@string/main_pic_str" />
 
         <TextView
             android:id="@+id/tvTitlePost"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginVertical="10dp"
-            android:text="TextView"
+            android:text="@string/add_title_str"
             android:textColor="@color/black"
             android:textSize="18sp" />
 
@@ -93,7 +95,7 @@
             android:id="@+id/tvDescriptionPost"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="TextView" />
+            android:text="@string/add_description_str" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -109,7 +111,7 @@
                 android:layout_weight="1"
                 android:backgroundTint="@color/blue50"
                 android:paddingHorizontal="3dp"
-                android:text="25К"
+                android:text="@string/example_25k_str"
                 app:icon="@drawable/fi_rr_like"
                 app:iconGravity="textStart"
                 app:iconPadding="10dp" />
@@ -122,7 +124,7 @@
                 android:layout_weight="1"
                 android:backgroundTint="@color/blue50"
                 android:paddingHorizontal="3dp"
-                android:text="10К"
+                android:text="@string/example_10k_str"
                 app:icon="@drawable/fi_rr_messages"
                 app:iconGravity="textStart"
                 app:iconPadding="10dp" />
@@ -134,7 +136,7 @@
                 android:layout_weight="1"
                 android:backgroundTint="@color/blue50"
                 android:paddingHorizontal="3dp"
-                android:text="3,3К"
+                android:text="@string/example_3_3k_str"
                 app:icon="@drawable/fi_rr_repost"
                 app:iconGravity="textStart"
                 app:iconPadding="10dp" />
@@ -152,7 +154,8 @@
                 android:layout_weight="1"
                 android:background="@color/transparent"
                 android:clickable="false"
-                app:srcCompat="@drawable/fi_rr_dislike" />
+                app:srcCompat="@drawable/fi_rr_dislike"
+                android:contentDescription="@string/button_dislike_str" />
         </LinearLayout>
 
     </LinearLayout>

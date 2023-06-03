@@ -2,43 +2,53 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:background="@color/white"
+    android:minHeight="250dp"
     android:padding="5dp"
     tools:context=".fragments.PhoneFragment">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="250dp"
         android:orientation="vertical">
 
         <TextView
             android:id="@+id/tvEnterPhoneNumber"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Ввeдите номер телефона"
+            android:text="@string/enter_phone_str"
             android:textSize="18sp" />
 
         <EditText
             android:id="@+id/etPhoneAuth"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:autofillHints="phone"
             android:ems="10"
-            android:inputType="textEmailAddress"
+            android:inputType="phone"
+            android:labelFor="@id/tvEnterPhoneNumber"
             android:maxLength="30"
             android:maxLines="1"
-            android:text="+7" />
+            android:text="@string/start_phone_text" />
 
         <EditText
             android:id="@+id/etCodeAuth"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
-            android:hint="Код"
-            android:visibility="gone"
-            android:inputType="textPassword"
+            android:hint="@string/code_str"
+            android:importantForAutofill="no"
+            android:inputType="number"
             android:maxLength="30"
-            android:maxLines="1" />
+            android:maxLines="1"
+            android:visibility="invisible" />
+        <TextView
+            android:id="@+id/textview2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/sms_hint_str" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -51,9 +61,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="15dp"
                 android:layout_weight="1"
-                android:text="Отправить код"
-                android:textAllCaps="true"
-                />
+                android:text="@string/send_code_str"
+                android:textAllCaps="true" />
 
             <Button
                 android:id="@+id/bConfirmCodeAuth"
@@ -62,9 +71,9 @@
                 android:layout_marginTop="15dp"
                 android:layout_marginEnd="10dp"
                 android:layout_weight="1"
-                android:text="Подтвердить"
-                android:visibility="gone"
-                android:textAllCaps="true" />
+                android:text="@string/confirm_str"
+                android:textAllCaps="true"
+                android:visibility="gone" />
 
             <Button
                 android:id="@+id/bResendCodeAuth"
@@ -73,10 +82,10 @@
                 android:layout_marginStart="10dp"
                 android:layout_marginTop="15dp"
                 android:layout_weight="1"
-                android:visibility="gone"
                 android:backgroundTint="@color/blue50"
-                android:text="Переотправить"
-                android:textAllCaps="true" />
+                android:text="@string/resend_str"
+                android:textAllCaps="true"
+                android:visibility="gone" />
         </LinearLayout>
 
     </LinearLayout>

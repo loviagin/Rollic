@@ -157,55 +157,47 @@ public class AuthActivity extends AppCompatActivity implements AuthTabAdapter.On
     @Override
     public void OnEmailLoginClick(String email, String pass) {
         if (email.equals("") || pass.equals("") || pass.length() < 6) {
-            Toast.makeText(this, "Все данные должны быть внесены", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getResources().getString(R.string.error_email_auth_str), Toast.LENGTH_SHORT).show();
         } else if (isValidEmail(email)) {
             progressBar.setVisibility(View.VISIBLE);
             getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
                     WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
             emailAuth(email, pass);
         } else {
-            Toast.makeText(this, "Проверьте корректность данных", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getResources().getString(R.string.check_data_auth_str), Toast.LENGTH_SHORT).show();
         }
-
     }
 
     private void emailAuth(String email, String pass) {
         mAuth.signInWithEmailAndPassword(email, pass)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
-                            Log.d(TAG, "signInWithEmail:success");
-                            currentUser = mAuth.getCurrentUser();
-                            FirebaseFirestore db = FirebaseFirestore.getInstance();
-                            db.collection(USERS_COLLECTION).whereEqualTo(USER_EMAIL, email)
-                                    .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                            if (task.isSuccessful()) {
-                                                for (QueryDocumentSnapshot document : task.getResult()) {
-                                                    uid = document.getId();
-                                                    User user = document.toObject(User.class);
-                                                    UserData.email = user.getEmail();
-                                                    username = user.getUsername();
-                                                    posts = user.getPosts();
-                                                    name = user.getF_name();
-                                                    preferences.edit().putString(USER_UID, uid).apply();
-                                                    startActivity(new Intent(AuthActivity.this, MainActivity.class));
-                                                }
-                                            } else {
-                                                Log.d(TAG, "Error getting documents: ", task.getException());
-                                            }
+                .addOnCompleteListener(this, task -> {
+                    if (task.isSuccessful()) {
+                        // Sign in success, update UI with the signed-in user's information
+                        Log.d(TAG, "signInWithEmail:success");
+                        currentUser = mAuth.getCurrentUser();
+                        FirebaseFirestore db = FirebaseFirestore.getInstance();
+                        db.collection(USERS_COLLECTION).whereEqualTo(USER_EMAIL, email)
+                                .get().addOnCompleteListener(task1 -> {
+                                    if (task1.isSuccessful()) {
+                                        for (QueryDocumentSnapshot document : task1.getResult()) {
+                                            uid = document.getId();
+                                            User user = document.toObject(User.class);
+                                            UserData.email = user.getEmail();
+                                            username = user.getUsername();
+                                            posts = user.getPosts();
+                                            name = user.getF_name();
+                                            preferences.edit().putString(USER_UID, uid).apply();
+                                            startActivity(new Intent(AuthActivity.this, MainActivity.class));
                                         }
-                                    });
-                        } else {
-                            // If sign in fails, display a message to the user.
-                            Log.w(TAG, "signInWithEmail:failure", task.getException());
-                            Toast.makeText(AuthActivity.this, "Регистрация",
-                                    Toast.LENGTH_SHORT).show();
-                            emailRegister(email, pass);
-                        }
+                                    } else {
+                                        Log.d(TAG, "Error getting documents: ", task1.getException());
+                                    }
+                                });
+                    } else {
+                        // If sign in fails, display a message to the user.
+                        Log.w(TAG, "signInWithEmail:failure", task.getException());
+                        Toast.makeText(AuthActivity.this, getResources().getString(R.string.register_text), Toast.LENGTH_SHORT).show();
+                        emailRegister(email, pass);
                     }
                 });
     }
@@ -213,40 +205,33 @@ public class AuthActivity extends AppCompatActivity implements AuthTabAdapter.On
     private void emailRegister(String email, String pass) {
         final String email0 = email;
         mAuth.createUserWithEmailAndPassword(email, pass)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
-                            Log.d(TAG, "createUserWithEmail:success");
-                            currentUser = mAuth.getCurrentUser();
-                            FirebaseFirestore db = FirebaseFirestore.getInstance();
-                            User user = new User(email0);
-                            db.collection(USERS_COLLECTION).add(user).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                                @Override
-                                public void onSuccess(DocumentReference documentReference) {
-                                    uid = documentReference.getId();
-                                    UserData.email = user.getEmail();
-                                    username = user.getUsername();
-                                    posts = user.getPosts();
-                                    preferences.edit().putString(USER_UID, uid).apply();
-                                    startActivity(new Intent(AuthActivity.this, RegisterScreenActivity.class));
-                                }
-                            });
-                        } else {
-                            // If sign in fails, display a message to the user.
-                            Log.w(TAG, "createUserWithEmail:failure", task.getException());
-                            Toast.makeText(AuthActivity.this, "Ошибка регистрации. Попробуйте позже или напишите в техподдержку",
-                                    Toast.LENGTH_SHORT).show();
-                            progressBar.setVisibility(View.GONE);
-                            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-                            startActivity(new Intent(AuthActivity.this, AuthActivity.class));
-                        }
+                .addOnCompleteListener(this, task -> {
+                    if (task.isSuccessful()) {
+                        // Sign in success, update UI with the signed-in user's information
+                        Log.d(TAG, "createUserWithEmail:success");
+                        currentUser = mAuth.getCurrentUser();
+                        FirebaseFirestore db = FirebaseFirestore.getInstance();
+                        User user = new User(email0);
+                        db.collection(USERS_COLLECTION).add(user).addOnSuccessListener(documentReference -> {
+                            uid = documentReference.getId();
+                            UserData.email = user.getEmail();
+                            username = user.getUsername();
+                            posts = user.getPosts();
+                            preferences.edit().putString(USER_UID, uid).apply();
+                            startActivity(new Intent(AuthActivity.this, RegisterScreenActivity.class));
+                        });
+                    } else {
+                        // If sign in fails, display a message to the user.
+                        Log.w(TAG, "createUserWithEmail:failure", task.getException());
+                        Toast.makeText(AuthActivity.this, getResources().getString(R.string.error_register_str), Toast.LENGTH_SHORT).show();
+                        progressBar.setVisibility(View.GONE);
+                        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+                        startActivity(new Intent(AuthActivity.this, AuthActivity.class));
                     }
                 });
     }
 
-    String phoneNumber = "";
+    private String phoneNumber = "";
 
     @Override
     public void OnPhoneSendClick(String phone) {
@@ -275,10 +260,10 @@ public class AuthActivity extends AppCompatActivity implements AuthTabAdapter.On
                 if (e instanceof FirebaseAuthInvalidCredentialsException) {
                     // Invalid request
                 } else if (e instanceof FirebaseTooManyRequestsException) {
-                    Toast.makeText(AuthActivity.this, "Слишком много попыток. Попробуйте позже пожалуйста", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(AuthActivity.this, getResources().getString(R.string.too_many_requests_auth_str), Toast.LENGTH_SHORT).show();
                     // The SMS quota for the project has been exceeded
                 } else if (e instanceof FirebaseAuthMissingActivityForRecaptchaException) {
-                    Toast.makeText(AuthActivity.this, "Ошибка проверки пользователя Recaptcha", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(AuthActivity.this, getResources().getString(R.string.recaptcha_error_str), Toast.LENGTH_SHORT).show();
                     // reCAPTCHA verification attempted with null Activity
                 }
             }
@@ -320,50 +305,44 @@ public class AuthActivity extends AppCompatActivity implements AuthTabAdapter.On
 
     private void signInWithPhoneAuthCredential(PhoneAuthCredential credential) {
         mAuth.signInWithCredential(credential)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
-                            Log.d(TAG, "signInWithCredential:success");
-                            currentUser = task.getResult().getUser();
-                            FirebaseFirestore db = FirebaseFirestore.getInstance();
-                            Log.d(TAG, currentUser.getUid() + "");
-                            DocumentReference docRef = db.collection("users").document(currentUser.getUid());
-                            docRef.get().addOnSuccessListener(documentSnapshot -> {
-                                if (documentSnapshot.exists()) {
-                                    Log.d(TAG, "User exists in FireStore");
-                                    User user = documentSnapshot.toObject(User.class);
+                .addOnCompleteListener(this, task -> {
+                    if (task.isSuccessful()) {
+                        // Sign in success, update UI with the signed-in user's information
+                        Log.d(TAG, "signInWithCredential:success");
+                        currentUser = task.getResult().getUser();
+                        FirebaseFirestore db = FirebaseFirestore.getInstance();
+                        Log.d(TAG, currentUser.getUid() + "");
+                        DocumentReference docRef = db.collection(USERS_COLLECTION).document(currentUser.getUid());
+                        docRef.get().addOnSuccessListener(documentSnapshot -> {
+                            if (documentSnapshot.exists()) {
+                                Log.d(TAG, "User exists in FireStore");
+                                User user = documentSnapshot.toObject(User.class);
+                                UserData.email = user.getEmail();
+                                username = user.getUsername();
+                                posts = user.getPosts();
+                                name = user.getF_name();
+                                uid = mAuth.getUid();
+                                preferences.edit().putString(USER_UID, currentUser.getUid()).apply();
+                                startActivity(new Intent(AuthActivity.this, MainActivity.class));
+                            } else {
+                                Log.d(TAG, "User doesn't exists in FireStore" + mAuth.getCurrentUser().getEmail());
+                                User user = new User(mAuth.getCurrentUser().getEmail());
+                                db.collection(USERS_COLLECTION).add(user).addOnSuccessListener(documentReference -> {
+                                    uid = documentReference.getId();
                                     UserData.email = user.getEmail();
                                     username = user.getUsername();
                                     posts = user.getPosts();
-                                    name = user.getF_name();
-                                    uid = mAuth.getUid();
-                                    preferences.edit().putString(USER_UID, currentUser.getUid()).apply();
-                                    startActivity(new Intent(AuthActivity.this, MainActivity.class));
-                                } else {
-                                    Log.d(TAG, "User doesn't exists in FireStore" + mAuth.getCurrentUser().getEmail());
-                                    User user = new User(mAuth.getCurrentUser().getEmail());
-                                    db.collection("users").add(user).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                                        @Override
-                                        public void onSuccess(DocumentReference documentReference) {
-                                            uid = documentReference.getId();
-                                            UserData.email = user.getEmail();
-                                            username = user.getUsername();
-                                            posts = user.getPosts();
-                                            preferences.edit().putString(USER_UID, uid).apply();
-                                            startActivity(new Intent(AuthActivity.this, RegisterScreenActivity.class));
-                                        }
-                                    });
-                                }
-                            });
-                            Log.d(TAG, "signInWithCredential:success with uId " + currentUser.getUid());
-                        } else {
-                            // Sign in failed, display a message and update the UI
-                            Log.w(TAG, "signInWithCredential:failure", task.getException());
-                            if (task.getException() instanceof FirebaseAuthInvalidCredentialsException) {
-                                // The verification code entered was invalid
+                                    preferences.edit().putString(USER_UID, uid).apply();
+                                    startActivity(new Intent(AuthActivity.this, RegisterScreenActivity.class));
+                                });
                             }
+                        });
+                        Log.d(TAG, "signInWithCredential:success with uId " + currentUser.getUid());
+                    } else {
+                        // Sign in failed, display a message and update the UI
+                        Log.w(TAG, "signInWithCredential:failure", task.getException());
+                        if (task.getException() instanceof FirebaseAuthInvalidCredentialsException) {
+                            // The verification code entered was invalid
                         }
                     }
                 });
@@ -404,7 +383,7 @@ public class AuthActivity extends AppCompatActivity implements AuthTabAdapter.On
                                         assert currentUser != null;
                                         FirebaseFirestore db = FirebaseFirestore.getInstance();
                                         Log.e(TAG, currentUser.getUid() + "");
-                                        DocumentReference docRef = db.collection("users").document(currentUser.getUid());
+                                        DocumentReference docRef = db.collection(USERS_COLLECTION).document(currentUser.getUid());
                                         docRef.get().addOnSuccessListener(documentSnapshot -> {
                                             if (documentSnapshot.exists()) {
                                                 Log.d(TAG, "User exists in FireStore");
@@ -419,17 +398,14 @@ public class AuthActivity extends AppCompatActivity implements AuthTabAdapter.On
                                             } else {
                                                 Log.d(TAG, "User doesn't exists in FireStore" + mAuth.getCurrentUser().getEmail());
                                                 User user = new User(mAuth.getCurrentUser().getEmail());
-                                                db.collection("users").add(user).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                                                    @Override
-                                                    public void onSuccess(DocumentReference documentReference) {
-                                                        uid = documentReference.getId();
-                                                        UserData.email = user.getEmail();
-                                                        username = user.getUsername();
-                                                        name = mAuth.getCurrentUser().getDisplayName();
-                                                        posts = user.getPosts();
-                                                        preferences.edit().putString(USER_UID, uid).apply();
-                                                        startActivity(new Intent(AuthActivity.this, RegisterScreenActivity.class));
-                                                    }
+                                                db.collection(USERS_COLLECTION).add(user).addOnSuccessListener(documentReference -> {
+                                                    uid = documentReference.getId();
+                                                    UserData.email = user.getEmail();
+                                                    username = user.getUsername();
+                                                    name = mAuth.getCurrentUser().getDisplayName();
+                                                    posts = user.getPosts();
+                                                    preferences.edit().putString(USER_UID, uid).apply();
+                                                    startActivity(new Intent(AuthActivity.this, RegisterScreenActivity.class));
                                                 });
                                             }
                                             progressBar.setVisibility(View.GONE);

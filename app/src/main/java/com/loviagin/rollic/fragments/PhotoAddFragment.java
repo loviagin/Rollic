@@ -1,7 +1,10 @@
 package com.loviagin.rollic.fragments;
 
+import static com.loviagin.rollic.Constants.POSTS_STR;
+import static com.loviagin.rollic.Constants.USERS_COLLECTION;
 import static com.loviagin.rollic.UserData.name;
 import static com.loviagin.rollic.UserData.uid;
+import static com.loviagin.rollic.UserData.urlAvatar;
 import static com.loviagin.rollic.UserData.username;
 import static com.loviagin.rollic.models.Objects.postsCount;
 
@@ -50,29 +53,20 @@ public class PhotoAddFragment extends Fragment {
         progressBar = view.findViewById(R.id.pbPhotoAdd);
 
         buttonCancel.setOnClickListener(v -> startActivity(new Intent(getActivity(), MainActivity.class)));
-        buttonSend.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                progressBar.setVisibility(View.VISIBLE);
-                List<String> strings = new ArrayList<>();
-                List<String> likes = new ArrayList<>();
-                FirebaseFirestore db = FirebaseFirestore.getInstance();
-                strings.add("https://firebasestorage.googleapis.com/v0/b/workisland.appspot.com/o/images%2Ffe22a67a-f02f-4c6c-a8bc-70cd0ba23051?alt=media&token=0455a591-6e1d-4bf3-b579-5fcfbc9bd521");
-                db.collection("posts")
+        buttonSend.setOnClickListener(v -> {
+            progressBar.setVisibility(View.VISIBLE);
+            List<String> strings = new ArrayList<>();
+            List<String> likes = new ArrayList<>();
+            FirebaseFirestore db = FirebaseFirestore.getInstance();
+            strings.add("https://firebasestorage.googleapis.com/v0/b/workisland.appspot.com/o/images%2Ffe22a67a-f02f-4c6c-a8bc-70cd0ba23051?alt=media&token=0455a591-6e1d-4bf3-b579-5fcfbc9bd521");
+            db.collection("posts")
 //                        .document(String.valueOf(postsCount + 1)).set
-                        .add(new Post("", editTextDescription.getText().toString().trim(),
-                        editTextTags.getText().toString().trim(), uid, name,
-                        "https://firebasestorage.googleapis.com/v0/b/workisland.appspot.com/o/avatars%2FfMClAWEqOybSPf8pFqYvc4OhSPu2cropped3876546716996985108.jpg?alt=media&token=149bcfcf-4e86-4460-bf99-a72e58c87baa",
-                        username, strings, likes,0,0)).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                            @Override
-                            public void onSuccess(DocumentReference documentReference) {
-                                db.collection("users").document(uid).update("posts", FieldValue.arrayUnion(documentReference.getId()));
-                            }
-                        });
+                    .add(new Post("", editTextDescription.getText().toString().trim(),
+                    editTextTags.getText().toString().trim(), uid, name, urlAvatar, username, strings, likes,0,0))
+                    .addOnSuccessListener(documentReference -> db.collection(USERS_COLLECTION).document(uid).update(POSTS_STR, FieldValue.arrayUnion(documentReference.getId())));
 
-                progressBar.setVisibility(View.GONE);
-                startActivity(new Intent(getActivity(), MainActivity.class));
-            }
+            progressBar.setVisibility(View.GONE);
+            startActivity(new Intent(getActivity(), MainActivity.class));
         });
         return view;
     }

@@ -25,14 +25,16 @@
             android:layout_gravity="center_vertical"
             android:layout_marginStart="2dp"
             android:background="@color/transparent"
-            app:srcCompat="@drawable/fi_rr_bell" />
+            app:srcCompat="@drawable/fi_rr_bell"
+            android:contentDescription="@string/notifications_str" />
 
         <ImageView
             android:id="@+id/imageView2"
             android:layout_width="0dp"
             android:layout_height="34dp"
             android:layout_weight="10"
-            app:srcCompat="@drawable/logo" />
+            app:srcCompat="@drawable/logo"
+            android:contentDescription="@string/rollic_str" />
 
         <ImageButton
             android:id="@+id/bMessage"
@@ -42,6 +44,7 @@
             android:layout_marginEnd="2dp"
             android:layout_weight="1"
             android:background="@color/transparent"
-            app:srcCompat="@drawable/fi_rr_messages" />
+            app:srcCompat="@drawable/fi_rr_messages"
+            android:contentDescription="@string/messages_str" />
     </LinearLayout>
 </androidx.cardview.widget.CardView>

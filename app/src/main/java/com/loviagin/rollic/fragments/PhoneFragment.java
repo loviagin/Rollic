@@ -50,7 +50,7 @@ public class PhoneFragment extends Fragment {
 
         buttonSend.setOnClickListener(v -> {
             if (isValidPhoneNumber(editTextPhone.getText().toString().trim())) {
-                textView.setText("Ввeдите номер телефона");
+                textView.setText(getResources().getString(R.string.enter_phone_str));
                 textView.setTextColor(getResources().getColor(R.color.black));
                 buttonSend.setVisibility(View.GONE);
                 buttonConfirm.setVisibility(View.VISIBLE);
@@ -58,7 +58,7 @@ public class PhoneFragment extends Fragment {
                 editTextCode.setVisibility(View.VISIBLE);
                 mListener.OnPhoneSendClick(editTextPhone.getText().toString().trim());
             } else {
-                textView.setText("ВВЕДИТЕ КОРРЕКТНЫЙ НОМЕР");
+                textView.setText(R.string.enter_valid_phone_str);
                 textView.setTextColor(getResources().getColor(R.color.blue));
             }
         });
@@ -67,7 +67,16 @@ public class PhoneFragment extends Fragment {
             if (editTextCode.getText().toString().trim().length() > 1){
                 mListener.OnPhoneVerifyClick(editTextCode.getText().toString().trim());
             } else {
-                textView.setText("ВВЕДИТЕ КОРРЕКТНЫЙ КОД");
+                textView.setText(R.string.enter_valid_phone_str);
+                textView.setTextColor(getResources().getColor(R.color.blue));
+            }
+        });
+
+        buttonResend.setOnClickListener(v -> {
+            if (editTextCode.getText().toString().trim().length() > 1){
+                mListener.OnPhoneResendClick();
+            } else {
+                textView.setText(R.string.enter_valid_phone_str);
                 textView.setTextColor(getResources().getColor(R.color.blue));
             }
         });

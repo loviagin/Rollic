@@ -39,7 +39,6 @@ public class NicknameGenerator {
             @Override
             public void onComplete(@NonNull Task<AggregateQuerySnapshot> task) {
                 if (task.isSuccessful()) {
-                    // Count fetched successfully
                     AggregateQuerySnapshot snapshot = task.getResult();
                     Log.d("TAG", "Count: " + snapshot.getCount());
                     cnt[0] = (int) snapshot.getCount();

@@ -1,16 +1,16 @@
 package com.loviagin.rollic.activities;
 
-import android.os.Bundle;
-
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.os.Bundle;
 
 import com.loviagin.rollic.R;
 
-public class ExploreActivity extends AppCompatActivity {
+public class SubscribersActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_explore);
+        setContentView(R.layout.activity_subscribers);
     }
 }

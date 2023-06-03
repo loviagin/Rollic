@@ -16,6 +16,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <ScrollView
+        android:id="@+id/scrollView2"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -36,7 +37,7 @@
                 android:layout_marginHorizontal="15dp"
                 android:layout_marginTop="15dp"
                 android:fontFamily="@font/nunito"
-                android:text="Добро пожаловать в новую соцсеть фото и видео Rollic!"
+                android:text="@string/welcome_text"
                 android:textAlignment="center"
                 android:textSize="18sp" />
 
@@ -47,12 +48,12 @@
                 android:layout_marginHorizontal="15dp"
                 android:layout_marginTop="10dp"
                 android:fontFamily="@font/nunito"
-                android:text="Вы можете заполнить дополнительную информацию о себе или сделать это позже, в настройках профиля"
+                android:text="@string/describe_welcome_text"
                 android:textAlignment="center"
                 android:textSize="16sp" />
 
             <com.google.android.material.imageview.ShapeableImageView
-                android:id="@+id/ivAvatarRegister"
+                android:id="@+id/ivAvatarRegisterScreen"
                 android:layout_width="100dp"
                 android:layout_height="100dp"
                 android:layout_gravity="center_horizontal"
@@ -71,7 +72,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:backgroundTint="@color/blue50"
-                android:text="Загрузить аватар" />
+                android:text="@string/avatar_upload_str" />
 
             <EditText
                 android:id="@+id/etNameRegister"
@@ -82,7 +83,7 @@
                 android:layout_marginTop="15dp"
                 android:background="@color/white"
                 android:ems="10"
-                android:hint="Имя профиля"
+                android:hint="@string/name_of_profile_str"
                 android:inputType="text"
                 android:padding="10dp" />
 
@@ -100,7 +101,7 @@
                     android:layout_marginStart="15dp"
                     android:layout_marginEnd="10dp"
                     android:layout_weight="1"
-                    android:text="\@"
+                    android:text="@string/dog_simvol_str"
                     android:textColor="@color/black"
                     android:textSize="18sp" />
 
@@ -113,7 +114,7 @@
                     android:layout_weight="15"
                     android:background="@color/white"
                     android:ems="10"
-                    android:hint="Ваш никнейм (короткое имя)"
+                    android:hint="@string/your_nickname_str"
                     android:inputType="text"
                     android:padding="10dp" />
             </LinearLayout>
@@ -130,16 +131,27 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:backgroundTint="@color/blue50"
-                    android:text="Пропустить" />
+                    android:text="@string/skip_str" />
 
                 <Button
                     android:id="@+id/bSaveRegister"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="15dp"
-                    android:text="Сохранить и продолжить" />
+                    android:text="@string/save_continue_str" />
             </LinearLayout>
 
         </LinearLayout>
     </ScrollView>
+
+    <ProgressBar
+        android:id="@+id/pbRegisterScreen"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/include5" />
 </androidx.constraintlayout.widget.ConstraintLayout>

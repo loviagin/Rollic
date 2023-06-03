@@ -1,5 +1,10 @@
 package com.loviagin.rollic.adapters;
 
+import static com.loviagin.rollic.Constants.LIKES_STR;
+import static com.loviagin.rollic.Constants.POSTS_STR;
+import static com.loviagin.rollic.Constants.SUBSCRIBERS_STR;
+import static com.loviagin.rollic.Constants.SUBSCRIPTIONS_STR;
+import static com.loviagin.rollic.Constants.USERS_COLLECTION;
 import static com.loviagin.rollic.UserData.subscriptions;
 import static com.loviagin.rollic.UserData.uid;
 
@@ -21,6 +26,8 @@ import com.google.android.material.imageview.ShapeableImageView;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.loviagin.rollic.R;
 import com.loviagin.rollic.UserData;
 import com.loviagin.rollic.models.Post;
@@ -67,7 +74,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostsViewHol
             onReachListener.onReachEnd();
         }
         Post post = posts.get(position);
-        holder.textViewNickname.setText("@" + post.getAuthorNickname());
+        holder.textViewNickname.setText(String.format("@%s", post.getAuthorNickname()));
 
         if (post.getAuthorName() == null || post.getAuthorName().equals("")) {
             holder.textViewName.setVisibility(View.GONE);
@@ -76,7 +83,14 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostsViewHol
             holder.textViewName.setText(post.getAuthorName());
         }
 
-        Picasso.get().load(Uri.parse(post.getAuthorAvatarUrl())).fit().centerInside().into(holder.imageViewAvatar);
+        FirebaseStorage storage = FirebaseStorage.getInstance();
+        StorageReference storageRef = storage.getReference();
+
+        if (post.getAuthorAvatarUrl() != null && !post.getAuthorAvatarUrl().equals("")) {
+            storageRef.child(post.getAuthorAvatarUrl()).getDownloadUrl()
+                    .addOnSuccessListener(uri -> Picasso.get().load(uri).into((holder.imageViewAvatar)));
+        }
+
         holder.textViewDescription.setText(post.getDescription());
         if (post.getTitle().equals("")) {
             holder.imageView1.setVisibility(View.VISIBLE);
@@ -87,12 +101,9 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostsViewHol
             holder.textViewTitle.setVisibility(View.VISIBLE);
             holder.imageView1.setVisibility(View.GONE);
         }
-        View.OnClickListener clnr = new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (onPostClickListener != null) {
-                    onPostClickListener.onClickAvatar(post.getUidAuthor());
-                }
+        View.OnClickListener clnr = v -> {
+            if (onPostClickListener != null) {
+                onPostClickListener.onClickAvatar(post.getUidAuthor());
             }
         };
         holder.layout.setOnClickListener(clnr);
@@ -101,14 +112,14 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostsViewHol
             holder.buttonSubscribe.setVisibility(View.GONE);
         } else {
             holder.buttonSubscribe.setVisibility(View.VISIBLE);
-            holder.buttonSubscribe.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
+            holder.buttonSubscribe.setOnClickListener(v -> {
+                if (!subscriptions.contains(post.getUidAuthor())) {
                     subscriptions.add(post.getUidAuthor());
-                    FirebaseFirestore db = FirebaseFirestore.getInstance();
-                    db.collection("users").document(uid).update("subscriptions", FieldValue.arrayUnion(post.getUidAuthor()));
-                    holder.buttonSubscribe.setVisibility(View.GONE);
                 }
+                FirebaseFirestore db = FirebaseFirestore.getInstance();
+                db.collection(USERS_COLLECTION).document(uid).update(SUBSCRIPTIONS_STR, FieldValue.arrayUnion(post.getUidAuthor()));
+                db.collection(USERS_COLLECTION).document(post.getUidAuthor()).update(SUBSCRIBERS_STR, FieldValue.arrayUnion(uid));
+                holder.buttonSubscribe.setVisibility(View.GONE);
             });
         }
         counter(holder, post);
@@ -117,14 +128,14 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostsViewHol
                 post.deleteLike(uid);
                 counter(holder, post);
                 FirebaseFirestore db = FirebaseFirestore.getInstance();
-                DocumentReference docRef = db.collection("posts").document(post.getUid());
-                docRef.update("likes", FieldValue.arrayRemove(uid));
+                DocumentReference docRef = db.collection(POSTS_STR).document(post.getUid());
+                docRef.update(LIKES_STR, FieldValue.arrayRemove(uid));
             } else {
                 post.addLike(uid);
                 counter(holder, post);
                 FirebaseFirestore db = FirebaseFirestore.getInstance();
-                DocumentReference docRef = db.collection("posts").document(post.getUid());
-                docRef.update("likes", FieldValue.arrayUnion(uid));
+                DocumentReference docRef = db.collection(POSTS_STR).document(post.getUid());
+                docRef.update(LIKES_STR, FieldValue.arrayUnion(uid));
             }
         });
     }

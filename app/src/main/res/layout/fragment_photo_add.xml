@@ -27,7 +27,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="15dp"
-                android:text="Добавьте главное фото"
+                android:text="@string/add_main_pic_str"
                 android:textAlignment="center" />
 
             <ImageView
@@ -35,14 +35,15 @@
                 android:layout_width="match_parent"
                 android:layout_height="150dp"
                 android:layout_marginTop="15dp"
-                android:src="@drawable/add" />
+                android:src="@drawable/add"
+                android:contentDescription="@string/main_pic_str" />
 
             <TextView
                 android:id="@+id/textView4"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="15dp"
-                android:text="Вы можете загрузить доп фото"
+                android:text="@string/upload_add_pic_str"
                 android:textAlignment="center" />
 
             <LinearLayout
@@ -58,7 +59,8 @@
                     android:layout_marginTop="15dp"
                     android:layout_weight="1"
                     android:background="@color/transparent"
-                    android:src="@drawable/add" />
+                    android:src="@drawable/add"
+                    android:contentDescription="@string/additional_pic_str" />
 
                 <ImageView
                     android:id="@+id/ivPhotoAdd3"
@@ -66,7 +68,8 @@
                     android:layout_height="80dp"
                     android:layout_marginTop="15dp"
                     android:layout_weight="1"
-                    android:src="@drawable/add" />
+                    android:src="@drawable/add"
+                    android:contentDescription="@string/additional_pic_str"/>
 
                 <ImageView
                     android:id="@+id/ivPhotoAdd4"
@@ -74,7 +77,8 @@
                     android:layout_height="80dp"
                     android:layout_marginTop="15dp"
                     android:layout_weight="1"
-                    android:src="@drawable/add" />
+                    android:src="@drawable/add"
+                    android:contentDescription="@string/additional_pic_str"/>
 
             </LinearLayout>
 
@@ -82,7 +86,7 @@
                 android:id="@+id/textView10"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Функция недоступна"
+                android:text="@string/fun_noavaibaile_str"
                 android:textColor="@color/black"
                 android:layout_marginTop="-50dp"
                 android:layout_marginBottom="30dp"
@@ -93,7 +97,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="15dp"
-                android:text="Добавьте описание"
+                android:text="@string/add_description_str"
                 android:textAlignment="center" />
 
             <EditText
@@ -107,14 +111,15 @@
                 android:inputType="textMultiLine"
                 android:lines="4"
                 android:maxLength="100"
-                android:padding="5dp" />
+                android:padding="5dp"
+                android:importantForAutofill="no" />
 
             <TextView
                 android:id="@+id/textView6"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="15dp"
-                android:text="Укажите теги, разделяя каждый #"
+                android:text="@string/add_tags_str"
                 android:textAlignment="center" />
 
             <EditText
@@ -123,9 +128,10 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="15dp"
                 android:ems="10"
-                android:hint="#новый #rollic #❤"
+                android:hint="@string/tags_example_text"
                 android:inputType="text"
-                android:maxLength="100" />
+                android:maxLength="100"
+                android:importantForAutofill="no" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -140,7 +146,7 @@
                     android:layout_marginEnd="10dp"
                     android:layout_weight="1"
                     android:backgroundTint="@color/blue50"
-                    android:text="Отмена" />
+                    android:text="@string/cancel_str" />
 
                 <Button
                     android:id="@+id/bPublishPhotoAdd"
@@ -148,7 +154,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="10dp"
                     android:layout_weight="1"
-                    android:text="Опубликовать" />
+                    android:text="@string/publish_str" />
             </LinearLayout>
         </LinearLayout>
     </ScrollView>

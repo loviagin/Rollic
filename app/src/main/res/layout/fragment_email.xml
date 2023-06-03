@@ -2,14 +2,16 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:background="@color/white"
+    android:minHeight="250dp"
     android:padding="5dp"
     tools:context=".fragments.EmailFragment">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="250dp"
         android:orientation="vertical">
 
         <EditText
@@ -17,26 +19,28 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
-            android:hint="Ввeдите email"
+            android:hint="@string/enter_email_str"
             android:inputType="textEmailAddress"
             android:maxLength="30"
-            android:maxLines="1" />
+            android:maxLines="1"
+            android:autofillHints="emailAddress" />
 
         <EditText
             android:id="@+id/etPassAuth"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
-            android:hint="Пароль"
+            android:hint="@string/pass_str"
             android:inputType="textPassword"
             android:maxLength="30"
-            android:maxLines="1" />
+            android:maxLines="1"
+            android:autofillHints="password" />
 
         <TextView
             android:id="@+id/textView2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Пароль должен быть больше 6 символов" />
+            android:text="@string/hint_pass_str" />
 
         <Button
             android:id="@+id/bLogin"
@@ -44,7 +48,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAllCaps="true"
-            android:text="Вход / Регистрация" />
+            android:text="@string/login_button_str" />
     </LinearLayout>
 
 </FrameLayout>

@@ -44,7 +44,7 @@
                 android:layout_margin="10dp"
                 android:layout_weight="2"
                 android:padding="2dp"
-                android:scaleType="centerInside"
+                android:scaleType="centerCrop"
                 app:shapeAppearanceOverlay="@style/ImageCircle"
                 app:srcCompat="@drawable/fav"
                 app:strokeColor="@color/blue50"
@@ -62,7 +62,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="15dp"
-                    android:text="Имя не задано"
+                    android:text="@string/name_not_entered_str"
                     android:textColor="@color/black"
                     android:textSize="20sp" />
 
@@ -71,7 +71,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="5dp"
-                    android:text="\@nicknameOfUser"
+                    android:text="@string/nicknameofuser_str"
                     android:textSize="16sp" />
 
                 <TextView
@@ -81,7 +81,7 @@
                     android:layout_marginTop="8dp"
                     android:background="@drawable/ground_button"
                     android:padding="5dp"
-                    android:text="  Подписаться  "
+                    android:text="@string/subscribe_str"
                     android:textColor="@color/white"
                     android:textSize="16sp" />
             </LinearLayout>
@@ -134,7 +134,7 @@
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="10dp"
             android:layout_marginTop="5dp"
-            android:text="Это огромное огромное огромное огромное огромное огромное описание - био профиля поль зов льз ова т еляволв."
+            android:text="@string/bio_example_str"
             android:textSize="15sp" />
 
         <com.google.android.material.tabs.TabLayout
@@ -151,17 +151,17 @@
             <com.google.android.material.tabs.TabItem
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Мои посты" />
+                android:text="@string/my_posts_str" />
 
             <com.google.android.material.tabs.TabItem
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Лайкнутое" />
+                android:text="@string/liked_str" />
 
             <com.google.android.material.tabs.TabItem
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="В разработке" />
+                android:text="@string/in_dev_str" />
 
         </com.google.android.material.tabs.TabLayout>
 

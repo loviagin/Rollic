@@ -1,6 +1,8 @@
 package com.loviagin.rollic.activities;
 
+import static com.loviagin.rollic.Constants.POSTS_STR;
 import static com.loviagin.rollic.Constants.USERS_COLLECTION;
+import static com.loviagin.rollic.Constants.USER_STR;
 import static com.loviagin.rollic.Constants.USER_UID;
 import static com.loviagin.rollic.UserData.email;
 import static com.loviagin.rollic.UserData.name;
@@ -8,6 +10,7 @@ import static com.loviagin.rollic.UserData.posts;
 import static com.loviagin.rollic.UserData.subscribers;
 import static com.loviagin.rollic.UserData.subscriptions;
 import static com.loviagin.rollic.UserData.uid;
+import static com.loviagin.rollic.UserData.urlAvatar;
 import static com.loviagin.rollic.UserData.username;
 import static com.loviagin.rollic.models.Objects.currentUser;
 
@@ -54,13 +57,23 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-
-        progressBar = findViewById(R.id.pbMain);
-
         if (currentUser == null) {
             startActivity(new Intent(this, AuthActivity.class));
-        } else if (uid == null) {
-            Log.d(TAG, Objects.preferences.getString(USER_UID, ""));
+        }
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        progressBar = findViewById(R.id.pbMain);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+        progressBar.setVisibility(View.VISIBLE);
+
+        if (currentUser != null && (uid == null || subscriptions == null)) {
+            Log.d(TAG, Objects.preferences.getString(USER_UID, " - user loaded"));
             FirebaseFirestore db = FirebaseFirestore.getInstance();
             String u = Objects.preferences.getString(USER_UID, "");
             DocumentReference docRef = db.collection(USERS_COLLECTION).document(u);
@@ -72,22 +85,16 @@ public class MainActivity extends AppCompatActivity {
                 posts = user.getPosts();
                 subscriptions = user.getSubscriptions();
                 subscribers = user.getSubscribers();
+                urlAvatar = user.getAvatarUrl();
                 uid = u;
-                progressBar.setVisibility(View.GONE);
+                postLoading();
             });
         } else {
-            progressBar.setVisibility(View.GONE);
+            postLoading();
         }
     }
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
-                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-
+    private void postLoading() {
         buttonHome = findViewById(R.id.bHome);
         buttonAccount = findViewById(R.id.bAccount);
         buttonAdd = findViewById(R.id.bAdd);
@@ -105,7 +112,6 @@ public class MainActivity extends AppCompatActivity {
         });
         buttonAdd.setColorFilter(R.color.white);
         buttonAdd.setOnClickListener(v -> startActivity(new Intent(this, AddActivity.class)));
-        buttonExplore.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, ExploreActivity.class)));
 
         postList = new LinkedList<>();
         postsAdapter = new PostsAdapter(postList);
@@ -128,32 +134,25 @@ public class MainActivity extends AppCompatActivity {
         thread1.start();
         recyclerViewPosts.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         recyclerViewPosts.setAdapter(postsAdapter);
-        postsAdapter.setOnReachListener(new PostsAdapter.OnReachListener() {
-            @Override
-            public void onReachEnd() {
-                textViewEnd.setVisibility(View.VISIBLE);
-            }
-        });
+        postsAdapter.setOnReachListener(() -> textViewEnd.setVisibility(View.VISIBLE));
         synchronized (postsAdapter) {
             postsAdapter.notifyAll();
         }
 
-        postsAdapter.setOnPostClickListener(new PostsAdapter.OnPostClickListener() {
-            @Override
-            public void onClickAvatar(String usrUid) {
-                Log.e("Account_Activity_TAG", "ZDEC" + usrUid);
-                startActivity(new Intent(MainActivity.this, AccountActivity.class).putExtra("user", usrUid));
-            }
+        postsAdapter.setOnPostClickListener(usrUid -> {
+//            Log.e(TAG, "ZDEC" + usrUid);
+            startActivity(new Intent(MainActivity.this, AccountActivity.class).putExtra(USER_STR, usrUid));
         });
 
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+        progressBar.setVisibility(View.GONE);
     }
 
     Thread thread1 = new Thread(new Runnable() {
         @Override
         public void run() {
             FirebaseFirestore db = FirebaseFirestore.getInstance();
-            db.collection("posts").get()
+            db.collection(POSTS_STR).get()
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
                             for (QueryDocumentSnapshot document : task.getResult()) {

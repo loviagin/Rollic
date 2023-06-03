@@ -1,44 +1,66 @@
 package com.loviagin.rollic.activities;
 
+import static com.loviagin.rollic.Constants.AUTHOR_UID;
+import static com.loviagin.rollic.Constants.POSTS_STR;
+import static com.loviagin.rollic.Constants.SUBSCRIBERS_STR;
+import static com.loviagin.rollic.Constants.SUBSCRIPTIONS_STR;
+import static com.loviagin.rollic.Constants.USERS_COLLECTION;
+import static com.loviagin.rollic.Constants.USER_STR;
+import static com.loviagin.rollic.Constants.USER_UID;
 import static com.loviagin.rollic.UserData.name;
 import static com.loviagin.rollic.UserData.posts;
 import static com.loviagin.rollic.UserData.subscribers;
 import static com.loviagin.rollic.UserData.subscriptions;
 import static com.loviagin.rollic.UserData.uid;
+import static com.loviagin.rollic.UserData.urlAvatar;
 import static com.loviagin.rollic.UserData.username;
+import static com.loviagin.rollic.models.Objects.currentUser;
+import static com.loviagin.rollic.models.Objects.mAuth;
+import static com.loviagin.rollic.models.Objects.preferences;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager2.widget.ViewPager2;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.loviagin.rollic.Constants;
 import com.loviagin.rollic.R;
 import com.loviagin.rollic.adapters.TabAccountAdapter;
+import com.loviagin.rollic.models.Objects;
 import com.loviagin.rollic.models.Post;
 import com.loviagin.rollic.models.User;
+import com.squareup.picasso.Picasso;
 
 import java.util.LinkedList;
 import java.util.List;
 
 public class AccountActivity extends AppCompatActivity {
 
-    public static final String TAG = "Accont_Activity_TAG";
-    private ImageButton buttonHome, buttonAccount;
+    public static final String TAG = "Account_Activity_TAG";
+    private ImageButton buttonHome, buttonAccount, buttonBack, buttonSettings;
     private Button buttonSubscribers, buttonSubscriptions, buttonPosts;
+    private ImageView imageViewAvatar;
     private FloatingActionButton buttonAdd;
     private TabLayout tabLayout;
     private ViewPager2 viewPager;
@@ -47,7 +69,7 @@ public class AccountActivity extends AppCompatActivity {
     private List<String> listPosts;
     private List<String> listSubscriptions;
     private List<String> listSubscribers;
-    private String usrName, usrNickname, usrUid;
+    private String usrName, usrNickname, usrUid, usrUrlAvatar;
     private ProgressBar progressBar;
 
     @Override
@@ -67,6 +89,9 @@ public class AccountActivity extends AppCompatActivity {
         tabLayout = findViewById(R.id.tlAccount);
         viewPager = findViewById(R.id.vpAccount);
         textButtonSubscribe = findViewById(R.id.tvSubscribe);
+        buttonBack = findViewById(R.id.bNotifications);
+        buttonSettings = findViewById(R.id.bMessage);
+        imageViewAvatar = findViewById(R.id.ivAvatarAccount);
         progressBar = findViewById(R.id.pbAccount);
 
         progressBar.setVisibility(View.VISIBLE);
@@ -74,23 +99,25 @@ public class AccountActivity extends AppCompatActivity {
                 WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
 
         Intent intent = getIntent();
-        Log.e("Account_Activity_TAG", intent.hasExtra("user") + "");
-        if (intent.hasExtra("user") && !intent.getStringExtra("user").equals(uid)) {
+        Log.e(TAG, intent.hasExtra(USER_STR) + "");
+        if (intent.hasExtra(USER_STR) && !intent.getStringExtra(USER_STR).equals(uid)) {
             FirebaseFirestore db = FirebaseFirestore.getInstance();
             textButtonSubscribe.setVisibility(View.VISIBLE);
-            if (!subscriptions.contains(intent.getStringExtra("user"))){
+            if (!subscriptions.contains(intent.getStringExtra(USER_STR))){
                 subscribe(intent);
             }else {
                 unsubscribe(intent);
             }
-            usrUid = intent.getStringExtra("user");
-            db.collection("users").document(intent.getStringExtra("user")).get().addOnSuccessListener(documentSnapshot -> {
+            usrUid = intent.getStringExtra(USER_STR);
+            buttonSettings.setVisibility(View.INVISIBLE);
+            db.collection(USERS_COLLECTION).document(intent.getStringExtra(USER_STR)).get().addOnSuccessListener(documentSnapshot -> {
                 User user = documentSnapshot.toObject(User.class);
                 listPosts = user.getPosts();
                 listSubscribers = user.getSubscribers();
                 listSubscriptions = user.getSubscriptions();
                 textViewBio.setText(user.getBio());
                 usrName = user.getF_name();
+                usrUrlAvatar = user.getAvatarUrl();
                 usrNickname = user.getUsername();
                 listSubscriptions = user.getSubscriptions();
                 listSubscribers = user.getSubscribers();
@@ -100,13 +127,21 @@ public class AccountActivity extends AppCompatActivity {
             FirebaseFirestore db = FirebaseFirestore.getInstance();
             textButtonSubscribe.setVisibility(View.GONE);
             usrUid = uid;
-            db.collection("users").document(uid).get().addOnSuccessListener(documentSnapshot -> {
+            buttonSettings.setImageDrawable(getResources().getDrawable(R.drawable.fi_rr_sign_out));
+            buttonSettings.setOnClickListener(v -> {
+                mAuth.signOut();
+                currentUser = null;
+                preferences.edit().remove(USER_UID).apply();
+                startActivity(new Intent(AccountActivity.this, MainActivity.class));
+            });
+            db.collection(USERS_COLLECTION).document(uid).get().addOnSuccessListener(documentSnapshot -> {
                 User user = documentSnapshot.toObject(User.class);
                 listPosts = posts;
                 listSubscribers = user.getSubscribers();
                 listSubscriptions = user.getSubscriptions();
                 textViewBio.setText(user.getBio());
                 usrName = name;
+                usrUrlAvatar = urlAvatar;
                 usrNickname = username;
                 listSubscriptions = subscriptions;
                 listSubscribers = subscribers;
@@ -119,13 +154,15 @@ public class AccountActivity extends AppCompatActivity {
         buttonAccount.setOnClickListener(v -> startActivity(new Intent(AccountActivity.this, AccountActivity.class)));
         buttonAdd.setColorFilter(R.color.white);
         buttonAdd.setOnClickListener(v -> startActivity(new Intent(this, AddActivity.class)));
+        buttonBack.setImageDrawable(getResources().getDrawable(R.drawable.fi_rr_back));
+        buttonBack.setOnClickListener(v -> startActivity(new Intent(this, MainActivity.class)));
     }
 
     private void setInfoTable() {
         LinkedList<Post> lp = new LinkedList<>();
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("posts").whereEqualTo("uidAuthor", usrUid).get().addOnCompleteListener(task -> {
+        db.collection(POSTS_STR).whereEqualTo(AUTHOR_UID, usrUid).get().addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
                     for (QueryDocumentSnapshot document : task.getResult()) {
                         Post p0 = document.toObject(Post.class);
@@ -165,34 +202,50 @@ public class AccountActivity extends AppCompatActivity {
                 textViewName.setText(usrName);
             }
         } else {
+            // eDITpROFILE.ACTIVITY
             textViewName.setOnClickListener(v -> Toast.makeText(this, "WOW", Toast.LENGTH_SHORT).show());
         }
-        textViewUsername.setText("@" + usrNickname);
+        textViewUsername.setText(String.format(getResources().getString(R.string.nicknameofuser_str), usrNickname));
         buttonPosts.setText(String.format(getResources().getString(R.string.posts_str), listPosts.size() + ""));
         buttonSubscriptions.setText(String.format(getResources().getString(R.string.subscriptions_str), listSubscriptions.size() + ""));
         buttonSubscribers.setText(String.format(getResources().getString(R.string.subscribers_str), listSubscribers.size() + ""));
 
-        progressBar.setVisibility(View.GONE);
+        FirebaseStorage storage = FirebaseStorage.getInstance();
+        StorageReference storageRef = storage.getReference();
+
+        if (usrUrlAvatar != null && !usrUrlAvatar.equals("")) {
+            storageRef.child(usrUrlAvatar).getDownloadUrl().addOnSuccessListener(uri -> {
+                Picasso.get().load(uri).into(imageViewAvatar);
+                progressBar.setVisibility(View.GONE);
+            }).addOnFailureListener(exception -> {
+                progressBar.setVisibility(View.GONE);
+                // Handle any errors
+            });
+        } else {
+            progressBar.setVisibility(View.GONE);
+        }
     }
 
     private void subscribe(Intent intent){
-        textButtonSubscribe.setText("Подписаться");
-        textButtonSubscribe.setBackgroundColor(getResources().getColor(R.color.blue));
+        textButtonSubscribe.setText(getResources().getString(R.string.subscribe_str));
+        textButtonSubscribe.setBackground(getResources().getDrawable(R.drawable.ground_button));
         textButtonSubscribe.setOnClickListener(v -> {
-            subscriptions.add(intent.getStringExtra("user"));
+            subscriptions.add(intent.getStringExtra(USER_STR));
             FirebaseFirestore db0 = FirebaseFirestore.getInstance();
-            db0.collection("users").document(uid).update("subscriptions", FieldValue.arrayUnion(intent.getStringExtra("user")));
+            db0.collection(USERS_COLLECTION).document(uid).update(SUBSCRIPTIONS_STR, FieldValue.arrayUnion(intent.getStringExtra(USER_STR)));
+            db0.collection(USERS_COLLECTION).document(intent.getStringExtra(USER_STR)).update(SUBSCRIBERS_STR, FieldValue.arrayUnion(uid));
             unsubscribe(intent);
         });
     }
 
     private void unsubscribe(Intent intent){
-        textButtonSubscribe.setText("Отписаться");
-        textButtonSubscribe.setBackgroundColor(getResources().getColor(R.color.blue50));
+        textButtonSubscribe.setText(R.string.unsubscribe_str);
+        textButtonSubscribe.setBackground(getResources().getDrawable(R.drawable.ground_box));
         textButtonSubscribe.setOnClickListener(v -> {
-            subscriptions.remove(intent.getStringExtra("user"));
+            subscriptions.remove(intent.getStringExtra(USER_STR));
             FirebaseFirestore db0 = FirebaseFirestore.getInstance();
-            db0.collection("users").document(uid).update("subscriptions", FieldValue.arrayRemove(intent.getStringExtra("user")));
+            db0.collection(USERS_COLLECTION).document(uid).update(SUBSCRIPTIONS_STR, FieldValue.arrayRemove(intent.getStringExtra(USER_STR)));
+            db0.collection(USERS_COLLECTION).document(intent.getStringExtra(USER_STR)).update(SUBSCRIBERS_STR, FieldValue.arrayRemove(uid));
             subscribe(intent);
         });
     }

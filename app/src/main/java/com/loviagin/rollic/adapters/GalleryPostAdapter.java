@@ -44,7 +44,7 @@ public class GalleryPostAdapter extends RecyclerView.Adapter<GalleryPostAdapter.
     public void onBindViewHolder(@NonNull GalleryPostViewHolder holder, int position) {
         Post post = listPosts.get(position);
         Picasso.get().load(Uri.parse(post.getImagesUrls().get(0))).into(holder.imageView);
-        Log.e("ADAAAAAAAAA", "red " + post.getImagesUrls().get(0));
+//        Log.e("ADAAAAAAAAA", "red " + post.getImagesUrls().get(0));
     }
 
     @Override
