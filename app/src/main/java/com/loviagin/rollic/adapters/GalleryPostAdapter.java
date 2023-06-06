@@ -1,35 +1,32 @@
 package com.loviagin.rollic.adapters;
 
 import android.net.Uri;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.loviagin.rollic.R;
 import com.loviagin.rollic.models.Post;
 import com.squareup.picasso.Picasso;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedList;
 
 public class GalleryPostAdapter extends RecyclerView.Adapter<GalleryPostAdapter.GalleryPostViewHolder> {
 
-    private List<Post> listPosts;
+    private LinkedList<Post> listPosts;
 
-    public GalleryPostAdapter(List<Post> listPosts) {
-        this.listPosts = listPosts;
+    public GalleryPostAdapter(LinkedList<Post> lp) {
+        listPosts = lp;
     }
 
-    public GalleryPostAdapter() {
-        listPosts = new ArrayList<>();
-    }
-
-    public void addPost(Post p0){
+    public void addPost(Post p0) {
         listPosts.add(p0);
     }
 
@@ -43,7 +40,18 @@ public class GalleryPostAdapter extends RecyclerView.Adapter<GalleryPostAdapter.
     @Override
     public void onBindViewHolder(@NonNull GalleryPostViewHolder holder, int position) {
         Post post = listPosts.get(position);
-        Picasso.get().load(Uri.parse(post.getImagesUrls().get(0))).into(holder.imageView);
+        if (post.getImagesUrls() == null) {
+            holder.textView.setVisibility(View.VISIBLE);
+            holder.textView.setText(String.format("«%s»", post.getTitle().charAt(0)));
+            holder.imageView.setVisibility(View.GONE);
+        } else {
+            FirebaseStorage storage = FirebaseStorage.getInstance();
+            StorageReference storageRef = storage.getReference();
+            if (post.getImagesUrls() != null && post.getImagesUrls().get(0) != null) {
+                storageRef.child(post.getImagesUrls().get(0)).getDownloadUrl()
+                        .addOnSuccessListener(uri -> Picasso.get().load(uri).into((holder.imageView)));
+            }
+        }
 //        Log.e("ADAAAAAAAAA", "red " + post.getImagesUrls().get(0));
     }
 
@@ -52,14 +60,16 @@ public class GalleryPostAdapter extends RecyclerView.Adapter<GalleryPostAdapter.
         return listPosts.size();
     }
 
-    static class GalleryPostViewHolder extends RecyclerView.ViewHolder{
+    static class GalleryPostViewHolder extends RecyclerView.ViewHolder {
 
         private ImageView imageView;
+        private TextView textView;
 
         public GalleryPostViewHolder(@NonNull View itemView) {
             super(itemView);
 
             imageView = itemView.findViewById(R.id.ivGalleryPost);
+            textView = itemView.findViewById(R.id.tvTitlePostGallery);
         }
     }
 }

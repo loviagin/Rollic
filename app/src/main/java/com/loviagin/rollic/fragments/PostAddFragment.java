@@ -1,5 +1,7 @@
 package com.loviagin.rollic.fragments;
 
+import static com.loviagin.rollic.Constants.POSTS_STR;
+import static com.loviagin.rollic.Constants.USERS_COLLECTION;
 import static com.loviagin.rollic.UserData.name;
 import static com.loviagin.rollic.UserData.uid;
 import static com.loviagin.rollic.UserData.username;
@@ -17,8 +19,10 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.loviagin.rollic.R;
+import com.loviagin.rollic.activities.AccountActivity;
 import com.loviagin.rollic.activities.MainActivity;
 import com.loviagin.rollic.models.Post;
 
@@ -45,18 +49,17 @@ public class PostAddFragment extends Fragment {
 
         buttonCancel.setOnClickListener(v -> startActivity(new Intent(getActivity(), MainActivity.class)));
         buttonSend.setOnClickListener(v -> {
-            if (editTextTitle.getText() != null && editTextDescription.getText() != null) {
+            if (editTextTitle.getText() != null && editTextTitle.getText().length() > 0 && editTextDescription.getText() != null && editTextDescription.getText().length() > 0) {
                 progressBar.setVisibility(View.VISIBLE);
                 List<String> likes = new ArrayList<>();
                 FirebaseFirestore db = FirebaseFirestore.getInstance();
-                db.collection("posts")
-//                        .document(String.valueOf(postsCount + 1)).set
+                db.collection(POSTS_STR)
                         .add(new Post(editTextTitle.getText().toString().trim(), editTextDescription.getText().toString().trim(),
                                 editTextTags.getText().toString().trim(), uid, name,
                                 "https://firebasestorage.googleapis.com/v0/b/workisland.appspot.com/o/avatars%2FfMClAWEqOybSPf8pFqYvc4OhSPu2cropped3876546716996985108.jpg?alt=media&token=149bcfcf-4e86-4460-bf99-a72e58c87baa",
-                                username, null, likes, 0, 0));
+                                username, null, likes, 0, 0)).addOnSuccessListener(documentReference -> db.collection(USERS_COLLECTION).document(uid).update(POSTS_STR, FieldValue.arrayUnion(documentReference.getId())));
                 progressBar.setVisibility(View.GONE);
-                startActivity(new Intent(getActivity(), MainActivity.class));
+                startActivity(new Intent(getActivity(), AccountActivity.class));
             } else {
                 Toast.makeText(getActivity(), "Заполните заголовок и описание", Toast.LENGTH_SHORT).show();
             }

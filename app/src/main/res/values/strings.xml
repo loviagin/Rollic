@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Rollic</string>
     <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Этот функционал в разработке</string>
+    <string name="hello_blank_fragment">Функционал в разработке</string>
     <string name="subscribers_str">%s\nПодписчиков</string>
     <string name="subscriptions_str">%s\nПодписок</string>
     <string name="posts_str">%s\nПостов</string>
@@ -16,7 +16,7 @@
     <string name="describe_welcome_text">Вы можете заполнить дополнительную информацию о себе или сделать это позже, в настройках профиля</string>
     <string name="avatar_upload_str">Загрузить аватар</string>
     <string name="name_of_profile_str">Имя профиля</string>
-    <string name="dog_simvol_str">\@</string>
+    <string name="dog_simbol_str">\@</string>
     <string name="your_nickname_str">Ваш никнейм (короткое имя)</string>
     <string name="skip_str">Пропустить</string>
     <string name="save_continue_str">Сохранить и продолжить</string>
@@ -75,4 +75,5 @@
     <string name="too_many_requests_auth_str">Слишком много попыток. Попробуйте позже пожалуйста</string>
     <string name="recaptcha_error_str">Ошибка проверки пользователя Recaptcha</string>
     <string name="enter_valid_phone_str">ВВЕДИТЕ КОРРЕКТНЫЙ НОМЕР</string>
+    <string name="title_post_gallery_str">«%s»</string>
 </resources>

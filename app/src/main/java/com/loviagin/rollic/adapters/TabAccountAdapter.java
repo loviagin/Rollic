@@ -5,12 +5,11 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
-import com.loviagin.rollic.LikedFragment;
+import com.loviagin.rollic.fragments.LikedFragment;
 import com.loviagin.rollic.fragments.UserPostsFragment;
 import com.loviagin.rollic.models.Post;
 
 import java.util.LinkedList;
-import java.util.List;
 
 public class TabAccountAdapter extends FragmentStateAdapter {
 

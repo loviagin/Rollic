@@ -18,6 +18,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -29,7 +30,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.loviagin.rollic.R;
-import com.loviagin.rollic.UserData;
 import com.loviagin.rollic.models.Post;
 import com.squareup.picasso.Picasso;
 
@@ -94,7 +94,10 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostsViewHol
         holder.textViewDescription.setText(post.getDescription());
         if (post.getTitle().equals("")) {
             holder.imageView1.setVisibility(View.VISIBLE);
-            Picasso.get().load(Uri.parse(post.getImagesUrls().get(0))).into(holder.imageView1);
+            if (post.getImagesUrls() != null && post.getImagesUrls().get(0) != null) {
+                storageRef.child(post.getImagesUrls().get(0)).getDownloadUrl()
+                        .addOnSuccessListener(uri -> Picasso.get().load(uri).into((holder.imageView1)));
+            }
             holder.textViewTitle.setVisibility(View.GONE);
         } else {
             holder.textViewTitle.setText(post.getTitle());
@@ -122,6 +125,8 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostsViewHol
                 holder.buttonSubscribe.setVisibility(View.GONE);
             });
         }
+        holder.buttonComment.setOnClickListener(v -> Toast.makeText(v.getContext(), v.getResources().getString(R.string.hello_blank_fragment), Toast.LENGTH_SHORT).show());
+        holder.buttonDislike.setOnClickListener(v -> Toast.makeText(v.getContext(), v.getResources().getString(R.string.hello_blank_fragment), Toast.LENGTH_SHORT).show());
         counter(holder, post);
         holder.buttonLike.setOnClickListener(v -> {
             if (post.getLikes().contains(uid)) {

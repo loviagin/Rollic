@@ -14,6 +14,10 @@ public class AddPostTabAdapter extends FragmentStateAdapter {
         super(fragmentActivity);
     }
 
+    public interface OnAddPostClickListener{
+        void onImageClick();
+    }
+
     @NonNull
     @Override
     public Fragment createFragment(int position) {

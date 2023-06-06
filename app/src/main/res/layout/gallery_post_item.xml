@@ -2,7 +2,8 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="wrap_content"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <ImageView
         android:id="@+id/ivGalleryPost"
@@ -12,6 +13,22 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/tvTitlePostGallery"
         app:srcCompat="@drawable/add"
         android:contentDescription="@string/post_pic_str" />
+
+    <TextView
+        android:id="@+id/tvTitlePostGallery"
+        android:layout_width="wrap_content"
+        android:minWidth="150dp"
+        android:layout_height="150dp"
+        android:text="@string/title_post_gallery_str"
+        android:textSize="55sp"
+        android:textColor="@color/black"
+        android:gravity="center"
+        android:visibility="gone"
+        tools:visibility="visible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/ivGalleryPost" />
 </androidx.constraintlayout.widget.ConstraintLayout>

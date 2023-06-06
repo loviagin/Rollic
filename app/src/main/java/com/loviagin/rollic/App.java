@@ -19,7 +19,6 @@ import com.google.firebase.firestore.AggregateQuerySnapshot;
 import com.google.firebase.firestore.AggregateSource;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
-import com.loviagin.rollic.models.Objects;
 
 public class App extends Application {
     @Override

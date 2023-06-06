@@ -18,12 +18,10 @@ import static com.loviagin.rollic.models.Objects.currentUser;
 import static com.loviagin.rollic.models.Objects.mAuth;
 import static com.loviagin.rollic.models.Objects.preferences;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager2.widget.ViewPager2;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -35,8 +33,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.firestore.FieldValue;
@@ -44,10 +40,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.loviagin.rollic.Constants;
 import com.loviagin.rollic.R;
 import com.loviagin.rollic.adapters.TabAccountAdapter;
-import com.loviagin.rollic.models.Objects;
 import com.loviagin.rollic.models.Post;
 import com.loviagin.rollic.models.User;
 import com.squareup.picasso.Picasso;
@@ -58,7 +52,7 @@ import java.util.List;
 public class AccountActivity extends AppCompatActivity {
 
     public static final String TAG = "Account_Activity_TAG";
-    private ImageButton buttonHome, buttonAccount, buttonBack, buttonSettings;
+    private ImageButton buttonHome, buttonAccount, buttonBack, buttonSettings, buttonExplore, buttonStore;
     private Button buttonSubscribers, buttonSubscriptions, buttonPosts;
     private ImageView imageViewAvatar;
     private FloatingActionButton buttonAdd;
@@ -86,6 +80,8 @@ public class AccountActivity extends AppCompatActivity {
         buttonSubscribers = findViewById(R.id.bSubscribersAccount);
         buttonPosts = findViewById(R.id.bPostsAccount);
         textViewBio = findViewById(R.id.tvBioAccount);
+        buttonExplore = findViewById(R.id.bDiscover);
+        buttonStore = findViewById(R.id.bStore);
         tabLayout = findViewById(R.id.tlAccount);
         viewPager = findViewById(R.id.vpAccount);
         textButtonSubscribe = findViewById(R.id.tvSubscribe);
@@ -152,6 +148,8 @@ public class AccountActivity extends AppCompatActivity {
 
         buttonHome.setOnClickListener(v -> startActivity(new Intent(this, MainActivity.class)));
         buttonAccount.setOnClickListener(v -> startActivity(new Intent(AccountActivity.this, AccountActivity.class)));
+        buttonExplore.setOnClickListener(v -> Toast.makeText(this, getResources().getString(R.string.hello_blank_fragment), Toast.LENGTH_SHORT).show());
+        buttonStore.setOnClickListener(v -> Toast.makeText(this, getResources().getString(R.string.hello_blank_fragment), Toast.LENGTH_SHORT).show());
         buttonAdd.setColorFilter(R.color.white);
         buttonAdd.setOnClickListener(v -> startActivity(new Intent(this, AddActivity.class)));
         buttonBack.setImageDrawable(getResources().getDrawable(R.drawable.fi_rr_back));
@@ -166,7 +164,7 @@ public class AccountActivity extends AppCompatActivity {
                 if (task.isSuccessful()) {
                     for (QueryDocumentSnapshot document : task.getResult()) {
                         Post p0 = document.toObject(Post.class);
-                        lp.add(p0);
+                        lp.add(0, p0);
                     }
                     adapter = new TabAccountAdapter(this, lp);
                     viewPager.setAdapter(adapter);

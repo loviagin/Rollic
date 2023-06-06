@@ -26,27 +26,25 @@ import android.view.WindowManager;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.loviagin.rollic.R;
-import com.loviagin.rollic.UserData;
 import com.loviagin.rollic.adapters.PostsAdapter;
 import com.loviagin.rollic.models.Objects;
 import com.loviagin.rollic.models.Post;
 import com.loviagin.rollic.models.User;
-import com.loviagin.rollic.workers.PostUploader;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
     public static final String TAG = "Main_Activity_TAG";
-    private ImageButton buttonHome, buttonAccount, buttonExplore;
+    private ImageButton buttonHome, buttonAccount, buttonExplore, buttonStore;
     private FloatingActionButton buttonAdd;
     private PostsAdapter postsAdapter;
     private RecyclerView recyclerViewPosts;
@@ -100,6 +98,7 @@ public class MainActivity extends AppCompatActivity {
         buttonAdd = findViewById(R.id.bAdd);
         recyclerViewPosts = findViewById(R.id.rvPostsMain);
         buttonExplore = findViewById(R.id.bDiscover);
+        buttonStore = findViewById(R.id.bStore);
         textViewEnd = findViewById(R.id.tvEndMain);
 
         buttonHome.setColorFilter(R.color.black);
@@ -112,6 +111,8 @@ public class MainActivity extends AppCompatActivity {
         });
         buttonAdd.setColorFilter(R.color.white);
         buttonAdd.setOnClickListener(v -> startActivity(new Intent(this, AddActivity.class)));
+        buttonExplore.setOnClickListener(v -> Toast.makeText(this, getResources().getString(R.string.hello_blank_fragment), Toast.LENGTH_SHORT).show());
+        buttonStore.setOnClickListener(v -> Toast.makeText(this, getResources().getString(R.string.hello_blank_fragment), Toast.LENGTH_SHORT).show());
 
         postList = new LinkedList<>();
         postsAdapter = new PostsAdapter(postList);

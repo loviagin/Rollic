@@ -16,7 +16,6 @@ import com.loviagin.rollic.adapters.GalleryPostAdapter;
 import com.loviagin.rollic.models.Post;
 
 import java.util.LinkedList;
-import java.util.List;
 
 public class UserPostsFragment extends Fragment {
 
