@@ -1,79 +1,78 @@
 <resources>
-    <string name="app_name">Rollic</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Функционал в разработке</string>
-    <string name="subscribers_str">%s\nПодписчиков</string>
-    <string name="subscriptions_str">%s\nПодписок</string>
-    <string name="posts_str">%s\nПостов</string>
-    <string name="name_not_entered_str">Имя не задано</string>
-    <string name="nicknameofuser_str">\@%s</string>
-    <string name="subscribe_str">  Подписаться  </string>
-    <string name="bio_example_str">Это огромное огромное огромное огромное огромное огромное описание - био профиля поль зов льз ова т еляволв.</string>
-    <string name="my_posts_str">Мои посты</string>
-    <string name="liked_str">Лайкнутое</string>
-    <string name="in_dev_str">В разработке</string>
-    <string name="welcome_text">Добро пожаловать в новую соцсеть фото и видео Rollic!</string>
-    <string name="describe_welcome_text">Вы можете заполнить дополнительную информацию о себе или сделать это позже, в настройках профиля</string>
-    <string name="avatar_upload_str">Загрузить аватар</string>
-    <string name="name_of_profile_str">Имя профиля</string>
-    <string name="dog_simbol_str">\@</string>
-    <string name="your_nickname_str">Ваш никнейм (короткое имя)</string>
-    <string name="skip_str">Пропустить</string>
-    <string name="save_continue_str">Сохранить и продолжить</string>
-    <string name="photo_post_str">Фото пост</string>
-    <string name="text_post_str">Текст</string>
-    <string name="rollic_str">Логотип Rollic</string>
-    <string name="log_in_app_str">Вход в приложение Rollic</string>
-    <string name="email_str">Email</string>
-    <string name="phone_str">Телефон</string>
-    <string name="other_login_option_str">Или воспользутесь другими способами входа</string>
-    <string name="google_str">Google вход</string>
-    <string name="end_posts_str">На этом пока всё. Добавьте свой пост, чтобы дополнить ленту :)</string>
-    <string name="subscribers_text">Подписчики</string>
-    <string name="home_screen_str">Домашний экран</string>
-    <string name="video_screen_str">Видео лента</string>
-    <string name="store_screen_str">Магазин</string>
-    <string name="account_screen_str">Аккаунт</string>
-    <string name="add_post_screen_str">Добавить пост</string>
-    <string name="enter_email_str">Ввeдите email</string>
-    <string name="pass_str">Пароль</string>
-    <string name="hint_pass_str">Пароль должен быть больше 6 символов</string>
-    <string name="login_button_str">Вход / Регистрация</string>
-    <string name="enter_phone_str">Ввeдите номер телефона</string>
-    <string name="start_phone_text">+7</string>
-    <string name="code_str">Код</string>
-    <string name="send_code_str">Отправить код</string>
-    <string name="confirm_str">Подтвердить</string>
-    <string name="resend_str">Переотправить</string>
-    <string name="add_main_pic_str">Добавьте главное фото</string>
-    <string name="main_pic_str">Главное фото</string>
-    <string name="upload_add_pic_str">Вы можете загрузить доп фото</string>
-    <string name="additional_pic_str">Дополнительное фото</string>
-    <string name="fun_noavaibaile_str">Функция недоступна</string>
-    <string name="add_description_str">Добавьте описание</string>
-    <string name="add_tags_str">Укажите теги, разделяя каждый #</string>
-    <string name="tags_example_text">#новый #rollic #❤</string>
-    <string name="cancel_str">Отмена</string>
-    <string name="publish_str">Опубликовать</string>
-    <string name="add_title_str">Добавьте заголовок</string>
-    <string name="example_text">Привет, мир!</string>
-    <string name="post_pic_str">Картинка поста</string>
-    <string name="notifications_str">Уведомления</string>
-    <string name="messages_str">Сообщения</string>
-    <string name="user_name_str">User name</string>
-    <string name="button_subscribe_str">Кнопка подписки</string>
-    <string name="example_25k_str">25К</string>
-    <string name="example_10k_str">10К</string>
-    <string name="example_3_3k_str">3,3К</string>
-    <string name="button_dislike_str">Кнопка скрытия поста</string>
-    <string name="sms_hint_str">СМС обычно приходит через 1–3 минуты</string>
-    <string name="unsubscribe_str">"  Отписаться  "</string>
-    <string name="error_email_auth_str">Все данные должны быть внесены</string>
-    <string name="check_data_auth_str">Проверьте корректность данных</string>
-    <string name="register_text">Регистрация</string>
-    <string name="error_register_str">Ошибка регистрации. Попробуйте позже или напишите в техподдержку</string>
-    <string name="too_many_requests_auth_str">Слишком много попыток. Попробуйте позже пожалуйста</string>
-    <string name="recaptcha_error_str">Ошибка проверки пользователя Recaptcha</string>
-    <string name="enter_valid_phone_str">ВВЕДИТЕ КОРРЕКТНЫЙ НОМЕР</string>
-    <string name="title_post_gallery_str">«%s»</string>
+    <string name="app_name" translatable="false">Rollic</string>
+    <string name="hello_blank_fragment">Functionality in development</string>
+    <string name="subscribers_str" translatable="false">%s\nSubscribers</string>
+    <string name="subscriptions_str" translatable="false">%s\nSubscriptions</string>
+    <string name="posts_str" translatable="false">%s\nPosts</string>
+    <string name="name_not_entered_str">Name not set</string>
+    <string name="nicknameofuser_str" translatable="false">\@%s</string>
+    <string name="subscribe_str">  Subscribe  </string>
+    <string name="bio_example_str">This Huge Huge Huge Huge Huge Huge Description - Profile Bio.</string>
+    <string name="my_posts_str">My posts</string>
+    <string name="liked_str">Liked</string>
+    <string name="in_dev_str">In development</string>
+    <string name="welcome_text">Welcome to the new photo and video social network Rollic!</string>
+    <string name="describe_welcome_text">You can fill in additional information about yourself or do it later in your profile settings.</string>
+    <string name="avatar_upload_str">Upload an avatar</string>
+    <string name="name_of_profile_str">Profile name</string>
+    <string name="dog_simbol_str" translatable="false">\@</string>
+    <string name="your_nickname_str">Your nickname (short name)</string>
+    <string name="skip_str">Skip</string>
+    <string name="save_continue_str">Save and continue</string>
+    <string name="photo_post_str">Photo post</string>
+    <string name="text_post_str">Text post</string>
+    <string name="rollic_str">Logo Rollic</string>
+    <string name="log_in_app_str">Login to the Rollic App</string>
+    <string name="email_str" translatable="false">Email</string>
+    <string name="phone_str">Phone</string>
+    <string name="other_login_option_str">Or use other login methods</string>
+    <string name="google_str">Google login</string>
+    <string name="end_posts_str">That\'s all for now. Add your post to complete the feed :)</string>
+    <string name="subscribers_text">Subscribers</string>
+    <string name="home_screen_str">Home screen</string>
+    <string name="video_screen_str">Videos feed</string>
+    <string name="store_screen_str">Store</string>
+    <string name="account_screen_str">Account</string>
+    <string name="add_post_screen_str">Add post</string>
+    <string name="enter_email_str">Enter your email</string>
+    <string name="pass_str">Create a password</string>
+    <string name="hint_pass_str">Password must be more than 6 characters</string>
+    <string name="login_button_str">Log in / Register</string>
+    <string name="enter_phone_str">Enter phone number</string>
+    <string name="start_phone_text" translatable="false">+7</string>
+    <string name="code_str">Code</string>
+    <string name="send_code_str">Send code</string>
+    <string name="confirm_str">Confirm</string>
+    <string name="resend_str">Resend</string>
+    <string name="add_main_pic_str">Add a main photo</string>
+    <string name="main_pic_str">Main photo</string>
+    <string name="upload_add_pic_str">You can upload additional photo</string>
+    <string name="additional_pic_str">Additional photos</string>
+    <string name="fun_noavaibaile_str">Function not available</string>
+    <string name="add_description_str">Add a description</string>
+    <string name="add_tags_str">Specify tags by separating each #</string>
+    <string name="tags_example_text">#new #rollic #❤</string>
+    <string name="cancel_str">Cancel</string>
+    <string name="publish_str">Publish</string>
+    <string name="add_title_str">Add a title</string>
+    <string name="example_text">Hello, world!</string>
+    <string name="post_pic_str">Post picture</string>
+    <string name="notifications_str">Notifications</string>
+    <string name="messages_str">Messages</string>
+    <string name="user_name_str" translatable="false">User name</string>
+    <string name="button_subscribe_str">Subscribe button</string>
+    <string name="example_25k_str" translatable="false">25К</string>
+    <string name="example_10k_str" translatable="false">10К</string>
+    <string name="example_3_3k_str" translatable="false">3,3К</string>
+    <string name="button_dislike_str">Hide post button</string>
+    <string name="sms_hint_str">SMS usually arrives in 1–3 minutes</string>
+    <string name="unsubscribe_str">"  Unsubscribe  "</string>
+    <string name="error_email_auth_str">All data must be entered</string>
+    <string name="check_data_auth_str">Check the correctness of the data</string>
+    <string name="register_text">Registration</string>
+    <string name="error_register_str">Registration error. Try again later or contact support</string>
+    <string name="too_many_requests_auth_str">Too many tries. Try later please</string>
+    <string name="recaptcha_error_str">Recaptcha user validation error</string>
+    <string name="enter_valid_phone_str">ENTER CORRECT NUMBER</string>
+    <string name="title_post_gallery_str" translatable="false">«%s»</string>
 </resources>
