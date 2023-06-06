@@ -80,6 +80,9 @@ public class AddActivity extends AppCompatActivity implements AddPostTabAdapter.
     private void openImagePicker() {
         CropImage.activity()
                 .setGuidelines(CropImageView.Guidelines.ON)
+                .setAllowFlipping(true)
+                .setAllowRotation(true)
+                .setAspectRatio(4,3)
                 .start(this);
     }
 

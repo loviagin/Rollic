@@ -1,5 +1,8 @@
 package com.loviagin.rollic.workers;
 
+import static com.loviagin.rollic.Constants.NICKNAME;
+import static com.loviagin.rollic.Constants.USERS_COLLECTION;
+
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -32,19 +35,15 @@ public class NicknameGenerator {
 
     private static int check(String usr){
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        Query query = db.collection("users").whereEqualTo("username", usr);
+        Query query = db.collection(USERS_COLLECTION).whereEqualTo(NICKNAME, usr);
         AggregateQuery countQuery = query.count();
         final int[] cnt = {0};
-        countQuery.get(AggregateSource.SERVER).addOnCompleteListener(new OnCompleteListener<AggregateQuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<AggregateQuerySnapshot> task) {
-                if (task.isSuccessful()) {
-                    AggregateQuerySnapshot snapshot = task.getResult();
-                    Log.d("TAG", "Count: " + snapshot.getCount());
-                    cnt[0] = (int) snapshot.getCount();
-                } else {
-                    generateRandomNickname();
-                }
+        countQuery.get(AggregateSource.SERVER).addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                AggregateQuerySnapshot snapshot = task.getResult();
+                cnt[0] = (int) snapshot.getCount();
+            } else {
+                generateRandomNickname();
             }
         });
         return cnt[0];

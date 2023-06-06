@@ -10,5 +10,4 @@ public class Objects {
     public static FirebaseAuth mAuth;
     public static FirebaseUser currentUser;
     public static SharedPreferences preferences;
-    public static long postsCount;
 }

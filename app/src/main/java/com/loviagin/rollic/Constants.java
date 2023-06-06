@@ -13,4 +13,5 @@ public class Constants {
     public static final String NICKNAME = "username";
     public static final String AVATAR_URL = "avatarUrl";
     public static final String LIKES_STR = "likes";
+    public static final String POSITION = "position";
 }

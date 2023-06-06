@@ -63,14 +63,14 @@
         android:visibility="gone"
         android:layout_height="wrap_content"
         android:text="@string/end_posts_str"
-        app:layout_constraintBottom_toTopOf="@+id/include2"
+        app:layout_constraintBottom_toTopOf="@+id/inFMain"
         android:textAlignment="center"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/rvPostsMain"
         app:layout_constraintStart_toStartOf="parent" />
 
     <include
-        android:id="@+id/include2"
+        android:id="@+id/inFMain"
         layout="@layout/footer_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

@@ -14,6 +14,7 @@ import static com.loviagin.rollic.UserData.subscriptions;
 import static com.loviagin.rollic.UserData.uid;
 import static com.loviagin.rollic.UserData.urlAvatar;
 import static com.loviagin.rollic.UserData.username;
+import static com.loviagin.rollic.UserData.usrPosts;
 import static com.loviagin.rollic.models.Objects.currentUser;
 import static com.loviagin.rollic.models.Objects.mAuth;
 import static com.loviagin.rollic.models.Objects.preferences;
@@ -41,6 +42,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.loviagin.rollic.R;
+import com.loviagin.rollic.UserData;
 import com.loviagin.rollic.adapters.TabAccountAdapter;
 import com.loviagin.rollic.models.Post;
 import com.loviagin.rollic.models.User;
@@ -165,6 +167,7 @@ public class AccountActivity extends AppCompatActivity {
                     for (QueryDocumentSnapshot document : task.getResult()) {
                         Post p0 = document.toObject(Post.class);
                         lp.add(0, p0);
+                        usrPosts.add(0, p0);
                     }
                     adapter = new TabAccountAdapter(this, lp);
                     viewPager.setAdapter(adapter);

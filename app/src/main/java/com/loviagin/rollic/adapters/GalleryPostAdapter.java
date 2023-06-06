@@ -1,6 +1,5 @@
 package com.loviagin.rollic.adapters;
 
-import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,6 +20,7 @@ import java.util.LinkedList;
 public class GalleryPostAdapter extends RecyclerView.Adapter<GalleryPostAdapter.GalleryPostViewHolder> {
 
     private LinkedList<Post> listPosts;
+    public static OnGalleryPostClickListener onGalleryPostClickListener;
 
     public GalleryPostAdapter(LinkedList<Post> lp) {
         listPosts = lp;
@@ -28,6 +28,14 @@ public class GalleryPostAdapter extends RecyclerView.Adapter<GalleryPostAdapter.
 
     public void addPost(Post p0) {
         listPosts.add(p0);
+    }
+
+    public interface OnGalleryPostClickListener{
+        void onPostClick(int position);
+    }
+
+    public void setOnGalleryPostClickListener(OnGalleryPostClickListener onGalleryPostClickListener) {
+        GalleryPostAdapter.onGalleryPostClickListener = onGalleryPostClickListener;
     }
 
     @NonNull
@@ -52,7 +60,6 @@ public class GalleryPostAdapter extends RecyclerView.Adapter<GalleryPostAdapter.
                         .addOnSuccessListener(uri -> Picasso.get().load(uri).into((holder.imageView)));
             }
         }
-//        Log.e("ADAAAAAAAAA", "red " + post.getImagesUrls().get(0));
     }
 
     @Override
@@ -70,6 +77,15 @@ public class GalleryPostAdapter extends RecyclerView.Adapter<GalleryPostAdapter.
 
             imageView = itemView.findViewById(R.id.ivGalleryPost);
             textView = itemView.findViewById(R.id.tvTitlePostGallery);
+
+            View.OnClickListener listener = v -> {
+                if (onGalleryPostClickListener != null){
+                    onGalleryPostClickListener.onPostClick(getAdapterPosition());
+                }
+            };
+
+            imageView.setOnClickListener(listener);
+            textView.setOnClickListener(listener);
         }
     }
 }

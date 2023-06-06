@@ -1,5 +1,8 @@
 package com.loviagin.rollic.fragments;
 
+import static com.loviagin.rollic.Constants.POSITION;
+
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -12,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.loviagin.rollic.R;
+import com.loviagin.rollic.activities.MainActivity;
 import com.loviagin.rollic.adapters.GalleryPostAdapter;
 import com.loviagin.rollic.models.Post;
 
@@ -34,8 +38,8 @@ public class UserPostsFragment extends Fragment {
         RecyclerView recyclerView = view.findViewById(R.id.rvUserPosts);
         recyclerView.setLayoutManager(new GridLayoutManager(view.getContext(), 3));
         adapter = new GalleryPostAdapter(lp);
+        adapter.setOnGalleryPostClickListener(position -> startActivity(new Intent(getActivity(), MainActivity.class).putExtra(POSITION, position)));
         recyclerView.setAdapter(adapter);
-        Log.e("ACCCCCCCCCCCCCCC", lp.toString());
         return view;
     }
 }

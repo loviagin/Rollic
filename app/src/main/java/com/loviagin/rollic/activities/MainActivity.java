@@ -1,5 +1,6 @@
 package com.loviagin.rollic.activities;
 
+import static com.loviagin.rollic.Constants.POSITION;
 import static com.loviagin.rollic.Constants.POSTS_STR;
 import static com.loviagin.rollic.Constants.USERS_COLLECTION;
 import static com.loviagin.rollic.Constants.USER_STR;
@@ -12,6 +13,7 @@ import static com.loviagin.rollic.UserData.subscriptions;
 import static com.loviagin.rollic.UserData.uid;
 import static com.loviagin.rollic.UserData.urlAvatar;
 import static com.loviagin.rollic.UserData.username;
+import static com.loviagin.rollic.UserData.usrPosts;
 import static com.loviagin.rollic.models.Objects.currentUser;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -33,6 +35,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.loviagin.rollic.R;
+import com.loviagin.rollic.UserData;
 import com.loviagin.rollic.adapters.PostsAdapter;
 import com.loviagin.rollic.models.Objects;
 import com.loviagin.rollic.models.Post;
@@ -70,7 +73,23 @@ public class MainActivity extends AppCompatActivity {
                 WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
         progressBar.setVisibility(View.VISIBLE);
 
-        if (currentUser != null && (uid == null || subscriptions == null)) {
+        Intent intent = getIntent();
+        if (intent.hasExtra(POSITION)) {
+            recyclerViewPosts = findViewById(R.id.rvPostsMain);
+            ImageButton buttonBack = findViewById(R.id.bNotifications);
+            findViewById(R.id.bMessage).setVisibility(View.INVISIBLE);
+            findViewById(R.id.inFMain).setVisibility(View.GONE);
+            buttonBack.setImageDrawable(getResources().getDrawable(R.drawable.fi_rr_back));
+            buttonBack.setOnClickListener(v -> startActivity(new Intent(this, AccountActivity.class)));
+            int pos = intent.getIntExtra(POSITION, 0);
+            postList = usrPosts;
+            postsAdapter = new PostsAdapter(postList);
+            recyclerViewPosts.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
+            recyclerViewPosts.setAdapter(postsAdapter);
+            recyclerViewPosts.smoothScrollToPosition(pos);
+            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+            progressBar.setVisibility(View.GONE);
+        } else if (currentUser != null && (uid == null || subscriptions == null)) {
             Log.d(TAG, Objects.preferences.getString(USER_UID, " - user loaded"));
             FirebaseFirestore db = FirebaseFirestore.getInstance();
             String u = Objects.preferences.getString(USER_UID, "");
