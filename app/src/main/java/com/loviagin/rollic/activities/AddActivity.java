@@ -1,16 +1,19 @@
 package com.loviagin.rollic.activities;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.viewpager2.widget.ViewPager2;
-
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ProgressBar;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.tabs.TabLayout;
 import com.loviagin.rollic.R;
@@ -18,6 +21,12 @@ import com.loviagin.rollic.adapters.AddPostTabAdapter;
 import com.loviagin.rollic.fragments.PhotoAddFragment;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
+import com.yandex.mobile.ads.banner.AdSize;
+import com.yandex.mobile.ads.banner.BannerAdEventListener;
+import com.yandex.mobile.ads.banner.BannerAdView;
+import com.yandex.mobile.ads.common.AdRequest;
+import com.yandex.mobile.ads.common.AdRequestError;
+import com.yandex.mobile.ads.common.ImpressionData;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -30,6 +39,8 @@ public class AddActivity extends AppCompatActivity implements AddPostTabAdapter.
     private AddPostTabAdapter adapter;
     private ProgressBar progressBar;
 
+//    private BannerAdView mAdView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,6 +51,49 @@ public class AddActivity extends AppCompatActivity implements AddPostTabAdapter.
         tabLayout = findViewById(R.id.tlAdd);
         viewPager = findViewById(R.id.vpAdd);
         progressBar = findViewById(R.id.pbAdd);
+
+        progressBar.setVisibility(View.VISIBLE);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+
+//        mAdView = (BannerAdView) findViewById(R.id.adView);
+//        mAdView.setAdSize(AdSize.stickySize(this, 500));
+//        mAdView.setAdUnitId("R-M-2427151-2");
+
+//        mAdView.setBannerAdEventListener(new BannerAdEventListener() {
+//            @Override
+//            public void onAdLoaded() {
+//                mAdView.setVisibility(View.VISIBLE);
+//            }
+//
+//            @Override
+//            public void onAdFailedToLoad(@NonNull AdRequestError adRequestError) {
+//                mAdView.setVisibility(View.GONE);
+//                Log.e("ERROR", "ERROOOOOOOOOOOOOOOR");
+//            }
+//
+//            @Override
+//            public void onAdClicked() {
+//
+//            }
+//
+//            @Override
+//            public void onLeftApplication() {
+//
+//            }
+//
+//            @Override
+//            public void onReturnedToApplication() {
+//
+//            }
+//
+//            @Override
+//            public void onImpression(@Nullable ImpressionData impressionData) {
+//
+//            }
+//        });
+//
+//        mAdView.loadAd(new AdRequest.Builder().build());
 
         adapter = new AddPostTabAdapter(this);
 
@@ -67,6 +121,9 @@ public class AddActivity extends AppCompatActivity implements AddPostTabAdapter.
                 tabLayout.getTabAt(position).select();
             }
         });
+
+        progressBar.setVisibility(View.GONE);
+        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
     }
 
     @Override

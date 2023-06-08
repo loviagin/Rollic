@@ -7,13 +7,16 @@ import static com.loviagin.rollic.models.Objects.preferences;
 import android.app.Application;
 import android.preference.PreferenceManager;
 
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 
 public class App extends Application {
+
     @Override
     public void onCreate() {
         super.onCreate();
         // Initialize Firebase Auth
+        FirebaseApp.initializeApp(this);
         mAuth = FirebaseAuth.getInstance();
         currentUser = mAuth.getCurrentUser();
         preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());

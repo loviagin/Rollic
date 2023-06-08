@@ -9,8 +9,6 @@ import static com.loviagin.rollic.UserData.uid;
 import static com.loviagin.rollic.UserData.urlAvatar;
 import static com.loviagin.rollic.UserData.username;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -23,6 +21,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
@@ -43,6 +43,7 @@ public class RegisterScreenActivity extends AppCompatActivity {
     private EditText editTextName, editTextNickname;
     private ImageView imageViewAvatar;
     private ProgressBar progressBar;
+    private boolean isAvatarUpload = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,31 +83,35 @@ public class RegisterScreenActivity extends AppCompatActivity {
                     WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
             progressBar.setVisibility(View.VISIBLE);
             FirebaseFirestore db = FirebaseFirestore.getInstance();
-            FirebaseStorage storage = FirebaseStorage.getInstance();
-            StorageReference storageRef = storage.getReference();
-            String iva = "avatars/" + uid + System.currentTimeMillis() + ".jpg";
-            StorageReference imagesRef = storageRef.child(iva);
-            // Get the data from an ImageView as bytes
-            imageViewAvatar.setDrawingCacheEnabled(true);
-            imageViewAvatar.buildDrawingCache();
-            Bitmap bitmap = ((BitmapDrawable) imageViewAvatar.getDrawable()).getBitmap();
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-            byte[] data = baos.toByteArray();
+            String iva = null;
+            if (isAvatarUpload) {
+                FirebaseStorage storage = FirebaseStorage.getInstance();
+                StorageReference storageRef = storage.getReference();
+                iva = "avatars/" + uid + System.currentTimeMillis() + ".jpg";
+                StorageReference imagesRef = storageRef.child(iva);
+                // Get the data from an ImageView as bytes
+                imageViewAvatar.setDrawingCacheEnabled(true);
+                imageViewAvatar.buildDrawingCache();
+                Bitmap bitmap = ((BitmapDrawable) imageViewAvatar.getDrawable()).getBitmap();
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                byte[] data = baos.toByteArray();
 
-            UploadTask uploadTask = imagesRef.putBytes(data);
-            uploadTask.addOnFailureListener(exception -> {
-                // Handle unsuccessful uploads
-            }).addOnSuccessListener(taskSnapshot -> {
-                // taskSnapshot.getMetadata() contains file metadata such as size, content-type, etc.
-                // ...
-            });
+                UploadTask uploadTask = imagesRef.putBytes(data);
+                uploadTask.addOnFailureListener(exception -> {
+                    // Handle unsuccessful uploads
+                }).addOnSuccessListener(taskSnapshot -> {
+                    // taskSnapshot.getMetadata() contains file metadata such as size, content-type, etc.
+                    // ...
+                });
+            }
             String name0 = editTextName.getText() == null ? username : editTextName.getText().toString().trim();
             String nickname = editTextNickname.getText() == null ? username : editTextNickname.getText().toString().trim();
+            String finalIva = iva;
             db.collection(USERS_COLLECTION).document(uid).update(USER_NAME, name0, NICKNAME, nickname, AVATAR_URL, iva).addOnSuccessListener(unused -> {
                 name = name0;
                 username = nickname;
-                urlAvatar = iva;
+                urlAvatar = finalIva;
                 getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
                 progressBar.setVisibility(View.GONE);
                 startActivity(new Intent(RegisterScreenActivity.this, MainActivity.class));
@@ -133,6 +138,7 @@ public class RegisterScreenActivity extends AppCompatActivity {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+                isAvatarUpload = true;
                 imageViewAvatar.setImageBitmap(bitmap);
             } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
                 Exception error = result.getError();

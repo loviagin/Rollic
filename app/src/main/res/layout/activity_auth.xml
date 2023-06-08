@@ -22,9 +22,9 @@
         <ImageView
             android:id="@+id/imageView"
             android:layout_width="match_parent"
-            android:layout_height="100dp"
-            app:srcCompat="@drawable/logo"
-            android:contentDescription="@string/rollic_str" />
+            android:layout_height="80dp"
+            android:contentDescription="@string/rollic_str"
+            app:srcCompat="@drawable/logo" />
 
         <TextView
             android:id="@+id/textView"

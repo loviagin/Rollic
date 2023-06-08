@@ -15,10 +15,12 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -47,6 +49,7 @@ public class PhotoAddFragment extends Fragment {
     private ProgressBar progressBar;
 
     private AddPostTabAdapter.OnAddPostClickListener mListener;
+    private boolean isImageClick = false;
 
     public PhotoAddFragment() {
     }
@@ -75,44 +78,49 @@ public class PhotoAddFragment extends Fragment {
 
         imageView1.setOnClickListener(v -> {
             if (mListener != null) {
+                isImageClick = true;
                 mListener.onImageClick();
             }
         });
 
         buttonCancel.setOnClickListener(v -> startActivity(new Intent(getActivity(), MainActivity.class)));
         buttonSend.setOnClickListener(v -> {
-            progressBar.setVisibility(View.VISIBLE);
-            List<String> strings = new ArrayList<>();
-            List<String> likes = new ArrayList<>();
-            FirebaseFirestore db = FirebaseFirestore.getInstance();
+            if (isImageClick) {
+                progressBar.setVisibility(View.VISIBLE);
+                List<String> strings = new ArrayList<>();
+                List<String> likes = new ArrayList<>();
+                FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-            FirebaseStorage storage = FirebaseStorage.getInstance();
-            StorageReference storageRef = storage.getReference();
-            String iva = "post-images/" + uid + System.currentTimeMillis() + ".jpg";
-            StorageReference imagesRef = storageRef.child(iva);
-            imageView1.setDrawingCacheEnabled(true);
-            imageView1.buildDrawingCache();
-            Bitmap bitmap = ((BitmapDrawable) imageView1.getDrawable()).getBitmap();
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-            byte[] data = baos.toByteArray();
+                FirebaseStorage storage = FirebaseStorage.getInstance();
+                StorageReference storageRef = storage.getReference();
+                String iva = "post-images/" + uid + System.currentTimeMillis() + ".jpg";
+                StorageReference imagesRef = storageRef.child(iva);
+                imageView1.setDrawingCacheEnabled(true);
+                imageView1.buildDrawingCache();
+                Bitmap bitmap = ((BitmapDrawable) imageView1.getDrawable()).getBitmap();
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                byte[] data = baos.toByteArray();
 
-            UploadTask uploadTask = imagesRef.putBytes(data);
-            uploadTask.addOnFailureListener(exception -> {
-                // Handle unsuccessful uploads
-            }).addOnSuccessListener(taskSnapshot -> {
-                // taskSnapshot.getMetadata() contains file metadata such as size, content-type, etc.
-                // ...
-                 strings.add(iva);
-                db.collection(POSTS_STR)
+                UploadTask uploadTask = imagesRef.putBytes(data);
+                uploadTask.addOnFailureListener(exception -> {
+                    // Handle unsuccessful uploads
+                }).addOnSuccessListener(taskSnapshot -> {
+                    // taskSnapshot.getMetadata() contains file metadata such as size, content-type, etc.
+                    // ...
+                    strings.add(iva);
+                    db.collection(POSTS_STR)
 //                        .document(String.valueOf(postsCount + 1)).set
-                        .add(new Post("", editTextDescription.getText().toString().trim(),
-                                editTextTags.getText().toString().trim(), uid, name, urlAvatar, username, strings, likes, 0, 0))
-                        .addOnSuccessListener(documentReference -> db.collection(USERS_COLLECTION).document(uid).update(POSTS_STR, FieldValue.arrayUnion(documentReference.getId())));
+                            .add(new Post("", editTextDescription.getText().toString().trim(),
+                                    editTextTags.getText().toString().trim(), uid, name, urlAvatar, username, strings, likes, 0, 0))
+                            .addOnSuccessListener(documentReference -> db.collection(USERS_COLLECTION).document(uid).update(POSTS_STR, FieldValue.arrayUnion(documentReference.getId())));
 
-                progressBar.setVisibility(View.GONE);
-                startActivity(new Intent(getActivity(), AccountActivity.class));
-            });
+                    progressBar.setVisibility(View.GONE);
+                    startActivity(new Intent(getActivity(), AccountActivity.class));
+                });
+            } else {
+                Toast.makeText(getActivity(), R.string.image_requared_str, Toast.LENGTH_SHORT).show();
+            }
         });
 
         return view;

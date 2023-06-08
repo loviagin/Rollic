@@ -21,3 +21,12 @@
 #-renamesourcefileattribute SourceFile
 
 -keep class androidx.appcompat.widget.** { *; }
+-dontwarn org.conscrypt.**
+-dontwarn org.bouncycastle.**
+-dontwarn org.openjsse.**
+-keepclassmembers class d5.a {
+    public <init>();
+}
+-keep class com.admob.mobileads.** {
+    *;
+}

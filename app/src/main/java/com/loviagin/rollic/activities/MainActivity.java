@@ -35,7 +35,6 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.loviagin.rollic.R;
-import com.loviagin.rollic.UserData;
 import com.loviagin.rollic.adapters.PostsAdapter;
 import com.loviagin.rollic.models.Objects;
 import com.loviagin.rollic.models.Post;
@@ -135,22 +134,7 @@ public class MainActivity extends AppCompatActivity {
 
         postList = new LinkedList<>();
         postsAdapter = new PostsAdapter(postList);
-//        FirebaseFirestore db = FirebaseFirestore.getInstance();
-//        List<String> strings = new ArrayList<>();
-//        strings.add("https://firebasestorage.googleapis.com/v0/b/workisland.appspot.com/o/images%2Ffe22a67a-f02f-4c6c-a8bc-70cd0ba23051?alt=media&token=0455a591-6e1d-4bf3-b579-5fcfbc9bd521");
-//        db.collection("posts").add(new Post("", "Wow", "#tg #tag", "5AoYmKTHSsjzWyOpvgd", "Elian", "https://firebasestorage.googleapis.com/v0/b/workisland.appspot.com/o/avatars%2FfMClAWEqOybSPf8pFqYvc4OhSPu2cropped3876546716996985108.jpg?alt=media&token=149bcfcf-4e86-4460-bf99-a72e58c87baa",
-//                "BraveDog435", strings, 0, 0, 0));
-//        db.collection("posts").add(new Post("", "Wow2", "#tg #tag", "5AoYmKTHSsjzWyOpvgd", "Elian", "https://firebasestorage.googleapis.com/v0/b/workisland.appspot.com/o/avatars%2FfMClAWEqOybSPf8pFqYvc4OhSPu2cropped3876546716996985108.jpg?alt=media&token=149bcfcf-4e86-4460-bf99-a72e58c87baa",
-//                "BraveDog435", strings, 0, 0, 0));
-//        db.collection("posts").add(new Post("", "Wow3", "#tg #tag", "5AoYmKTHSsjzWyOpvgd", "Elian", "https://firebasestorage.googleapis.com/v0/b/workisland.appspot.com/o/avatars%2FfMClAWEqOybSPf8pFqYvc4OhSPu2cropped3876546716996985108.jpg?alt=media&token=149bcfcf-4e86-4460-bf99-a72e58c87baa",
-//                "BraveDog435", strings, 0, 0, 0));
-//        db.collection("posts").add(new Post("", "Wow4", "#tg #tag", "5AoYmKTHSsjzWyOpvgd", "Elian", "https://firebasestorage.googleapis.com/v0/b/workisland.appspot.com/o/avatars%2FfMClAWEqOybSPf8pFqYvc4OhSPu2cropped3876546716996985108.jpg?alt=media&token=149bcfcf-4e86-4460-bf99-a72e58c87baa",
-//                "BraveDog435", strings, 0, 0, 0));
-//        db.collection("posts").add(new Post("", "Wow5", "#tg #tag", "5AoYmKTHSsjzWyOpvgd", "Elian", "https://firebasestorage.googleapis.com/v0/b/workisland.appspot.com/o/avatars%2FfMClAWEqOybSPf8pFqYvc4OhSPu2cropped3876546716996985108.jpg?alt=media&token=149bcfcf-4e86-4460-bf99-a72e58c87baa",
-//                "BraveDog435", strings, 0, 0, 0));
-//        db.collection("posts").add(new Post("", "Wow6", "#tg #tag", "5AoYmKTHSsjzWyOpvgd", "Elian", "https://firebasestorage.googleapis.com/v0/b/workisland.appspot.com/o/avatars%2FfMClAWEqOybSPf8pFqYvc4OhSPu2cropped3876546716996985108.jpg?alt=media&token=149bcfcf-4e86-4460-bf99-a72e58c87baa",
-//                "BraveDog435", strings, 0, 0, 0));
-//        new PostUploader(postsAdapter, postList, recyclerViewPosts, getWindow());
+
         thread1.start();
         recyclerViewPosts.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         recyclerViewPosts.setAdapter(postsAdapter);

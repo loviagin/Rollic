@@ -75,4 +75,6 @@
     <string name="recaptcha_error_str">Recaptcha user validation error</string>
     <string name="enter_valid_phone_str">ENTER CORRECT NUMBER</string>
     <string name="title_post_gallery_str" translatable="false">«%s»</string>
+    <string name="image_requared_str">Image must be added</string>
+    <string name="rollic_ad_text">Rollic © Ad</string>
 </resources>

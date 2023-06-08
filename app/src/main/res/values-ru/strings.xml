@@ -63,4 +63,6 @@
     <string name="too_many_requests_auth_str">Слишком много попыток. Попробуйте позже пожалуйста</string>
     <string name="recaptcha_error_str">Ошибка проверки пользователя Recaptcha</string>
     <string name="enter_valid_phone_str">ВВЕДИТЕ КОРРЕКТНЫЙ НОМЕР</string>
+    <string name="image_requared_str">Изображение обязательно к добавлению</string>
+    <string name="rollic_ad_text">Rollic © Реклама</string>
 </resources>
