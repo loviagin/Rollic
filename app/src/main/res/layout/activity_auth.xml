@@ -35,8 +35,7 @@
             android:fontFamily="@font/nunito"
             android:text="@string/log_in_app_str"
             android:textColor="@color/black"
-            android:textSize="25sp"
-            android:textStyle="bold" />
+            android:textSize="25sp"/>
 
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/tlAuth"

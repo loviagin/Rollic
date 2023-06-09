@@ -12,6 +12,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -113,10 +114,14 @@ public class PhotoAddFragment extends Fragment {
 //                        .document(String.valueOf(postsCount + 1)).set
                             .add(new Post("", editTextDescription.getText().toString().trim(),
                                     editTextTags.getText().toString().trim(), uid, name, urlAvatar, username, strings, likes, 0, 0))
-                            .addOnSuccessListener(documentReference -> db.collection(USERS_COLLECTION).document(uid).update(POSTS_STR, FieldValue.arrayUnion(documentReference.getId())));
+                            .addOnSuccessListener(documentReference -> {
+                                db.collection(USERS_COLLECTION).document(uid).update(POSTS_STR, FieldValue.arrayUnion(documentReference.getId()));
 
-                    progressBar.setVisibility(View.GONE);
-                    startActivity(new Intent(getActivity(), AccountActivity.class));
+                                db.collection(POSTS_STR).document(documentReference.getId()).update("uid", documentReference.getId());
+                                progressBar.setVisibility(View.GONE);
+                                Log.d("TAG2506", documentReference.getId());
+                                startActivity(new Intent(getActivity(), AccountActivity.class));
+                            });
                 });
             } else {
                 Toast.makeText(getActivity(), R.string.image_requared_str, Toast.LENGTH_SHORT).show();

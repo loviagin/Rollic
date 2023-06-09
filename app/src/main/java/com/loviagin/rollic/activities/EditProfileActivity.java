@@ -1,13 +1,18 @@
 package com.loviagin.rollic.activities;
 
 import static com.loviagin.rollic.Constants.AVATAR_URL;
+import static com.loviagin.rollic.Constants.BIO;
 import static com.loviagin.rollic.Constants.NICKNAME;
 import static com.loviagin.rollic.Constants.USERS_COLLECTION;
 import static com.loviagin.rollic.Constants.USER_NAME;
+import static com.loviagin.rollic.UserData.bio;
+import static com.loviagin.rollic.UserData.email;
 import static com.loviagin.rollic.UserData.name;
 import static com.loviagin.rollic.UserData.uid;
 import static com.loviagin.rollic.UserData.urlAvatar;
 import static com.loviagin.rollic.UserData.username;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -22,17 +27,18 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
-
-import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.loviagin.rollic.R;
+import com.squareup.picasso.Picasso;
 import com.theartofdev.edmodo.cropper.CropImage;
 
 import java.io.ByteArrayOutputStream;
@@ -42,10 +48,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RegisterScreenActivity extends AppCompatActivity {
+public class EditProfileActivity extends AppCompatActivity {
 
-    private Button buttonUpload, buttonSkip, buttonSave;
-    private EditText editTextName, editTextNickname;
+    private ImageButton buttonBack, buttonAccept;
+    private Button buttonUpload;
+    private EditText editTextName, editTextNickname, editTextBio, editTextEmail;
     private ImageView imageViewAvatar;
     private ProgressBar progressBar;
     private boolean isAvatarUpload = false;
@@ -57,79 +64,97 @@ public class RegisterScreenActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_register_screen);
+        setContentView(R.layout.activity_edit_profile);
 
-        findViewById(R.id.bNotifications).setVisibility(View.GONE);
-        findViewById(R.id.bMessage).setVisibility(View.GONE);
-        buttonSkip = findViewById(R.id.bSkipRegister);
-        buttonSave = findViewById(R.id.bSaveRegister);
-        buttonUpload = findViewById(R.id.bUploadAvatarRegister);
-        editTextName = findViewById(R.id.etNameRegister);
-        editTextNickname = findViewById(R.id.etNicknameRegister);
-        editTextNickname.setText(username);
-        editTextName.setText(name);
-        imageViewAvatar = findViewById(R.id.ivAvatarRegisterScreen);
-        progressBar = findViewById(R.id.pbRegisterScreen);
+        buttonBack = findViewById(R.id.bNotifications);
+        buttonAccept = findViewById(R.id.bMessage);
+        buttonUpload = findViewById(R.id.bUpdateAvatarEditProfile);
+        editTextName = findViewById(R.id.etNameEditProfile);
+        editTextNickname = findViewById(R.id.etNicknameEditProfile);
+        imageViewAvatar = findViewById(R.id.ivAvatarEditProfile);
+        progressBar = findViewById(R.id.pbEditProfile);
+        editTextBio = findViewById(R.id.etBioEditProfile);
+        editTextEmail = findViewById(R.id.etEmailEditProfile);
 
-        imageViewAvatar.setOnClickListener(v -> selectImage());
+        progressBar.setVisibility(View.VISIBLE);
+
+        buttonBack.setImageDrawable(getResources().getDrawable(R.drawable.fi_rr_back));
+        buttonAccept.setImageDrawable(getResources().getDrawable(R.drawable.fi_rr_check));
         buttonUpload.setOnClickListener(v -> selectImage());
+        imageViewAvatar.setOnClickListener(v -> selectImage());
 
-        buttonSkip.setOnClickListener(v -> {
-            FirebaseFirestore db = FirebaseFirestore.getInstance();
-            progressBar.setVisibility(View.VISIBLE);
+        buttonBack.setOnClickListener(v -> startActivity(new Intent(this, AccountActivity.class)));
+        buttonAccept.setOnClickListener(v -> saveInfo());
+
+        setInfo();
+    }
+
+    private void saveInfo() {
+        if (editTextNickname.getText().toString().equals("") || checkNickname(editTextNickname.getText().toString())) {
             getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
                     WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-            db.collection(USERS_COLLECTION).document(uid).update(USER_NAME, username).addOnSuccessListener(unused -> {
-                name = username;
+            progressBar.setVisibility(View.VISIBLE);
+            FirebaseFirestore db = FirebaseFirestore.getInstance();
+            String iva = null;
+            if (isAvatarUpload) {
+                FirebaseStorage storage = FirebaseStorage.getInstance();
+                StorageReference storageRef = storage.getReference();
+                iva = "avatars/" + uid + System.currentTimeMillis() + ".jpg";
+                StorageReference imagesRef = storageRef.child(iva);
+                // Get the data from an ImageView as bytes
+                imageViewAvatar.setDrawingCacheEnabled(true);
+                imageViewAvatar.buildDrawingCache();
+                Bitmap bitmap = ((BitmapDrawable) imageViewAvatar.getDrawable()).getBitmap();
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                byte[] data = baos.toByteArray();
+
+                UploadTask uploadTask = imagesRef.putBytes(data);
+                uploadTask.addOnFailureListener(exception -> {
+                    // Handle unsuccessful uploads
+                }).addOnSuccessListener(taskSnapshot -> {
+                    // taskSnapshot.getMetadata() contains file metadata such as size, content-type, etc.
+                    // ...
+                });
+            }
+            String name0 = editTextName.getText() == null ? name : editTextName.getText().toString().trim();
+            String nickname = editTextNickname.getText() == null ? username : editTextNickname.getText().toString().trim();
+            String bio0 = editTextBio.getText() == null ? null : editTextBio.getText().toString().trim();
+            String finalIva = iva;
+            db.collection(USERS_COLLECTION).document(uid).update(USER_NAME, name0,
+                    NICKNAME, nickname,
+                    AVATAR_URL, iva,
+                    BIO, bio0).addOnSuccessListener(unused -> {
+                name = name0;
+                username = nickname;
+                urlAvatar = finalIva;
+                bio = bio0;
                 getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
                 progressBar.setVisibility(View.GONE);
-                startActivity(new Intent(RegisterScreenActivity.this, MainActivity.class));
+                startActivity(new Intent(EditProfileActivity.this, AccountActivity.class));
             });
-        });
+        } else {
+            Toast.makeText(this, "Проверьте корректность данных", Toast.LENGTH_SHORT).show();
+        }
+    }
 
-        buttonSave.setOnClickListener(v -> {
-            if (editTextNickname.getText().toString().equals("") || checkNickname(editTextNickname.getText().toString())) {
-                getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
-                        WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-                progressBar.setVisibility(View.VISIBLE);
-                FirebaseFirestore db = FirebaseFirestore.getInstance();
-                String iva = null;
-                if (isAvatarUpload) {
-                    FirebaseStorage storage = FirebaseStorage.getInstance();
-                    StorageReference storageRef = storage.getReference();
-                    iva = "avatars/" + uid + System.currentTimeMillis() + ".jpg";
-                    StorageReference imagesRef = storageRef.child(iva);
-                    // Get the data from an ImageView as bytes
-                    imageViewAvatar.setDrawingCacheEnabled(true);
-                    imageViewAvatar.buildDrawingCache();
-                    Bitmap bitmap = ((BitmapDrawable) imageViewAvatar.getDrawable()).getBitmap();
-                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-                    byte[] data = baos.toByteArray();
+    private void setInfo() {
+        FirebaseStorage storage = FirebaseStorage.getInstance();
+        StorageReference storageRef = storage.getReference();
 
-                    UploadTask uploadTask = imagesRef.putBytes(data);
-                    uploadTask.addOnFailureListener(exception -> {
-                        // Handle unsuccessful uploads
-                    }).addOnSuccessListener(taskSnapshot -> {
-                        // taskSnapshot.getMetadata() contains file metadata such as size, content-type, etc.
-                        // ...
-                    });
-                }
-                String name0 = editTextName.getText() == null ? username : editTextName.getText().toString().trim();
-                String nickname = editTextNickname.getText() == null ? username : editTextNickname.getText().toString().trim();
-                String finalIva = iva;
-                db.collection(USERS_COLLECTION).document(uid).update(USER_NAME, name0, NICKNAME, nickname, AVATAR_URL, iva).addOnSuccessListener(unused -> {
-                    name = name0;
-                    username = nickname;
-                    urlAvatar = finalIva;
-                    getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-                    progressBar.setVisibility(View.GONE);
-                    startActivity(new Intent(RegisterScreenActivity.this, MainActivity.class));
-                });
-            } else {
-                Toast.makeText(this, "Проверьте корректность данных", Toast.LENGTH_SHORT).show();
-            }
-        });
+        editTextEmail.setText(email != null && email.length() > 0 ? email : "");
+        editTextBio.setText(bio != null && bio.length() > 0 ? bio : "");
+        editTextNickname.setText(username != null && username.length() > 0 ? username : "");
+        editTextName.setText(name != null && name.length() > 0 ? name : "");
+
+        if (urlAvatar != null && !urlAvatar.equals("")) {
+            storageRef.child(urlAvatar).getDownloadUrl().addOnSuccessListener(uri -> {
+                Picasso.get().load(uri).into(imageViewAvatar);
+                progressBar.setVisibility(View.GONE);
+            });
+        } else {
+            progressBar.setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -161,12 +186,6 @@ public class RegisterScreenActivity extends AppCompatActivity {
             }
         }
     }
-
-//    private void openImagePicker() {
-//        CropImage.activity()
-//                .setGuidelines(CropImageView.Guidelines.ON)
-//                .start(this);
-//    }
 
     private void startImageCrop(Uri imageUri) {
         Intent intent = CropImage.activity(imageUri)

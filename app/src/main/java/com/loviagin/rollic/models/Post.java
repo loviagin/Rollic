@@ -152,4 +152,22 @@ public class Post {
     public void setImagesUrls(List<String> imagesUrls) {
         this.imagesUrls = imagesUrls;
     }
+
+    @Override
+    public String toString() {
+        return "Post{" +
+                "uid='" + uid + '\'' +
+                ", title='" + title + '\'' +
+                ", description='" + description + '\'' +
+                ", tags='" + tags + '\'' +
+                ", uidAuthor='" + uidAuthor + '\'' +
+                ", authorName='" + authorName + '\'' +
+                ", authorAvatarUrl='" + authorAvatarUrl + '\'' +
+                ", authorNickname='" + authorNickname + '\'' +
+                ", commentsCount=" + commentsCount +
+                ", repostCount=" + repostCount +
+                ", likes=" + likes +
+                ", imagesUrls=" + imagesUrls +
+                '}';
+    }
 }

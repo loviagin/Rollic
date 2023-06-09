@@ -5,6 +5,7 @@ import static com.loviagin.rollic.Constants.POSTS_STR;
 import static com.loviagin.rollic.Constants.USERS_COLLECTION;
 import static com.loviagin.rollic.Constants.USER_STR;
 import static com.loviagin.rollic.Constants.USER_UID;
+import static com.loviagin.rollic.UserData.dynPosts;
 import static com.loviagin.rollic.UserData.email;
 import static com.loviagin.rollic.UserData.name;
 import static com.loviagin.rollic.UserData.posts;
@@ -81,10 +82,11 @@ public class MainActivity extends AppCompatActivity {
             buttonBack.setImageDrawable(getResources().getDrawable(R.drawable.fi_rr_back));
             buttonBack.setOnClickListener(v -> startActivity(new Intent(this, AccountActivity.class)));
             int pos = intent.getIntExtra(POSITION, 0);
-            postList = usrPosts;
+            postList = dynPosts;
             postsAdapter = new PostsAdapter(postList);
             recyclerViewPosts.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
             recyclerViewPosts.setAdapter(postsAdapter);
+            Log.e(TAG, postList.get(0).toString());
             recyclerViewPosts.smoothScrollToPosition(pos);
             getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
             progressBar.setVisibility(View.GONE);
@@ -129,7 +131,7 @@ public class MainActivity extends AppCompatActivity {
         });
         buttonAdd.setColorFilter(R.color.white);
         buttonAdd.setOnClickListener(v -> startActivity(new Intent(this, AddActivity.class)));
-        buttonExplore.setOnClickListener(v -> Toast.makeText(this, getResources().getString(R.string.hello_blank_fragment), Toast.LENGTH_SHORT).show());
+        buttonExplore.setOnClickListener(v -> startActivity(new Intent(this, AboutAppActivity.class)));
         buttonStore.setOnClickListener(v -> Toast.makeText(this, getResources().getString(R.string.hello_blank_fragment), Toast.LENGTH_SHORT).show());
 
         postList = new LinkedList<>();

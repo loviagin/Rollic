@@ -7,6 +7,8 @@ import static com.loviagin.rollic.Constants.SUBSCRIPTIONS_STR;
 import static com.loviagin.rollic.Constants.USERS_COLLECTION;
 import static com.loviagin.rollic.Constants.USER_STR;
 import static com.loviagin.rollic.Constants.USER_UID;
+import static com.loviagin.rollic.UserData.bio;
+import static com.loviagin.rollic.UserData.dynPosts;
 import static com.loviagin.rollic.UserData.name;
 import static com.loviagin.rollic.UserData.posts;
 import static com.loviagin.rollic.UserData.subscribers;
@@ -25,11 +27,13 @@ import androidx.viewpager2.widget.ViewPager2;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -67,6 +71,7 @@ public class AccountActivity extends AppCompatActivity {
     private List<String> listSubscribers;
     private String usrName, usrNickname, usrUid, usrUrlAvatar;
     private ProgressBar progressBar;
+    private Button buttonEditProfile;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,6 +96,7 @@ public class AccountActivity extends AppCompatActivity {
         buttonSettings = findViewById(R.id.bMessage);
         imageViewAvatar = findViewById(R.id.ivAvatarAccount);
         progressBar = findViewById(R.id.pbAccount);
+        buttonEditProfile = findViewById(R.id.bEditAccount);
 
         progressBar.setVisibility(View.VISIBLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
@@ -101,9 +107,9 @@ public class AccountActivity extends AppCompatActivity {
         if (intent.hasExtra(USER_STR) && !intent.getStringExtra(USER_STR).equals(uid)) {
             FirebaseFirestore db = FirebaseFirestore.getInstance();
             textButtonSubscribe.setVisibility(View.VISIBLE);
-            if (!subscriptions.contains(intent.getStringExtra(USER_STR))){
+            if (!subscriptions.contains(intent.getStringExtra(USER_STR))) {
                 subscribe(intent);
-            }else {
+            } else {
                 unsubscribe(intent);
             }
             usrUid = intent.getStringExtra(USER_STR);
@@ -113,7 +119,10 @@ public class AccountActivity extends AppCompatActivity {
                 listPosts = user.getPosts();
                 listSubscribers = user.getSubscribers();
                 listSubscriptions = user.getSubscriptions();
-                textViewBio.setText(user.getBio());
+                if (user.getBio() != null && user.getBio().length() > 0){
+                    textViewBio.setVisibility(View.VISIBLE);
+                    textViewBio.setText(user.getBio());
+                }
                 usrName = user.getF_name();
                 usrUrlAvatar = user.getAvatarUrl();
                 usrNickname = user.getUsername();
@@ -125,19 +134,20 @@ public class AccountActivity extends AppCompatActivity {
             FirebaseFirestore db = FirebaseFirestore.getInstance();
             textButtonSubscribe.setVisibility(View.GONE);
             usrUid = uid;
-            buttonSettings.setImageDrawable(getResources().getDrawable(R.drawable.fi_rr_sign_out));
-            buttonSettings.setOnClickListener(v -> {
-                mAuth.signOut();
-                currentUser = null;
-                preferences.edit().remove(USER_UID).apply();
-                startActivity(new Intent(AccountActivity.this, MainActivity.class));
-            });
+            buttonEditProfile.setVisibility(View.VISIBLE);
+            buttonEditProfile.setOnClickListener(v -> startActivity(new Intent(AccountActivity.this, EditProfileActivity.class)));
+            buttonSettings.setImageDrawable(getResources().getDrawable(R.drawable.fi_rr_menu_dots));
+            buttonSettings.setOnClickListener(this::showPopupMenu);
             db.collection(USERS_COLLECTION).document(uid).get().addOnSuccessListener(documentSnapshot -> {
                 User user = documentSnapshot.toObject(User.class);
                 listPosts = posts;
                 listSubscribers = user.getSubscribers();
                 listSubscriptions = user.getSubscriptions();
-                textViewBio.setText(user.getBio());
+                if (user.getBio() != null && user.getBio().length() > 0){
+                    bio = user.getBio();
+                    textViewBio.setVisibility(View.VISIBLE);
+                    textViewBio.setText(user.getBio());
+                }
                 usrName = name;
                 usrUrlAvatar = urlAvatar;
                 usrNickname = username;
@@ -163,16 +173,17 @@ public class AccountActivity extends AppCompatActivity {
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection(POSTS_STR).whereEqualTo(AUTHOR_UID, usrUid).get().addOnCompleteListener(task -> {
-                if (task.isSuccessful()) {
-                    for (QueryDocumentSnapshot document : task.getResult()) {
-                        Post p0 = document.toObject(Post.class);
-                        lp.add(0, p0);
-                        usrPosts.add(0, p0);
-                    }
-                    adapter = new TabAccountAdapter(this, lp);
-                    viewPager.setAdapter(adapter);
-                    getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+            if (task.isSuccessful()) {
+                for (QueryDocumentSnapshot document : task.getResult()) {
+                    Post p0 = document.toObject(Post.class);
+                    lp.add(0, p0);
+                    usrPosts.add(0, p0);
                 }
+                dynPosts = lp;
+                adapter = new TabAccountAdapter(this, lp);
+                viewPager.setAdapter(adapter);
+                getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+            }
         });
 
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
@@ -203,8 +214,7 @@ public class AccountActivity extends AppCompatActivity {
                 textViewName.setText(usrName);
             }
         } else {
-            // eDITpROFILE.ACTIVITY
-            textViewName.setOnClickListener(v -> Toast.makeText(this, "WOW", Toast.LENGTH_SHORT).show());
+            startActivity(new Intent(this, EditProfileActivity.class));
         }
         textViewUsername.setText(String.format(getResources().getString(R.string.nicknameofuser_str), usrNickname));
         buttonPosts.setText(String.format(getResources().getString(R.string.posts_str), listPosts.size() + ""));
@@ -227,7 +237,7 @@ public class AccountActivity extends AppCompatActivity {
         }
     }
 
-    private void subscribe(Intent intent){
+    private void subscribe(Intent intent) {
         textButtonSubscribe.setText(getResources().getString(R.string.subscribe_str));
         textButtonSubscribe.setBackground(getResources().getDrawable(R.drawable.ground_button));
         textButtonSubscribe.setOnClickListener(v -> {
@@ -239,7 +249,7 @@ public class AccountActivity extends AppCompatActivity {
         });
     }
 
-    private void unsubscribe(Intent intent){
+    private void unsubscribe(Intent intent) {
         textButtonSubscribe.setText(R.string.unsubscribe_str);
         textButtonSubscribe.setBackground(getResources().getDrawable(R.drawable.ground_box));
         textButtonSubscribe.setOnClickListener(v -> {
@@ -249,5 +259,27 @@ public class AccountActivity extends AppCompatActivity {
             db0.collection(USERS_COLLECTION).document(intent.getStringExtra(USER_STR)).update(SUBSCRIBERS_STR, FieldValue.arrayRemove(uid));
             subscribe(intent);
         });
+    }
+
+    private void showPopupMenu(View view) {
+        PopupMenu popupMenu = new PopupMenu(this, view);
+        popupMenu.inflate(R.menu.setting_menu);
+        popupMenu.setOnMenuItemClickListener(item -> {
+            switch (item.getItemId()) {
+                case R.id.setting:
+                    startActivity(new Intent(AccountActivity.this, SettingsActivity.class));
+                    return true;
+                case R.id.logout:
+                    mAuth.signOut();
+                    currentUser = null;
+                    UserData.remove();
+                    preferences.edit().remove(USER_UID).apply();
+                    startActivity(new Intent(AccountActivity.this, MainActivity.class));
+                    return true;
+                default:
+                    return false;
+            }
+        });
+        popupMenu.show();
     }
 }

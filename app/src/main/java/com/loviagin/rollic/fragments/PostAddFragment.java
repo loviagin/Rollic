@@ -12,6 +12,7 @@ import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -57,9 +58,15 @@ public class PostAddFragment extends Fragment {
                 db.collection(POSTS_STR)
                         .add(new Post(editTextTitle.getText().toString().trim(), editTextDescription.getText().toString().trim(),
                                 editTextTags.getText().toString().trim(), uid, name, urlAvatar, username, null, likes, 0, 0))
-                        .addOnSuccessListener(documentReference -> db.collection(USERS_COLLECTION).document(uid).update(POSTS_STR, FieldValue.arrayUnion(documentReference.getId())));
-                progressBar.setVisibility(View.GONE);
-                startActivity(new Intent(getActivity(), AccountActivity.class));
+                        .addOnSuccessListener(documentReference -> {
+                            db.collection(USERS_COLLECTION).document(uid).update(POSTS_STR, FieldValue.arrayUnion(documentReference.getId()));
+
+                            db.collection(POSTS_STR).document(documentReference.getId()).update("uid", documentReference.getId());
+                            progressBar.setVisibility(View.GONE);
+                            Log.d("TAG2506", documentReference.getId());
+                            startActivity(new Intent(getActivity(), AccountActivity.class));
+                        });
+
             } else {
                 Toast.makeText(getActivity(), "Заполните заголовок и описание", Toast.LENGTH_SHORT).show();
             }

@@ -43,13 +43,14 @@ import com.yandex.mobile.ads.common.ImpressionData;
 
 import java.util.List;
 
-public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostsViewHolder> {
+public class PostsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private List<Post> posts;
     private OnReachListener onReachListener;
     private OnPostClickListener onPostClickListener;
 
-    private int count = 1;
+    private static final int TYPE_REGULAR = 0;
+    private static final int TYPE_SPECIAL = 1;
 
     public PostsAdapter(List<Post> posts) {
         this.posts = posts;
@@ -63,17 +64,25 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostsViewHol
         void onClickAvatar(String usrUid);
     }
 
+    @Override
+    public int getItemViewType(int position) {
+        if (position % 5 == 0 && position > 0) {
+            return TYPE_SPECIAL;
+        } else {
+            return TYPE_REGULAR;
+        }
+    }
+
     @NonNull
     @Override
-    public PostsViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view;
-        if (count % 5 == 0) {
-            view = LayoutInflater.from(parent.getContext()).inflate(R.layout.ad_item, parent, false);
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        if (viewType == TYPE_REGULAR) {
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.post_item, parent, false);
+            return new PostsViewHolder(view);
         } else {
-            view = LayoutInflater.from(parent.getContext()).inflate(R.layout.post_item, parent, false);
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.ad_item, parent, false);
+            return new AdsViewHolder(view);
         }
-        count++;
-        return new PostsViewHolder(view);
     }
 
     public void setPosts(List<Post> posts) {
@@ -85,19 +94,20 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostsViewHol
     }
 
     @Override
-    public void onBindViewHolder(@NonNull PostsViewHolder holder, int position) {
-        if ((count - 1) % 5 != 0) {
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+        if (getItemViewType(position) == TYPE_REGULAR) {
+            PostsViewHolder viewHolder = (PostsViewHolder) holder;
             if (position == posts.size() - 1 && onReachListener != null) {
                 onReachListener.onReachEnd();
             }
             Post post = posts.get(position);
-            holder.textViewNickname.setText(String.format("@%s", post.getAuthorNickname()));
+            viewHolder.textViewNickname.setText(String.format("@%s", post.getAuthorNickname()));
 
             if (post.getAuthorName() == null || post.getAuthorName().equals("")) {
-                holder.textViewName.setVisibility(View.GONE);
+                viewHolder.textViewName.setVisibility(View.GONE);
             } else {
-                holder.textViewName.setVisibility(View.VISIBLE);
-                holder.textViewName.setText(post.getAuthorName());
+                viewHolder.textViewName.setVisibility(View.VISIBLE);
+                viewHolder.textViewName.setText(post.getAuthorName());
             }
 
             FirebaseStorage storage = FirebaseStorage.getInstance();
@@ -105,61 +115,63 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostsViewHol
 
             if (post.getAuthorAvatarUrl() != null && !post.getAuthorAvatarUrl().equals("")) {
                 storageRef.child(post.getAuthorAvatarUrl()).getDownloadUrl()
-                        .addOnSuccessListener(uri -> Picasso.get().load(uri).into((holder.imageViewAvatar)));
+                        .addOnSuccessListener(uri -> Picasso.get().load(uri).into((viewHolder.imageViewAvatar)));
             }
 
-            holder.textViewDescription.setText(post.getDescription());
+            viewHolder.textViewDescription.setText(post.getDescription());
             if (post.getTitle().equals("")) {
-                holder.imageView1.setVisibility(View.VISIBLE);
+                viewHolder.imageView1.setVisibility(View.VISIBLE);
                 if (post.getImagesUrls() != null && post.getImagesUrls().get(0) != null) {
                     storageRef.child(post.getImagesUrls().get(0)).getDownloadUrl()
-                            .addOnSuccessListener(uri -> Picasso.get().load(uri).into((holder.imageView1)));
+                            .addOnSuccessListener(uri -> Picasso.get().load(uri).into((viewHolder.imageView1)));
                 }
-                holder.textViewTitle.setVisibility(View.GONE);
+                viewHolder.textViewTitle.setVisibility(View.GONE);
             } else {
-                holder.textViewTitle.setText(post.getTitle());
-                holder.textViewTitle.setVisibility(View.VISIBLE);
-                holder.imageView1.setVisibility(View.GONE);
+                viewHolder.textViewTitle.setText(post.getTitle());
+                viewHolder.textViewTitle.setVisibility(View.VISIBLE);
+                viewHolder.imageView1.setVisibility(View.GONE);
             }
             View.OnClickListener clnr = v -> {
                 if (onPostClickListener != null) {
                     onPostClickListener.onClickAvatar(post.getUidAuthor());
                 }
             };
-            holder.layout.setOnClickListener(clnr);
-            holder.imageViewAvatar.setOnClickListener(clnr);
+            viewHolder.layout.setOnClickListener(clnr);
+            viewHolder.imageViewAvatar.setOnClickListener(clnr);
             if (subscriptions.contains(post.getUidAuthor()) || post.getUidAuthor().equals(uid)) {
-                holder.buttonSubscribe.setVisibility(View.GONE);
+                viewHolder.buttonSubscribe.setVisibility(View.GONE);
             } else {
-                holder.buttonSubscribe.setVisibility(View.VISIBLE);
-                holder.buttonSubscribe.setOnClickListener(v -> {
+                viewHolder.buttonSubscribe.setVisibility(View.VISIBLE);
+                viewHolder.buttonSubscribe.setOnClickListener(v -> {
                     if (!subscriptions.contains(post.getUidAuthor())) {
                         subscriptions.add(post.getUidAuthor());
                     }
                     FirebaseFirestore db = FirebaseFirestore.getInstance();
                     db.collection(USERS_COLLECTION).document(uid).update(SUBSCRIPTIONS_STR, FieldValue.arrayUnion(post.getUidAuthor()));
                     db.collection(USERS_COLLECTION).document(post.getUidAuthor()).update(SUBSCRIBERS_STR, FieldValue.arrayUnion(uid));
-                    holder.buttonSubscribe.setVisibility(View.GONE);
+                    viewHolder.buttonSubscribe.setVisibility(View.GONE);
                 });
             }
-            holder.buttonComment.setOnClickListener(v -> Toast.makeText(v.getContext(), v.getResources().getString(R.string.hello_blank_fragment), Toast.LENGTH_SHORT).show());
-            holder.buttonDislike.setOnClickListener(v -> Toast.makeText(v.getContext(), v.getResources().getString(R.string.hello_blank_fragment), Toast.LENGTH_SHORT).show());
-            counter(holder, post);
-            holder.buttonLike.setOnClickListener(v -> {
+            viewHolder.buttonComment.setOnClickListener(v -> Toast.makeText(v.getContext(), v.getResources().getString(R.string.hello_blank_fragment), Toast.LENGTH_SHORT).show());
+            viewHolder.buttonDislike.setOnClickListener(v -> Toast.makeText(v.getContext(), v.getResources().getString(R.string.hello_blank_fragment), Toast.LENGTH_SHORT).show());
+            counter(viewHolder, post);
+            viewHolder.buttonLike.setOnClickListener(v -> {
                 if (post.getLikes().contains(uid)) {
                     post.deleteLike(uid);
-                    counter(holder, post);
+                    counter(viewHolder, post);
                     FirebaseFirestore db = FirebaseFirestore.getInstance();
                     DocumentReference docRef = db.collection(POSTS_STR).document(post.getUid());
                     docRef.update(LIKES_STR, FieldValue.arrayRemove(uid));
                 } else {
                     post.addLike(uid);
-                    counter(holder, post);
+                    counter(viewHolder, post);
                     FirebaseFirestore db = FirebaseFirestore.getInstance();
                     DocumentReference docRef = db.collection(POSTS_STR).document(post.getUid());
                     docRef.update(LIKES_STR, FieldValue.arrayUnion(uid));
                 }
             });
+        } else {
+            AdsViewHolder viewHolder = (AdsViewHolder) holder;
         }
     }
 
@@ -196,8 +208,6 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostsViewHol
         private ImageButton buttonDislike, buttonSubscribe;
         private LinearLayout layout;
 
-        private BannerAdView mAdView;
-
         public PostsViewHolder(@NonNull View itemView) {
             super(itemView);
 
@@ -213,46 +223,52 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostsViewHol
             textViewDescription = itemView.findViewById(R.id.tvDescriptionPost);
             layout = itemView.findViewById(R.id.llPostMain);
             buttonSubscribe = itemView.findViewById(R.id.bSubscribePost);
+        }
+    }
 
-            if ((count - 1) % 5 == 0) {
-                mAdView = (BannerAdView) itemView.findViewById(R.id.adViewMain);
-                mAdView.setAdSize(AdSize.stickySize(itemView.getContext(), 500));
-                mAdView.setAdUnitId("R-M-2427151-2");
-                mAdView.setBannerAdEventListener(new BannerAdEventListener() {
-                    @Override
-                    public void onAdLoaded() {
-                        mAdView.setVisibility(View.VISIBLE);
-                    }
+    class AdsViewHolder extends RecyclerView.ViewHolder {
 
-                    @Override
-                    public void onAdFailedToLoad(@NonNull AdRequestError adRequestError) {
-                        mAdView.setVisibility(View.GONE);
-                        Log.e("ERROR", "ERROOOOOOOOOOOOOOOR");
-                    }
+        private BannerAdView mAdView;
 
-                    @Override
-                    public void onAdClicked() {
+        public AdsViewHolder(@NonNull View itemView) {
+            super(itemView);
+            mAdView = (BannerAdView) itemView.findViewById(R.id.adViewMain);
+            mAdView.setAdSize(AdSize.stickySize(itemView.getContext(), 400));
+            mAdView.setAdUnitId("R-M-2427151-2");
+            mAdView.setBannerAdEventListener(new BannerAdEventListener() {
+                @Override
+                public void onAdLoaded() {
+                    mAdView.setVisibility(View.VISIBLE);
+                }
 
-                    }
+                @Override
+                public void onAdFailedToLoad(@NonNull AdRequestError adRequestError) {
+                    mAdView.setVisibility(View.GONE);
+                    Log.e("ERROR", "ERROOOOOOOOOOOOOOOR");
+                }
 
-                    @Override
-                    public void onLeftApplication() {
+                @Override
+                public void onAdClicked() {
 
-                    }
+                }
 
-                    @Override
-                    public void onReturnedToApplication() {
+                @Override
+                public void onLeftApplication() {
 
-                    }
+                }
 
-                    @Override
-                    public void onImpression(@Nullable ImpressionData impressionData) {
+                @Override
+                public void onReturnedToApplication() {
 
-                    }
-                });
+                }
 
-                mAdView.loadAd(new AdRequest.Builder().build());
-            }
+                @Override
+                public void onImpression(@Nullable ImpressionData impressionData) {
+
+                }
+            });
+
+            mAdView.loadAd(new AdRequest.Builder().build());
         }
     }
 }

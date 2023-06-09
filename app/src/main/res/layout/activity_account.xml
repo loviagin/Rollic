@@ -134,8 +134,21 @@
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="10dp"
             android:layout_marginTop="5dp"
+            android:visibility="gone"
+            tools:visibility="visible"
             android:text="@string/bio_example_str"
             android:textSize="15sp" />
+
+        <Button
+            android:id="@+id/bEditAccount"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="10dp"
+            android:layout_marginHorizontal="15dp"
+            android:backgroundTint="@color/blue50"
+            android:visibility="gone"
+            tools:visibility="visible"
+            android:text="@string/edit_profile_str" />
 
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/tlAccount"
@@ -143,7 +156,6 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:layout_marginHorizontal="10dp"
-            android:layout_marginTop="15dp"
             android:background="@color/white"
             app:tabIndicatorColor="@color/blue"
             app:tabSelectedTextColor="@color/blue">

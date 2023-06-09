@@ -77,4 +77,20 @@
     <string name="title_post_gallery_str" translatable="false">«%s»</string>
     <string name="image_requared_str">Image must be added</string>
     <string name="rollic_ad_text">Rollic © Ad</string>
+    <string name="no_gallery_apps_found_on_this_device">No gallery apps found on this device</string>
+    <string name="loviagin_corporation" translatable="false">Loviagin Corporation</string>
+    <string name="ilia_loviagin" translatable="false">Ilia Loviagin</string>
+    <string name="www_ilia_loviagin_com" translatable="false">www.ilia.loviagin.com</string>
+    <string name="www_loviagin_com" translatable="false">www.loviagin.com</string>
+    <string name="apply_str">Apply</string>
+    <string name="change_lang_str">Change language</string>
+    <string name="delete_account_str">Delete account</string>
+    <string name="about_app_str">About</string>
+    <string name="settings_str">Settings</string>
+    <string name="logout_str">Log out</string>
+    <string name="edit_profile_str">Edit profile</string>
+    <string-array name="languages_array" translatable="false">
+        <item>English</item>
+        <item>Русский</item>
+    </string-array>
 </resources>

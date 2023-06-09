@@ -38,7 +38,6 @@ public class AddActivity extends AppCompatActivity implements AddPostTabAdapter.
     private ViewPager2 viewPager;
     private AddPostTabAdapter adapter;
     private ProgressBar progressBar;
-
 //    private BannerAdView mAdView;
 
     @Override
@@ -55,7 +54,6 @@ public class AddActivity extends AppCompatActivity implements AddPostTabAdapter.
         progressBar.setVisibility(View.VISIBLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
                 WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-
 //        mAdView = (BannerAdView) findViewById(R.id.adView);
 //        mAdView.setAdSize(AdSize.stickySize(this, 500));
 //        mAdView.setAdUnitId("R-M-2427151-2");
@@ -94,7 +92,6 @@ public class AddActivity extends AppCompatActivity implements AddPostTabAdapter.
 //        });
 //
 //        mAdView.loadAd(new AdRequest.Builder().build());
-
         adapter = new AddPostTabAdapter(this);
 
         viewPager.setAdapter(adapter);

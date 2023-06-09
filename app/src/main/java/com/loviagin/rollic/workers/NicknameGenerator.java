@@ -27,13 +27,13 @@ public class NicknameGenerator {
         String noun = nouns[random.nextInt(nouns.length)];
         int number = random.nextInt(1000);
         String r = adjective + noun + number;
-        if (check(r) > 0){
-            generateRandomNickname();
+        while (check(r) > 0) {
+            r += random.nextInt(1000);
         }
         return r;
     }
 
-    private static int check(String usr){
+    private static int check(String usr) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         Query query = db.collection(USERS_COLLECTION).whereEqualTo(NICKNAME, usr);
         AggregateQuery countQuery = query.count();
@@ -42,8 +42,6 @@ public class NicknameGenerator {
             if (task.isSuccessful()) {
                 AggregateQuerySnapshot snapshot = task.getResult();
                 cnt[0] = (int) snapshot.getCount();
-            } else {
-                generateRandomNickname();
             }
         });
         return cnt[0];

@@ -2,7 +2,7 @@
 <resources>
     <string name="hello_blank_fragment">Функционал в разработке</string>
     <string name="name_not_entered_str">Имя не задано</string>
-    <string name="subscribe_str">  Подписаться  </string>
+    <string name="subscribe_str">"  Подписаться  "</string>
     <string name="bio_example_str">Это огромное огромное огромное огромное огромное огромное описание - био профиля</string>
     <string name="my_posts_str">Мои посты</string>
     <string name="liked_str">Лайкнутое</string>
@@ -65,4 +65,12 @@
     <string name="enter_valid_phone_str">ВВЕДИТЕ КОРРЕКТНЫЙ НОМЕР</string>
     <string name="image_requared_str">Изображение обязательно к добавлению</string>
     <string name="rollic_ad_text">Rollic © Реклама</string>
+    <string name="no_gallery_apps_found_on_this_device">Нет приложения-галереи. Обратитесь в поддержку, пожалуйста</string>
+    <string name="apply_str">Применить</string>
+    <string name="change_lang_str">Сменить язык</string>
+    <string name="delete_account_str">Удаление аккаунта</string>
+    <string name="about_app_str">О приложении</string>
+    <string name="settings_str">Настройки</string>
+    <string name="logout_str">Выход</string>
+    <string name="edit_profile_str">Редактировать профиль</string>
 </resources>
