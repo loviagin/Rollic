@@ -27,7 +27,7 @@ public class AboutAppActivity extends AppCompatActivity {
         textViewLinkIlia = findViewById(R.id.tvLinkIliaAbout);
 
         buttonBack.setImageDrawable(getResources().getDrawable(R.drawable.fi_rr_back));
-        buttonBack.setOnClickListener(v -> startActivity(new Intent(this, SettingsActivity.class)));
+        buttonBack.setOnClickListener(v -> finish());
 
         textViewLinkCorp.setOnClickListener(v -> {
             openWebPage("https://loviagin.com/");

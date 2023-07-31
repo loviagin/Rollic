@@ -10,7 +10,6 @@ import static com.loviagin.rollic.Constants.USER_UID;
 import static com.loviagin.rollic.UserData.bio;
 import static com.loviagin.rollic.UserData.dynPosts;
 import static com.loviagin.rollic.UserData.name;
-import static com.loviagin.rollic.UserData.posts;
 import static com.loviagin.rollic.UserData.subscribers;
 import static com.loviagin.rollic.UserData.subscriptions;
 import static com.loviagin.rollic.UserData.uid;
@@ -21,13 +20,9 @@ import static com.loviagin.rollic.models.Objects.currentUser;
 import static com.loviagin.rollic.models.Objects.mAuth;
 import static com.loviagin.rollic.models.Objects.preferences;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.viewpager2.widget.ViewPager2;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -38,19 +33,32 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.viewpager2.widget.ViewPager2;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.loviagin.rollic.R;
 import com.loviagin.rollic.UserData;
 import com.loviagin.rollic.adapters.TabAccountAdapter;
+import com.loviagin.rollic.models.Notification;
 import com.loviagin.rollic.models.Post;
 import com.loviagin.rollic.models.User;
+import com.loviagin.rollic.models.Video;
+import com.onesignal.OneSignal;
 import com.squareup.picasso.Picasso;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -67,6 +75,7 @@ public class AccountActivity extends AppCompatActivity {
     private TabAccountAdapter adapter;
     private TextView textViewUsername, textViewName, textViewBio, textButtonSubscribe;
     private List<String> listPosts;
+    private List<String> listVideos;
     private List<String> listSubscriptions;
     private List<String> listSubscribers;
     private String usrName, usrNickname, usrUid, usrUrlAvatar;
@@ -103,7 +112,7 @@ public class AccountActivity extends AppCompatActivity {
                 WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
 
         Intent intent = getIntent();
-        Log.e(TAG, intent.hasExtra(USER_STR) + "");
+        Log.e("TA245G", intent.hasExtra(USER_STR) + "");
         if (intent.hasExtra(USER_STR) && !intent.getStringExtra(USER_STR).equals(uid)) {
             FirebaseFirestore db = FirebaseFirestore.getInstance();
             textButtonSubscribe.setVisibility(View.VISIBLE);
@@ -114,12 +123,14 @@ public class AccountActivity extends AppCompatActivity {
             }
             usrUid = intent.getStringExtra(USER_STR);
             buttonSettings.setVisibility(View.INVISIBLE);
-            db.collection(USERS_COLLECTION).document(intent.getStringExtra(USER_STR)).get().addOnSuccessListener(documentSnapshot -> {
+            db.collection(USERS_COLLECTION).document(usrUid).get().addOnSuccessListener(documentSnapshot -> {
                 User user = documentSnapshot.toObject(User.class);
+                Log.e("TA245G", usrUid);
                 listPosts = user.getPosts();
+                listVideos = user.getVideoposts();
                 listSubscribers = user.getSubscribers();
                 listSubscriptions = user.getSubscriptions();
-                if (user.getBio() != null && user.getBio().length() > 0){
+                if (user.getBio() != null && user.getBio().length() > 0) {
                     textViewBio.setVisibility(View.VISIBLE);
                     textViewBio.setText(user.getBio());
                 }
@@ -140,10 +151,11 @@ public class AccountActivity extends AppCompatActivity {
             buttonSettings.setOnClickListener(this::showPopupMenu);
             db.collection(USERS_COLLECTION).document(uid).get().addOnSuccessListener(documentSnapshot -> {
                 User user = documentSnapshot.toObject(User.class);
-                listPosts = posts;
+                listPosts = user.getPosts();
+                listVideos = user.getVideoposts();
                 listSubscribers = user.getSubscribers();
                 listSubscriptions = user.getSubscriptions();
-                if (user.getBio() != null && user.getBio().length() > 0){
+                if (user.getBio() != null && user.getBio().length() > 0) {
                     bio = user.getBio();
                     textViewBio.setVisibility(View.VISIBLE);
                     textViewBio.setText(user.getBio());
@@ -160,16 +172,17 @@ public class AccountActivity extends AppCompatActivity {
 
         buttonHome.setOnClickListener(v -> startActivity(new Intent(this, MainActivity.class)));
         buttonAccount.setOnClickListener(v -> startActivity(new Intent(AccountActivity.this, AccountActivity.class)));
-        buttonExplore.setOnClickListener(v -> Toast.makeText(this, getResources().getString(R.string.hello_blank_fragment), Toast.LENGTH_SHORT).show());
+        buttonExplore.setOnClickListener(v -> startActivity(new Intent(this, ExploreActivity.class)));
         buttonStore.setOnClickListener(v -> Toast.makeText(this, getResources().getString(R.string.hello_blank_fragment), Toast.LENGTH_SHORT).show());
         buttonAdd.setColorFilter(R.color.white);
         buttonAdd.setOnClickListener(v -> startActivity(new Intent(this, AddActivity.class)));
         buttonBack.setImageDrawable(getResources().getDrawable(R.drawable.fi_rr_back));
-        buttonBack.setOnClickListener(v -> startActivity(new Intent(this, MainActivity.class)));
+        buttonBack.setOnClickListener(v -> finish());
     }
 
     private void setInfoTable() {
         LinkedList<Post> lp = new LinkedList<>();
+        LinkedList<Video> vp = new LinkedList<>();
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection(POSTS_STR).whereEqualTo(AUTHOR_UID, usrUid).get().addOnCompleteListener(task -> {
@@ -179,10 +192,31 @@ public class AccountActivity extends AppCompatActivity {
                     lp.add(0, p0);
                     usrPosts.add(0, p0);
                 }
-                dynPosts = lp;
-                adapter = new TabAccountAdapter(this, lp);
-                viewPager.setAdapter(adapter);
-                getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+                db.collection("video-posts").whereEqualTo(AUTHOR_UID, usrUid).get().addOnCompleteListener(task1 -> {
+                    if (task1.isSuccessful()) {
+                        for (QueryDocumentSnapshot document : task1.getResult()) {
+                            Video v0 = document.toObject(Video.class);
+                            vp.add(0, v0);
+//                            usrPosts.add(0, v0);
+                        }
+                        db.collection(POSTS_STR).whereArrayContains("likes", uid).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<QuerySnapshot> task2) {
+                                LinkedList<Post> plist = new LinkedList<>();
+                                for (QueryDocumentSnapshot document : task2.getResult()) {
+                                    Post p2 = document.toObject(Post.class);
+                                    plist.add(p2);
+                                }
+                                UserData.likPosts = plist;
+                                dynPosts = lp;
+                                UserData.dynVideos = vp;
+                                adapter = new TabAccountAdapter(AccountActivity.this, lp, vp, plist);
+                                viewPager.setAdapter(adapter);
+                                getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+                            }
+                        });
+                    }
+                });
             }
         });
 
@@ -217,7 +251,7 @@ public class AccountActivity extends AppCompatActivity {
             startActivity(new Intent(this, EditProfileActivity.class));
         }
         textViewUsername.setText(String.format(getResources().getString(R.string.nicknameofuser_str), usrNickname));
-        buttonPosts.setText(String.format(getResources().getString(R.string.posts_str), listPosts.size() + ""));
+        buttonPosts.setText(String.format(getResources().getString(R.string.posts_str), (listPosts.size() + listVideos.size()) + ""));
         buttonSubscriptions.setText(String.format(getResources().getString(R.string.subscriptions_str), listSubscriptions.size() + ""));
         buttonSubscribers.setText(String.format(getResources().getString(R.string.subscribers_str), listSubscribers.size() + ""));
 
@@ -243,10 +277,37 @@ public class AccountActivity extends AppCompatActivity {
         textButtonSubscribe.setOnClickListener(v -> {
             subscriptions.add(intent.getStringExtra(USER_STR));
             FirebaseFirestore db0 = FirebaseFirestore.getInstance();
+            sendNotification(intent);
             db0.collection(USERS_COLLECTION).document(uid).update(SUBSCRIPTIONS_STR, FieldValue.arrayUnion(intent.getStringExtra(USER_STR)));
             db0.collection(USERS_COLLECTION).document(intent.getStringExtra(USER_STR)).update(SUBSCRIBERS_STR, FieldValue.arrayUnion(uid));
             unsubscribe(intent);
         });
+    }
+
+    private void sendNotification(Intent intent) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection(USERS_COLLECTION).document(intent.getStringExtra(USER_STR)).get().addOnSuccessListener(documentSnapshot -> {
+            List<String> devices = (List<String>) documentSnapshot.get("deviceTokens");
+            if (devices != null && devices.size() > 0) {
+                try {
+                    for (String str : devices) {
+                        JSONObject notificationContent = new JSONObject(
+                                "{'contents': {'en':'Новый подписчик @" + username + "'}, " +
+                                        "'include_player_ids': ['" + str + "'], " +
+                                        "'data': {'activityToBeOpened': 'NotificationActivity'}}"
+                        );
+                        OneSignal.postNotification(notificationContent, null);
+                    }
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+
+        db.collection("notifications").add(new
+                        Notification("Новый подписчик @" + username, "", urlAvatar, "p/" + uid))
+                .addOnSuccessListener(documentReference ->
+                        db.collection(USERS_COLLECTION).document(intent.getStringExtra(USER_STR)).update("notifications", FieldValue.arrayUnion(documentReference.getId())));
     }
 
     private void unsubscribe(Intent intent) {

@@ -7,6 +7,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter;
 
 import com.loviagin.rollic.fragments.PhotoAddFragment;
 import com.loviagin.rollic.fragments.PostAddFragment;
+import com.loviagin.rollic.fragments.VideoAddFragment;
 
 public class AddPostTabAdapter extends FragmentStateAdapter {
 
@@ -16,20 +17,26 @@ public class AddPostTabAdapter extends FragmentStateAdapter {
 
     public interface OnAddPostClickListener{
         void onImageClick();
+        void onVideoClick();
     }
 
     @NonNull
     @Override
     public Fragment createFragment(int position) {
-        if (position == 0){
-            return new PhotoAddFragment();
-        }else {
-            return new PostAddFragment();
+        switch (position){
+            case 0:
+                return new PhotoAddFragment();
+            case 1:
+                return new VideoAddFragment();
+            case 2:
+                return new PostAddFragment();
+            default:
+                return new PostAddFragment();
         }
     }
 
     @Override
     public int getItemCount() {
-        return 2;
+        return 3;
     }
 }

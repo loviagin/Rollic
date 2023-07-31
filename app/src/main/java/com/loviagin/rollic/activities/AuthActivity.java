@@ -1,8 +1,11 @@
 package com.loviagin.rollic.activities;
 
+import static com.loviagin.rollic.Constants.NICKNAME;
+import static com.loviagin.rollic.Constants.POSTS_STR;
 import static com.loviagin.rollic.Constants.USERS_COLLECTION;
 import static com.loviagin.rollic.Constants.USER_EMAIL;
 import static com.loviagin.rollic.Constants.USER_UID;
+import static com.loviagin.rollic.UserData.email;
 import static com.loviagin.rollic.UserData.name;
 import static com.loviagin.rollic.UserData.posts;
 import static com.loviagin.rollic.UserData.uid;
@@ -33,6 +36,8 @@ import com.google.android.gms.auth.api.identity.SignInClient;
 import com.google.android.gms.auth.api.identity.SignInCredential;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.CommonStatusCodes;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.FirebaseException;
 import com.google.firebase.FirebaseTooManyRequestsException;
@@ -43,9 +48,16 @@ import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthOptions;
 import com.google.firebase.auth.PhoneAuthProvider;
+import com.google.firebase.firestore.AggregateQuery;
+import com.google.firebase.firestore.AggregateQuerySnapshot;
+import com.google.firebase.firestore.AggregateSource;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
+import com.loviagin.rollic.Constants;
 import com.loviagin.rollic.UserData;
 import com.loviagin.rollic.adapters.AuthTabAdapter;
 import com.loviagin.rollic.R;
@@ -302,41 +314,52 @@ public class AuthActivity extends AppCompatActivity implements AuthTabAdapter.On
                         currentUser = task.getResult().getUser();
                         FirebaseFirestore db = FirebaseFirestore.getInstance();
                         Log.d(TAG, currentUser.getUid() + "");
-                        DocumentReference docRef = db.collection(USERS_COLLECTION).document(currentUser.getUid());
-                        docRef.get().addOnSuccessListener(documentSnapshot -> {
-                            if (documentSnapshot.exists()) {
-                                Log.d(TAG, "User exists in FireStore");
-                                User user = documentSnapshot.toObject(User.class);
-                                UserData.email = user.getEmail();
-                                username = user.getUsername();
-                                posts = user.getPosts();
-                                name = user.getF_name();
-                                uid = mAuth.getUid();
-                                preferences.edit().putString(USER_UID, currentUser.getUid()).apply();
-                                startActivity(new Intent(AuthActivity.this, MainActivity.class));
-                            } else {
-                                Log.d(TAG, "User doesn't exists in FireStore" + mAuth.getCurrentUser().getEmail());
-                                User user = new User(mAuth.getCurrentUser().getEmail());
-                                db.collection(USERS_COLLECTION).add(user).addOnSuccessListener(documentReference -> {
-                                    uid = documentReference.getId();
-                                    UserData.email = user.getEmail();
-                                    username = user.getUsername();
-                                    posts = user.getPosts();
-                                    preferences.edit().putString(USER_UID, uid).apply();
-                                    startActivity(new Intent(AuthActivity.this, RegisterScreenActivity.class));
-                                });
+
+                        Query query = db.collection(USERS_COLLECTION).whereEqualTo(USER_EMAIL, phoneNumber);
+                        AggregateQuery countQuery = query.count();
+                        final int[] cnt = {0};
+                        countQuery.get(AggregateSource.SERVER).addOnCompleteListener(task0 -> {
+                            if (task.isSuccessful()) {
+                                AggregateQuerySnapshot snapshot = task0.getResult();
+                                cnt[0] = (int) snapshot.getCount();
+                                Log.e(TAG, cnt[0] + "");
+                                if (cnt[0] > 0) { // user exists
+                                    Log.d(TAG, "User exists in FireStore");
+                                    db.collection(USERS_COLLECTION).whereEqualTo(USER_EMAIL, phoneNumber).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                            if (task.isSuccessful()) {
+                                                for (QueryDocumentSnapshot document : task.getResult()) {
+                                                    User user = document.toObject(User.class);
+                                                    email = user.getEmail();
+                                                    username = user.getUsername();
+                                                    posts = user.getPosts();
+                                                    name = user.getF_name();
+                                                    uid = mAuth.getUid();
+                                                    preferences.edit().putString(USER_UID, document.getId()).apply();
+                                                    startActivity(new Intent(AuthActivity.this, MainActivity.class));
+                                                }
+                                            }
+                                        }
+                                    });
+                                } else {
+                                    Log.d(TAG, "User doesn't exists in FireStore" + mAuth.getCurrentUser().getUid());
+                                    User user = new User(phoneNumber);
+                                    db.collection(USERS_COLLECTION).add(user).addOnSuccessListener(documentReference -> {
+                                        uid = documentReference.getId();
+                                        email = user.getEmail();
+                                        username = user.getUsername();
+                                        posts = user.getPosts();
+                                        preferences.edit().putString(USER_UID, uid).apply();
+                                        startActivity(new Intent(AuthActivity.this, RegisterScreenActivity.class));
+                                    });
+                                }
                             }
                         });
-                        Log.d(TAG, "signInWithCredential:success with uId " + currentUser.getUid());
-                    } else {
-                        // Sign in failed, display a message and update the UI
-                        Log.w(TAG, "signInWithCredential:failure", task.getException());
-                        if (task.getException() instanceof FirebaseAuthInvalidCredentialsException) {
-                            // The verification code entered was invalid
-                        }
                     }
                 });
     }
+
 
     private void resendVerificationCode(String phoneNumber) {
         PhoneAuthOptions options =
@@ -378,7 +401,7 @@ public class AuthActivity extends AppCompatActivity implements AuthTabAdapter.On
                                             if (documentSnapshot.exists()) {
                                                 Log.d(TAG, "User exists in FireStore");
                                                 User user = documentSnapshot.toObject(User.class);
-                                                UserData.email = user.getEmail();
+                                                email = user.getEmail();
                                                 username = user.getUsername();
                                                 posts = user.getPosts();
                                                 name = user.getF_name();
@@ -390,7 +413,7 @@ public class AuthActivity extends AppCompatActivity implements AuthTabAdapter.On
                                                 User user = new User(mAuth.getCurrentUser().getEmail());
                                                 db.collection(USERS_COLLECTION).add(user).addOnSuccessListener(documentReference -> {
                                                     uid = documentReference.getId();
-                                                    UserData.email = user.getEmail();
+                                                    email = user.getEmail();
                                                     username = user.getUsername();
                                                     name = mAuth.getCurrentUser().getDisplayName();
                                                     posts = user.getPosts();

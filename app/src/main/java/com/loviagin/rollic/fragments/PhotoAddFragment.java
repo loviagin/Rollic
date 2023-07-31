@@ -16,7 +16,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -39,6 +38,7 @@ import com.loviagin.rollic.models.Post;
 
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 public class PhotoAddFragment extends Fragment {
@@ -74,7 +74,7 @@ public class PhotoAddFragment extends Fragment {
         editTextTags = view.findViewById(R.id.etTagsPhotoAdd);
         buttonCancel = view.findViewById(R.id.bCancelPhotoAdd);
         buttonSend = view.findViewById(R.id.bPublishPhotoAdd);
-        imageView1 = view.findViewById(R.id.ivPhotoAdd);
+        imageView1 = view.findViewById(R.id.vvVideoAdd);
         progressBar = view.findViewById(R.id.pbPhotoAdd);
 
         imageView1.setOnClickListener(v -> {
@@ -90,11 +90,12 @@ public class PhotoAddFragment extends Fragment {
                 progressBar.setVisibility(View.VISIBLE);
                 List<String> strings = new ArrayList<>();
                 List<String> likes = new ArrayList<>();
+                List<String> comments = new LinkedList<>();
                 FirebaseFirestore db = FirebaseFirestore.getInstance();
 
                 FirebaseStorage storage = FirebaseStorage.getInstance();
                 StorageReference storageRef = storage.getReference();
-                String iva = "post-images/" + uid + System.currentTimeMillis() + ".jpg";
+                String iva = "post-images/" + uid + "/" + System.currentTimeMillis() + ".jpg";
                 StorageReference imagesRef = storageRef.child(iva);
                 imageView1.setDrawingCacheEnabled(true);
                 imageView1.buildDrawingCache();
@@ -113,7 +114,7 @@ public class PhotoAddFragment extends Fragment {
                     db.collection(POSTS_STR)
 //                        .document(String.valueOf(postsCount + 1)).set
                             .add(new Post("", editTextDescription.getText().toString().trim(),
-                                    editTextTags.getText().toString().trim(), uid, name, urlAvatar, username, strings, likes, 0, 0))
+                                    editTextTags.getText().toString().trim(), uid, name, urlAvatar, username, strings, likes, comments, 0))
                             .addOnSuccessListener(documentReference -> {
                                 db.collection(USERS_COLLECTION).document(uid).update(POSTS_STR, FieldValue.arrayUnion(documentReference.getId()));
 

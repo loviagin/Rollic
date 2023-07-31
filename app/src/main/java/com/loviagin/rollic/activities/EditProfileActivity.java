@@ -1,17 +1,22 @@
 package com.loviagin.rollic.activities;
 
+import static com.loviagin.rollic.Constants.AUTHOR_UID;
 import static com.loviagin.rollic.Constants.AVATAR_URL;
 import static com.loviagin.rollic.Constants.BIO;
 import static com.loviagin.rollic.Constants.NICKNAME;
+import static com.loviagin.rollic.Constants.POSTS_STR;
 import static com.loviagin.rollic.Constants.USERS_COLLECTION;
 import static com.loviagin.rollic.Constants.USER_NAME;
 import static com.loviagin.rollic.UserData.bio;
 import static com.loviagin.rollic.UserData.email;
 import static com.loviagin.rollic.UserData.name;
+import static com.loviagin.rollic.UserData.posts;
 import static com.loviagin.rollic.UserData.uid;
 import static com.loviagin.rollic.UserData.urlAvatar;
 import static com.loviagin.rollic.UserData.username;
+import static com.loviagin.rollic.UserData.usrPosts;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
@@ -23,6 +28,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -33,7 +39,11 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -50,6 +60,7 @@ import java.util.List;
 
 public class EditProfileActivity extends AppCompatActivity {
 
+    private static final String TAG = "Edit_Profile_Activity_TAG";
     private ImageButton buttonBack, buttonAccept;
     private Button buttonUpload;
     private EditText editTextName, editTextNickname, editTextBio, editTextEmail;
@@ -129,7 +140,11 @@ public class EditProfileActivity extends AppCompatActivity {
                 username = nickname;
                 urlAvatar = finalIva;
                 bio = bio0;
-                getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+                for (String s : posts){
+                    db.collection(POSTS_STR).document(s).update("authorName", name0,
+                            "authorNickname", nickname,
+                            "authorAvatarUrl", finalIva);
+                }
                 progressBar.setVisibility(View.GONE);
                 startActivity(new Intent(EditProfileActivity.this, AccountActivity.class));
             });

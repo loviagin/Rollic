@@ -4,10 +4,10 @@ import java.util.List;
 
 public class Post {
     private String uid, title, description, tags, uidAuthor, authorName, authorAvatarUrl, authorNickname;
-    private int commentsCount, repostCount;
+    private int repostCount;
     private List<String> likes;
     private List<String> imagesUrls;
-
+    private List<String> comments;
 
     //post add
     public Post(String uid, String title, String description, String tags, String uidAuthor, String authorName, String authorAvatarUrl, String authorNickname) {
@@ -21,7 +21,7 @@ public class Post {
         this.uid = uid;
     }
 
-    public Post(String title, String description, String tags, String uidAuthor, String authorName, String authorAvatarUrl, String authorNickname, List<String> imagesUrls, List<String> likes, int commentsCount, int repostCount) {
+    public Post(String title, String description, String tags, String uidAuthor, String authorName, String authorAvatarUrl, String authorNickname, List<String> imagesUrls, List<String> likes, List<String> comments, int repostCount) {
         this.title = title;
         this.description = description;
         this.tags = tags;
@@ -32,7 +32,7 @@ public class Post {
         this.imagesUrls = imagesUrls;
         this.repostCount = repostCount;
         this.likes = likes;
-        this.commentsCount = commentsCount;
+        this.comments = comments;
     }
 
     public Post() {
@@ -46,6 +46,14 @@ public class Post {
         this.imagesUrls = imagesUrls;
         this.authorNickname = authorNickname;
         this.uid = uid;
+    }
+
+    public List<String> getComments() {
+        return comments;
+    }
+
+    public void setComments(List<String> comments) {
+        this.comments = comments;
     }
 
     public void addLike(String uid){
@@ -70,14 +78,6 @@ public class Post {
 
     public void setLikes(List<String> likes) {
         this.likes = likes;
-    }
-
-    public int getCommentsCount() {
-        return commentsCount;
-    }
-
-    public void setCommentsCount(int commentsCount) {
-        this.commentsCount = commentsCount;
     }
 
     public int getRepostCount() {
@@ -164,7 +164,6 @@ public class Post {
                 ", authorName='" + authorName + '\'' +
                 ", authorAvatarUrl='" + authorAvatarUrl + '\'' +
                 ", authorNickname='" + authorNickname + '\'' +
-                ", commentsCount=" + commentsCount +
                 ", repostCount=" + repostCount +
                 ", likes=" + likes +
                 ", imagesUrls=" + imagesUrls +

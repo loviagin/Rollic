@@ -25,10 +25,11 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:orientation="vertical"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/include4"
         app:layout_constraintTop_toBottomOf="@+id/include3">
 
         <LinearLayout
@@ -168,12 +169,12 @@
             <com.google.android.material.tabs.TabItem
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/liked_str" />
+                android:text="Видео лента" />
 
             <com.google.android.material.tabs.TabItem
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/in_dev_str" />
+                android:text="@string/liked_str" />
 
         </com.google.android.material.tabs.TabLayout>
 
@@ -181,7 +182,7 @@
             android:id="@+id/vpAccount"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="10dp"
+            android:minHeight="450dp"
             android:layout_marginTop="10dp" />
     </LinearLayout>
     <!--    </ScrollView>-->

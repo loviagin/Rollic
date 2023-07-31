@@ -162,12 +162,6 @@ public class RegisterScreenActivity extends AppCompatActivity {
         }
     }
 
-//    private void openImagePicker() {
-//        CropImage.activity()
-//                .setGuidelines(CropImageView.Guidelines.ON)
-//                .start(this);
-//    }
-
     private void startImageCrop(Uri imageUri) {
         Intent intent = CropImage.activity(imageUri)
                 .getIntent(this);

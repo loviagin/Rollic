@@ -7,9 +7,13 @@ import static com.loviagin.rollic.Constants.SUBSCRIPTIONS_STR;
 import static com.loviagin.rollic.Constants.USERS_COLLECTION;
 import static com.loviagin.rollic.UserData.subscriptions;
 import static com.loviagin.rollic.UserData.uid;
+import static com.loviagin.rollic.UserData.urlAvatar;
+import static com.loviagin.rollic.UserData.username;
+import static com.loviagin.rollic.models.Objects.currentUser;
+import static com.loviagin.rollic.models.Objects.preferences;
 
-import android.content.Context;
 import android.graphics.Color;
+import android.net.Uri;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,14 +29,18 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.imageview.ShapeableImageView;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.loviagin.rollic.R;
+import com.loviagin.rollic.models.Notification;
 import com.loviagin.rollic.models.Post;
+import com.onesignal.OneSignal;
 import com.squareup.picasso.Picasso;
 import com.yandex.mobile.ads.banner.AdSize;
 import com.yandex.mobile.ads.banner.BannerAdEventListener;
@@ -41,12 +49,15 @@ import com.yandex.mobile.ads.common.AdRequest;
 import com.yandex.mobile.ads.common.AdRequestError;
 import com.yandex.mobile.ads.common.ImpressionData;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.List;
 
 public class PostsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private List<Post> posts;
-    private OnReachListener onReachListener;
+//    private OnReachListener onReachListener;
     private OnPostClickListener onPostClickListener;
 
     private static final int TYPE_REGULAR = 0;
@@ -56,21 +67,21 @@ public class PostsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         this.posts = posts;
     }
 
-    public interface OnReachListener {
-        void onReachEnd();
-    }
+//    public interface OnReachListener {
+//        void onReachEnd();
+//    }
 
     public interface OnPostClickListener {
         void onClickAvatar(String usrUid);
+
+        void onMenuClick(View view, String pstUid);
+
+        void onCommentClick(String pstUid, Uri uri);
     }
 
     @Override
     public int getItemViewType(int position) {
-        if (position % 5 == 0 && position > 0) {
-            return TYPE_SPECIAL;
-        } else {
-            return TYPE_REGULAR;
-        }
+        return position % 6 == 0 && position != 0 ? TYPE_SPECIAL : TYPE_REGULAR;
     }
 
     @NonNull
@@ -95,12 +106,14 @@ public class PostsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+        final Uri[] uri0 = {null};
         if (getItemViewType(position) == TYPE_REGULAR) {
             PostsViewHolder viewHolder = (PostsViewHolder) holder;
-            if (position == posts.size() - 1 && onReachListener != null) {
-                onReachListener.onReachEnd();
-            }
-            Post post = posts.get(position);
+//            if (position == posts.size() - 1 && onReachListener != null) {
+//                onReachListener.onReachEnd();
+//            }
+            int postPosition = position - position / 6;
+            Post post = posts.get(postPosition);
             viewHolder.textViewNickname.setText(String.format("@%s", post.getAuthorNickname()));
 
             if (post.getAuthorName() == null || post.getAuthorName().equals("")) {
@@ -115,7 +128,10 @@ public class PostsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
             if (post.getAuthorAvatarUrl() != null && !post.getAuthorAvatarUrl().equals("")) {
                 storageRef.child(post.getAuthorAvatarUrl()).getDownloadUrl()
-                        .addOnSuccessListener(uri -> Picasso.get().load(uri).into((viewHolder.imageViewAvatar)));
+                        .addOnSuccessListener(uri -> {
+                            uri0[0] = uri;
+                            Picasso.get().load(uri).into(viewHolder.imageViewAvatar);
+                        });
             }
 
             viewHolder.textViewDescription.setText(post.getDescription());
@@ -138,57 +154,114 @@ public class PostsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             };
             viewHolder.layout.setOnClickListener(clnr);
             viewHolder.imageViewAvatar.setOnClickListener(clnr);
-            if (subscriptions.contains(post.getUidAuthor()) || post.getUidAuthor().equals(uid)) {
+            if (subscriptions.contains(post.getUidAuthor())) {
                 viewHolder.buttonSubscribe.setVisibility(View.GONE);
+            } else if (post.getUidAuthor().equals(uid)) {
+                viewHolder.buttonSubscribe.setImageDrawable(holder.itemView.getResources().getDrawable(R.drawable.fi_rr_menu_dots));
+                viewHolder.buttonSubscribe.setOnClickListener(v -> {
+                    if (onPostClickListener != null) {
+                        onPostClickListener.onMenuClick(v, post.getUid());
+                    }
+                });
+
             } else {
                 viewHolder.buttonSubscribe.setVisibility(View.VISIBLE);
+                FirebaseFirestore db = FirebaseFirestore.getInstance();
                 viewHolder.buttonSubscribe.setOnClickListener(v -> {
                     if (!subscriptions.contains(post.getUidAuthor())) {
                         subscriptions.add(post.getUidAuthor());
+                        db.collection(USERS_COLLECTION).document(post.getUidAuthor()).get().addOnSuccessListener(documentSnapshot -> {
+                            List<String> devices = (List<String>) documentSnapshot.get("deviceTokens");
+                            if (devices != null && devices.size() > 0) {
+                                try {
+                                    for (String str : devices) {
+                                        JSONObject notificationContent = new JSONObject(
+                                                "{'contents': {'en':'Новый подписчик @" + username + "'}, " +
+                                                        "'include_player_ids': ['" + str + "'], " +
+                                                        "'data': {'activityToBeOpened': 'NotificationActivity'}}"
+                                        );
+                                        OneSignal.postNotification(notificationContent, null);
+                                    }
+                                } catch (JSONException e) {
+                                    throw new RuntimeException(e);
+                                }
+                            }
+                        });
+
+                        db.collection("notifications").add(new
+                                        Notification("Новый подписчик @" + username, "", urlAvatar, "p/" + uid))
+                                .addOnSuccessListener(documentReference ->
+                                        db.collection(USERS_COLLECTION).document(post.getUidAuthor()).update("notifications", FieldValue.arrayUnion(documentReference.getId())));
                     }
-                    FirebaseFirestore db = FirebaseFirestore.getInstance();
                     db.collection(USERS_COLLECTION).document(uid).update(SUBSCRIPTIONS_STR, FieldValue.arrayUnion(post.getUidAuthor()));
                     db.collection(USERS_COLLECTION).document(post.getUidAuthor()).update(SUBSCRIBERS_STR, FieldValue.arrayUnion(uid));
                     viewHolder.buttonSubscribe.setVisibility(View.GONE);
                 });
             }
-            viewHolder.buttonComment.setOnClickListener(v -> Toast.makeText(v.getContext(), v.getResources().getString(R.string.hello_blank_fragment), Toast.LENGTH_SHORT).show());
+            viewHolder.buttonComment.setOnClickListener(v -> {
+                if (onPostClickListener != null) {
+                    onPostClickListener.onCommentClick(post.getUid(), uri0[0]);
+                }
+            });
             viewHolder.buttonDislike.setOnClickListener(v -> Toast.makeText(v.getContext(), v.getResources().getString(R.string.hello_blank_fragment), Toast.LENGTH_SHORT).show());
             counter(viewHolder, post);
             viewHolder.buttonLike.setOnClickListener(v -> {
+                FirebaseFirestore db = FirebaseFirestore.getInstance();
                 if (post.getLikes().contains(uid)) {
                     post.deleteLike(uid);
                     counter(viewHolder, post);
-                    FirebaseFirestore db = FirebaseFirestore.getInstance();
                     DocumentReference docRef = db.collection(POSTS_STR).document(post.getUid());
                     docRef.update(LIKES_STR, FieldValue.arrayRemove(uid));
                 } else {
                     post.addLike(uid);
                     counter(viewHolder, post);
-                    FirebaseFirestore db = FirebaseFirestore.getInstance();
+                    db.collection(USERS_COLLECTION).document(post.getUidAuthor()).get().addOnSuccessListener(documentSnapshot -> {
+                        List<String> devices = (List<String>) documentSnapshot.get("deviceTokens");
+                        if (devices != null && devices.size() > 0) {
+                            try {
+                                for (String str : devices) {
+                                    JSONObject notificationContent = new JSONObject(
+                                            "{'contents': {'en':'Новый лайк от @" + username + "'}, " +
+                                                    "'include_player_ids': ['" + str + "'], " +
+                                                    "'data': {'activityToBeOpened': 'NotificationActivity'}}"
+                                    );
+                                    OneSignal.postNotification(notificationContent, null);
+                                }
+                            } catch (JSONException e) {
+                                throw new RuntimeException(e);
+                            }
+                        }
+                    });
+
+                    db.collection("notifications").add(new
+                                    Notification("Новый лайк от @" + username, "Теперь их всего " + viewHolder.buttonLike.getText(), urlAvatar, "l/" + post.getUid()))
+                            .addOnSuccessListener(documentReference ->
+                                    db.collection(USERS_COLLECTION).document(post.getUidAuthor()).update("notifications", FieldValue.arrayUnion(documentReference.getId())));
+
+
                     DocumentReference docRef = db.collection(POSTS_STR).document(post.getUid());
                     docRef.update(LIKES_STR, FieldValue.arrayUnion(uid));
                 }
             });
         } else {
-            AdsViewHolder viewHolder = (AdsViewHolder) holder;
+            AdsViewHolder ignored = (AdsViewHolder) holder;
         }
     }
 
     @Override
     public int getItemCount() {
-        return posts.size();
+        return posts.size() + posts.size() / 5;  // Add an ad after every 5 posts
     }
 
-    public void setOnReachListener(OnReachListener onReachListener) {
-        this.onReachListener = onReachListener;
-    }
+//    public void setOnReachListener(OnReachListener onReachListener) {
+//        this.onReachListener = onReachListener;
+//    }
 
     private void counter(PostsViewHolder holder, Post post) {
         setColorToButton(holder, post);
         holder.buttonLike.setText(String.valueOf(post.getLikes().size()));
-        holder.buttonComment.setText(String.valueOf(post.getCommentsCount()));
-        holder.buttonRepost.setText(String.valueOf(post.getRepostCount()));
+        holder.buttonComment.setText(String.valueOf(post.getComments().size()));
+//        holder.buttonRepost.setText(String.valueOf(post.getRepostCount()));
     }
 
     private void setColorToButton(PostsViewHolder holder, Post post) {

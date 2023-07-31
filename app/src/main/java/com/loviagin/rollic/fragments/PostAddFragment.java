@@ -29,6 +29,7 @@ import com.loviagin.rollic.activities.MainActivity;
 import com.loviagin.rollic.models.Post;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 public class PostAddFragment extends Fragment {
@@ -54,10 +55,11 @@ public class PostAddFragment extends Fragment {
             if (editTextTitle.getText() != null && editTextTitle.getText().length() > 0 && editTextDescription.getText() != null && editTextDescription.getText().length() > 0) {
                 progressBar.setVisibility(View.VISIBLE);
                 List<String> likes = new ArrayList<>();
+                List<String> comments = new LinkedList<>();
                 FirebaseFirestore db = FirebaseFirestore.getInstance();
                 db.collection(POSTS_STR)
                         .add(new Post(editTextTitle.getText().toString().trim(), editTextDescription.getText().toString().trim(),
-                                editTextTags.getText().toString().trim(), uid, name, urlAvatar, username, null, likes, 0, 0))
+                                editTextTags.getText().toString().trim(), uid, name, urlAvatar, username, null, likes, comments, 0))
                         .addOnSuccessListener(documentReference -> {
                             db.collection(USERS_COLLECTION).document(uid).update(POSTS_STR, FieldValue.arrayUnion(documentReference.getId()));
 

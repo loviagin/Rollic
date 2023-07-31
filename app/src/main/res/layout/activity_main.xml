@@ -42,15 +42,65 @@
     <!--            </HorizontalScrollView>-->
 
 
+    <LinearLayout
+        android:id="@+id/llHeadMain"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/include">
+
+        <Space
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+
+        <TextView
+            android:id="@+id/tvRecommendationsMain"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Для Вас"
+            android:textColor="@color/white"
+            android:background="@drawable/ground_button"
+            android:paddingVertical="5dp"
+            android:paddingHorizontal="15dp"/>
+
+        <TextView
+            android:id="@+id/tvSubscriptionsMain"
+            android:layout_marginHorizontal="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/ground_box"
+            android:paddingVertical="5dp"
+            android:paddingHorizontal="15dp"
+            android:text="Подписки" />
+
+        <TextView
+            android:id="@+id/tvPaidMain"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/ground_box"
+            android:paddingVertical="5dp"
+            android:paddingHorizontal="15dp"
+            android:text="Платное" />
+
+        <Space
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+    </LinearLayout>
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvPostsMain"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:paddingTop="10dp"
-        app:layout_constraintBottom_toTopOf="@id/tvEndMain"
+        android:layout_marginTop="10dp"
+        app:layout_constraintBottom_toTopOf="@id/inFMain"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/include" >
+        app:layout_constraintTop_toBottomOf="@+id/llHeadMain">
 
     </androidx.recyclerview.widget.RecyclerView>
     <!--        </LinearLayout>-->

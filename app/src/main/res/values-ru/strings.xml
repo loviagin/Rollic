@@ -21,7 +21,7 @@
     <string name="phone_str">Телефон</string>
     <string name="other_login_option_str">Или воспользутесь другими способами входа</string>
     <string name="google_str">Google вход</string>
-    <string name="end_posts_str">На этом пока всё. Добавьте свой пост, чтобы дополнить ленту :)</string>
+    <string name="end_posts_str">На этом пока всё</string>
     <string name="subscribers_text">Подписчики</string>
     <string name="home_screen_str">Домашний экран</string>
     <string name="video_screen_str">Видео лента</string>
@@ -73,4 +73,5 @@
     <string name="settings_str">Настройки</string>
     <string name="logout_str">Выход</string>
     <string name="edit_profile_str">Редактировать профиль</string>
+    <string name="save_str">Сохранить</string>
 </resources>

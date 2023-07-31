@@ -89,6 +89,8 @@
     <string name="settings_str">Settings</string>
     <string name="logout_str">Log out</string>
     <string name="edit_profile_str">Edit profile</string>
+    <string name="save_str">Save</string>
+    <string name="video_str">Видео</string>
     <string-array name="languages_array" translatable="false">
         <item>English</item>
         <item>Русский</item>

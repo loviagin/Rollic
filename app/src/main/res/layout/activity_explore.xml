@@ -6,4 +6,97 @@
     android:layout_height="match_parent"
     tools:context=".activities.ExploreActivity">
 
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvVideoExplore"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:scrollbars="none"
+        app:layout_constraintBottom_toTopOf="@+id/include10"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.372" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/ground_box"
+        android:backgroundTint="@color/black20"
+        android:backgroundTintMode="src_in"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="@+id/rvVideoExplore"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <Button
+            android:id="@+id/bLikeVideo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
+            android:background="@color/transparent"
+            android:paddingHorizontal="15dp"
+            android:text="Like"
+            android:textSize="16sp"
+            app:icon="@drawable/fi_rr_like"
+            app:iconGravity="top"
+            app:iconSize="22dp" />
+
+        <Button
+            android:id="@+id/bCommentVideo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="15dp"
+            android:background="@color/transparent"
+            android:paddingHorizontal="15dp"
+            android:text="Comment"
+            android:textSize="16sp"
+            app:icon="@drawable/fi_rr_messages"
+            app:iconGravity="top"
+            app:iconSize="22dp" />
+
+        <Button
+            android:id="@+id/bRepostVideo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="15dp"
+            android:background="@color/transparent"
+            android:paddingHorizontal="15dp"
+            android:text="Share"
+            android:textSize="16sp"
+            app:icon="@drawable/fi_rr_repost"
+            app:iconGravity="top"
+            app:iconSize="22dp" />
+
+    </LinearLayout>
+
+    <SeekBar
+        android:id="@+id/seekBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="@+id/rvVideoExplore"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/textView23"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:textAlignment="center"
+        android:gravity="center"
+        android:text="Временно отключили видео ленту"
+        android:background="@color/black20"
+        app:layout_constraintBottom_toTopOf="@id/include10"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <include
+        android:id="@+id/include10"
+        layout="@layout/footer_layout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

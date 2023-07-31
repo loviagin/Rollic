@@ -1,5 +1,8 @@
 package com.loviagin.rollic.activities;
 
+import static com.loviagin.rollic.Constants.LANGUAGE;
+import static com.loviagin.rollic.models.Objects.preferences;
+
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -19,7 +22,9 @@ import android.widget.Spinner;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 
+import com.loviagin.rollic.Constants;
 import com.loviagin.rollic.R;
+import com.loviagin.rollic.models.Objects;
 import com.loviagin.rollic.workers.LanguageUtils;
 
 public class SettingsActivity extends AppCompatActivity {
@@ -80,9 +85,11 @@ public class SettingsActivity extends AppCompatActivity {
                 switch (selectedLanguage){
                     case "English":
                         LanguageUtils.setAppLocale(getResources(), "en");
+                        preferences.edit().putString(LANGUAGE, "en").apply();
                         break;
                     case "Русский":
                         LanguageUtils.setAppLocale(getResources(), "ru");
+                        preferences.edit().putString(LANGUAGE, "ru").apply();
                         break;
                 }
                 popupWindow.dismiss();

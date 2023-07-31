@@ -12,7 +12,11 @@ public class Constants {
     public static final String USER_NAME = "f_name";
     public static final String NICKNAME = "username";
     public static final String AVATAR_URL = "avatarUrl";
+    public static final String COMMENTS_STR = "comments";
     public static final String LIKES_STR = "likes";
     public static final String POSITION = "position";
     public static final String BIO = "bio";
+    public static final String EDIT_POST = "ep_uid";
+    public static final String LANGUAGE = "language";
+    public static final String POST_UID = "pstUid";
 }

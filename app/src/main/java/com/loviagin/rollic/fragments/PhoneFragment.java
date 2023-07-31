@@ -73,6 +73,7 @@ public class PhoneFragment extends Fragment {
 
         buttonResend.setOnClickListener(v -> {
             if (editTextCode.getText().toString().trim().length() > 1){
+                editTextCode.setText("");
                 mListener.OnPhoneResendClick();
             } else {
                 textView.setText(R.string.enter_valid_phone_str);

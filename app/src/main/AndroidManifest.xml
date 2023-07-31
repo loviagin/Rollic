@@ -4,16 +4,15 @@
 
     <uses-feature
         android:name="android.hardware.camera"
-        android:required="false" />
-
+        android:required="false" /> <!-- <uses-feature android:glEsVersion="0x00020000" android:required="true"/> -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.CAMERA" />
-    <uses-permission
-        android:name="com.google.android.gms.permission.AD_ID"
-        tools:node="remove" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="com.google.android.gms.permission.AD_ID" />
 
     <application
         android:name=".App"
@@ -26,6 +25,22 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Rollic"
         tools:targetApi="31">
+        <activity
+            android:name=".activities.NotificationActivity"
+            android:exported="false">
+
+            <intent-filter>
+                <action android:name="OPEN_NOTIFICATION_ACTIVITY" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".activities.PostActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.EditPostActivity"
+            android:exported="false" />
         <activity
             android:name=".activities.AboutAppActivity"
             android:exported="false" />

@@ -5,13 +5,10 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ProgressBar;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager2.widget.ViewPager2;
 
@@ -19,14 +16,9 @@ import com.google.android.material.tabs.TabLayout;
 import com.loviagin.rollic.R;
 import com.loviagin.rollic.adapters.AddPostTabAdapter;
 import com.loviagin.rollic.fragments.PhotoAddFragment;
+import com.loviagin.rollic.fragments.VideoAddFragment;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
-import com.yandex.mobile.ads.banner.AdSize;
-import com.yandex.mobile.ads.banner.BannerAdEventListener;
-import com.yandex.mobile.ads.banner.BannerAdView;
-import com.yandex.mobile.ads.common.AdRequest;
-import com.yandex.mobile.ads.common.AdRequestError;
-import com.yandex.mobile.ads.common.ImpressionData;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -34,6 +26,7 @@ import java.io.IOException;
 
 public class AddActivity extends AppCompatActivity implements AddPostTabAdapter.OnAddPostClickListener {
 
+    private static final int REQUEST_CODE_SELECT_VIDEO = 56698;
     private TabLayout tabLayout;
     private ViewPager2 viewPager;
     private AddPostTabAdapter adapter;
@@ -123,6 +116,47 @@ public class AddActivity extends AppCompatActivity implements AddPostTabAdapter.
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
     }
 
+//    @Override
+//    public void onVideoClick() {
+//        progressBar.setVisibility(View.VISIBLE);
+//        getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+//                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+//        selectVideo();
+//    }
+//
+//    private void selectVideo() {
+//        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+//        intent.setType("video/*");
+//
+//        PackageManager packageManager = getPackageManager();
+//        List<ResolveInfo> activities = packageManager.queryIntentActivities(intent, 0);
+//        boolean isIntentSafe = activities.size() > 0;
+//
+//        if (isIntentSafe) {
+//            startActivityForResult(intent, REQUEST_CODE_SELECT_VIDEO);
+//        } else {
+//            Toast.makeText(this, "No video picker apps found on this device", Toast.LENGTH_SHORT).show();
+//        }
+//    }
+//
+//    private void startVideoCrop(Uri videoUri) {
+//        Uri outputUri = getOutputMediaFileUri(); // Получение URI для выходного файла
+//
+//        Crop.of(videoUri, outputUri).asSquare().start(this);
+//    }
+
+//    private void cropVideo(String videoPath, String outputPath, int startTime, int duration) {
+//        String[] cmd = new String[]{"-ss", String.valueOf(startTime), "-t", String.valueOf(duration), "-i", videoPath, "-c", "copy", outputPath};
+//
+//        int executionId = FFmpeg.execute(cmd);
+//
+//        if (executionId == Config.RETURN_CODE_SUCCESS) {
+//            // Видео успешно обрезано
+//        } else {
+//            // Возникла ошибка при обрезке видео
+//        }
+//    }
+
     @Override
     public void onImageClick() {
         progressBar.setVisibility(View.VISIBLE);
@@ -131,41 +165,65 @@ public class AddActivity extends AppCompatActivity implements AddPostTabAdapter.
         openImagePicker();
     }
 
+    @Override
+    public void onVideoClick() {
+        progressBar.setVisibility(View.VISIBLE);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+        selectVideo();
+    }
+
+    private void selectVideo() {
+        Intent intent = new Intent();
+        intent.setType("video/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(Intent.createChooser(intent, "Select Video"), REQUEST_CODE_SELECT_VIDEO);
+    }
+
     private void openImagePicker() {
         CropImage.activity()
                 .setGuidelines(CropImageView.Guidelines.ON)
                 .setAllowFlipping(true)
                 .setAllowRotation(true)
-                .setAspectRatio(4,3)
+                .setAspectRatio(4, 3)
                 .start(this);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
-            CropImage.ActivityResult result = CropImage.getActivityResult(data);
-            if (resultCode == RESULT_OK) {
-                Uri croppedImageUri = result.getUri();
+        switch (requestCode) {
+            case CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE:
+                CropImage.ActivityResult result = CropImage.getActivityResult(data);
+                if (resultCode == RESULT_OK) {
+                    Uri croppedImageUri = result.getUri();
 //                // Конвертирование в формат JPEG
-                File outputFile = new File(croppedImageUri.getPath());
-                Bitmap bitmap = null;
-                try {
-                    bitmap = BitmapFactory.decodeFile(outputFile.getAbsolutePath());
-                    FileOutputStream outStream = new FileOutputStream(outputFile);
-                    bitmap.compress(Bitmap.CompressFormat.JPEG, 80, outStream);
-                    outStream.flush();
-                    outStream.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
+                    File outputFile = new File(croppedImageUri.getPath());
+                    Bitmap bitmap = null;
+                    try {
+                        bitmap = BitmapFactory.decodeFile(outputFile.getAbsolutePath());
+                        FileOutputStream outStream = new FileOutputStream(outputFile);
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, 80, outStream);
+                        outStream.flush();
+                        outStream.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    PhotoAddFragment.setImageView(bitmap);
+                    progressBar.setVisibility(View.GONE);
+                    getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+                } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
+                    Exception error = result.getError();
+                    // Обработка ошибки обрезки изображения
                 }
-                PhotoAddFragment.setImageView(bitmap);
-                progressBar.setVisibility(View.GONE);
-                getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-            } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
-                Exception error = result.getError();
-                // Обработка ошибки обрезки изображения
-            }
+                break;
+            case REQUEST_CODE_SELECT_VIDEO:
+                if (resultCode == RESULT_OK && data != null && data.getData() != null) {
+                    Uri selectedVideoUri = data.getData();
+                    VideoAddFragment.setVideoView(selectedVideoUri);
+                    progressBar.setVisibility(View.GONE);
+                    getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+                }
         }
     }
 }
