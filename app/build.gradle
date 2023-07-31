@@ -1,0 +1,76 @@
+plugins {
+    id 'com.android.application'
+    id 'com.google.gms.google-services'
+}
+
+android {
+    signingConfigs {
+        debug {
+            storeFile file('C:\\Users\\ilial\\Documents\\Rollic\\rollic-lov.jks')
+            storePassword 'Loviliausbste23$'
+            keyAlias 'key0'
+            keyPassword 'Loviliausbste23$'
+        }
+        release {
+            storeFile file('C:\\Users\\ilial\\Documents\\Rollic\\rollic-lov.jks')
+            storePassword 'Loviliausbste23$'
+            keyPassword 'Loviliausbste23$'
+            keyAlias 'key0'
+        }
+    }
+    namespace 'com.loviagin.rollic'
+    compileSdk 33
+
+    defaultConfig {
+        applicationId "com.loviagin.rollic"
+        minSdk 26
+        targetSdk 33
+        versionCode 14
+        versionName '0.1.46 - beta'
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        signingConfig signingConfigs.release
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
+        }
+        debug {
+            jniDebuggable true
+            renderscriptDebuggable true
+            signingConfig signingConfigs.debug
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
+    implementation 'com.yandex.android:mobmetricalib:5.3.0'
+    implementation 'com.google.android.material:material:1.7.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation 'com.yandex.android:mobileads:5.10.0'
+    implementation 'com.onesignal:OneSignal:[4.0.0, 4.99.99]'
+    api 'com.theartofdev.edmodo:android-image-cropper:2.8.0'
+    implementation 'com.squareup.picasso:picasso:2.71828'
+    implementation platform('com.google.firebase:firebase-bom:32.1.1')
+    implementation 'com.google.firebase:firebase-storage'
+    implementation 'com.google.firebase:firebase-auth'
+    implementation 'com.google.firebase:firebase-messaging'
+    implementation 'com.google.firebase:firebase-firestore'
+    implementation 'com.google.android.gms:play-services-auth:20.6.0'
+    implementation "androidx.media3:media3-exoplayer:1.1.0"
+    implementation "androidx.media3:media3-exoplayer-dash:1.1.0"
+    implementation "androidx.media3:media3-ui:1.1.0"
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+}
