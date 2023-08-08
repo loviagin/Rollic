@@ -9,9 +9,9 @@ import static com.loviagin.rollic.UserData.subscriptions;
 import static com.loviagin.rollic.UserData.uid;
 import static com.loviagin.rollic.UserData.urlAvatar;
 import static com.loviagin.rollic.UserData.username;
-import static com.loviagin.rollic.models.Objects.currentUser;
-import static com.loviagin.rollic.models.Objects.preferences;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
 import android.util.Log;
@@ -29,10 +29,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.imageview.ShapeableImageView;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
@@ -122,6 +120,8 @@ public class PostsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                 viewHolder.textViewName.setVisibility(View.VISIBLE);
                 viewHolder.textViewName.setText(post.getAuthorName());
             }
+
+            viewHolder.buttonRepost.setOnClickListener(view -> shareContent("Посмотри мой новый пост в Роллик", "https://rollic.loviagin.com/ulink?u=" + post.getUid(), viewHolder));
 
             FirebaseStorage storage = FirebaseStorage.getInstance();
             StorageReference storageRef = storage.getReference();
@@ -248,6 +248,14 @@ public class PostsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         }
     }
 
+    private void shareContent(String title, String url, PostsViewHolder holder) {
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.setType("text/plain");
+        shareIntent.putExtra(Intent.EXTRA_SUBJECT, title);
+        shareIntent.putExtra(Intent.EXTRA_TEXT, url);
+        holder.itemView.getContext().startActivity(Intent.createChooser(shareIntent, "Поделиться постом"));
+    }
+
     @Override
     public int getItemCount() {
         return posts.size() + posts.size() / 5;  // Add an ad after every 5 posts
@@ -256,12 +264,10 @@ public class PostsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 //    public void setOnReachListener(OnReachListener onReachListener) {
 //        this.onReachListener = onReachListener;
 //    }
-
     private void counter(PostsViewHolder holder, Post post) {
         setColorToButton(holder, post);
         holder.buttonLike.setText(String.valueOf(post.getLikes().size()));
         holder.buttonComment.setText(String.valueOf(post.getComments().size()));
-//        holder.buttonRepost.setText(String.valueOf(post.getRepostCount()));
     }
 
     private void setColorToButton(PostsViewHolder holder, Post post) {

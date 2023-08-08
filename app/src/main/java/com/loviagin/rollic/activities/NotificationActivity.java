@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -35,8 +36,10 @@ public class NotificationActivity extends AppCompatActivity {
 
     private ImageButton buttonBack;
     private RecyclerView recyclerView;
+    private TextView textViewNo;
     private NotificationAdapter adapter;
     private List<String> noti;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,6 +48,7 @@ public class NotificationActivity extends AppCompatActivity {
         findViewById(R.id.bMessage).setVisibility(View.INVISIBLE);
         buttonBack = findViewById(R.id.bNotifications);
         recyclerView = findViewById(R.id.rvNotifications);
+        textViewNo = findViewById(R.id.tvNothingNotification);
         adapter = new NotificationAdapter();
 
         buttonBack.setImageDrawable(getResources().getDrawable(R.drawable.fi_rr_back));
@@ -54,7 +58,12 @@ public class NotificationActivity extends AppCompatActivity {
 
         db.collection(USERS_COLLECTION).document(uid).get().addOnSuccessListener(documentSnapshot -> {
             noti = (List<String>) documentSnapshot.get("notifications");
-            thread.start();
+            if (noti != null && noti.size() > 0) {
+                textViewNo.setVisibility(View.GONE);
+                thread.start();
+            } else {
+                textViewNo.setVisibility(View.VISIBLE);
+            }
         });
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));

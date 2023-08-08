@@ -1,29 +1,19 @@
 package com.loviagin.rollic.adapters;
 
-import android.graphics.Bitmap;
-import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.VideoView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.storage.FileDownloadTask;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 import com.loviagin.rollic.R;
 import com.loviagin.rollic.models.Video;
 import com.squareup.picasso.Picasso;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.LinkedList;
 
 public class GalleryVideoAdapter extends RecyclerView.Adapter<GalleryVideoAdapter.GalleryVideoViewHolder> {
@@ -59,6 +49,7 @@ public class GalleryVideoAdapter extends RecyclerView.Adapter<GalleryVideoAdapte
         Video v0 = listVideo.get(position);
         Log.i("GA", position + v0.toString());
 
+        Log.e("TAG2456", v0.getCaptureUrl());
         Picasso.get().load(Uri.parse(v0.getCaptureUrl())).into(holder.imageView);
 //        Video v0 = listVideo.get(position);
 //        FirebaseStorage storage = FirebaseStorage.getInstance();

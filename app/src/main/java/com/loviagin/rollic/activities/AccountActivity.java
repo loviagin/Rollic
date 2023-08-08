@@ -41,6 +41,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
+import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -81,6 +82,7 @@ public class AccountActivity extends AppCompatActivity {
     private String usrName, usrNickname, usrUid, usrUrlAvatar;
     private ProgressBar progressBar;
     private Button buttonEditProfile;
+    private List<String> videoIds;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,7 +98,7 @@ public class AccountActivity extends AppCompatActivity {
         buttonSubscribers = findViewById(R.id.bSubscribersAccount);
         buttonPosts = findViewById(R.id.bPostsAccount);
         textViewBio = findViewById(R.id.tvBioAccount);
-        buttonExplore = findViewById(R.id.bDiscover);
+        buttonExplore = findViewById(R.id.bVideo);
         buttonStore = findViewById(R.id.bStore);
         tabLayout = findViewById(R.id.tlAccount);
         viewPager = findViewById(R.id.vpAccount);
@@ -106,13 +108,14 @@ public class AccountActivity extends AppCompatActivity {
         imageViewAvatar = findViewById(R.id.ivAvatarAccount);
         progressBar = findViewById(R.id.pbAccount);
         buttonEditProfile = findViewById(R.id.bEditAccount);
+        videoIds = new LinkedList<>();
 
         progressBar.setVisibility(View.VISIBLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
                 WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
 
         Intent intent = getIntent();
-        Log.e("TA245G", intent.hasExtra(USER_STR) + "");
+        Log.e(TAG, intent.hasExtra(USER_STR) + " 1");
         if (intent.hasExtra(USER_STR) && !intent.getStringExtra(USER_STR).equals(uid)) {
             FirebaseFirestore db = FirebaseFirestore.getInstance();
             textButtonSubscribe.setVisibility(View.VISIBLE);
@@ -125,11 +128,12 @@ public class AccountActivity extends AppCompatActivity {
             buttonSettings.setVisibility(View.INVISIBLE);
             db.collection(USERS_COLLECTION).document(usrUid).get().addOnSuccessListener(documentSnapshot -> {
                 User user = documentSnapshot.toObject(User.class);
-                Log.e("TA245G", usrUid);
+                Log.e(TAG, usrUid + " 2");
                 listPosts = user.getPosts();
                 listVideos = user.getVideoposts();
                 listSubscribers = user.getSubscribers();
                 listSubscriptions = user.getSubscriptions();
+                videoIds = user.getVideoposts();
                 if (user.getBio() != null && user.getBio().length() > 0) {
                     textViewBio.setVisibility(View.VISIBLE);
                     textViewBio.setText(user.getBio());
@@ -139,6 +143,7 @@ public class AccountActivity extends AppCompatActivity {
                 usrNickname = user.getUsername();
                 listSubscriptions = user.getSubscriptions();
                 listSubscribers = user.getSubscribers();
+                Log.e(TAG, videoIds.toString() + " 3");
                 setInfoTable();
             });
         } else {
@@ -155,6 +160,7 @@ public class AccountActivity extends AppCompatActivity {
                 listVideos = user.getVideoposts();
                 listSubscribers = user.getSubscribers();
                 listSubscriptions = user.getSubscriptions();
+                videoIds = user.getVideoposts();
                 if (user.getBio() != null && user.getBio().length() > 0) {
                     bio = user.getBio();
                     textViewBio.setVisibility(View.VISIBLE);
@@ -172,7 +178,7 @@ public class AccountActivity extends AppCompatActivity {
 
         buttonHome.setOnClickListener(v -> startActivity(new Intent(this, MainActivity.class)));
         buttonAccount.setOnClickListener(v -> startActivity(new Intent(AccountActivity.this, AccountActivity.class)));
-        buttonExplore.setOnClickListener(v -> startActivity(new Intent(this, ExploreActivity.class)));
+        buttonExplore.setOnClickListener(v -> startActivity(new Intent(this, VideoActivity.class)));
         buttonStore.setOnClickListener(v -> Toast.makeText(this, getResources().getString(R.string.hello_blank_fragment), Toast.LENGTH_SHORT).show());
         buttonAdd.setColorFilter(R.color.white);
         buttonAdd.setOnClickListener(v -> startActivity(new Intent(this, AddActivity.class)));
@@ -187,36 +193,69 @@ public class AccountActivity extends AppCompatActivity {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection(POSTS_STR).whereEqualTo(AUTHOR_UID, usrUid).get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
+                Log.e(TAG, " 4");
                 for (QueryDocumentSnapshot document : task.getResult()) {
                     Post p0 = document.toObject(Post.class);
                     lp.add(0, p0);
                     usrPosts.add(0, p0);
                 }
-                db.collection("video-posts").whereEqualTo(AUTHOR_UID, usrUid).get().addOnCompleteListener(task1 -> {
-                    if (task1.isSuccessful()) {
-                        for (QueryDocumentSnapshot document : task1.getResult()) {
-                            Video v0 = document.toObject(Video.class);
-                            vp.add(0, v0);
+                if (videoIds != null && !videoIds.isEmpty()) {
+                    db.collection("video-posts").whereIn(FieldPath.documentId(), videoIds).get().addOnCompleteListener(task1 -> {
+                        if (task1.isSuccessful()) {
+                            Log.e(TAG, " videoIDs");
+                            for (QueryDocumentSnapshot document : task1.getResult()) {
+                                Video v0 = document.toObject(Video.class);
+                                vp.add(0, v0);
 //                            usrPosts.add(0, v0);
-                        }
-                        db.collection(POSTS_STR).whereArrayContains("likes", uid).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                            @Override
-                            public void onComplete(@NonNull Task<QuerySnapshot> task2) {
-                                LinkedList<Post> plist = new LinkedList<>();
-                                for (QueryDocumentSnapshot document : task2.getResult()) {
-                                    Post p2 = document.toObject(Post.class);
-                                    plist.add(p2);
-                                }
-                                UserData.likPosts = plist;
-                                dynPosts = lp;
-                                UserData.dynVideos = vp;
-                                adapter = new TabAccountAdapter(AccountActivity.this, lp, vp, plist);
-                                viewPager.setAdapter(adapter);
-                                getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
                             }
-                        });
-                    }
-                });
+                            db.collection(POSTS_STR).whereArrayContains("likes", uid).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<QuerySnapshot> task2) {
+                                    Log.e(TAG, " 13");
+                                    LinkedList<Post> plist = new LinkedList<>();
+                                    for (QueryDocumentSnapshot document : task2.getResult()) {
+                                        Post p2 = document.toObject(Post.class);
+                                        plist.add(p2);
+                                    }
+                                    UserData.likPosts = plist;
+                                    dynPosts = lp;
+                                    UserData.dynVideos = vp;
+                                    Log.e(TAG, " 5");
+                                    if (usrUid.equals(uid)) {
+                                        adapter = new TabAccountAdapter(AccountActivity.this, lp, vp, plist);
+                                    } else {
+                                        adapter = new TabAccountAdapter(AccountActivity.this, lp, vp, new LinkedList<>());
+                                    }
+                                    viewPager.setAdapter(adapter);
+                                    getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+                                }
+                            });
+                        }
+                    });
+                } else {
+                    db.collection(POSTS_STR).whereArrayContains("likes", uid).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<QuerySnapshot> task2) {
+                            Log.e(TAG, " 13");
+                            LinkedList<Post> plist = new LinkedList<>();
+                            for (QueryDocumentSnapshot document : task2.getResult()) {
+                                Post p2 = document.toObject(Post.class);
+                                plist.add(p2);
+                            }
+                            UserData.likPosts = plist;
+                            dynPosts = lp;
+                            UserData.dynVideos = vp;
+                            Log.e(TAG, " 65");
+                            if (usrUid.equals(uid)) {
+                                adapter = new TabAccountAdapter(AccountActivity.this, lp, vp, plist);
+                            } else {
+                                adapter = new TabAccountAdapter(AccountActivity.this, lp, vp, new LinkedList<>());
+                            }
+                            viewPager.setAdapter(adapter);
+                            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+                        }
+                    });
+                }
             }
         });
 

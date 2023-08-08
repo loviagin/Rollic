@@ -21,6 +21,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.loviagin.rollic.R;
+import com.loviagin.rollic.models.Video;
 import com.onesignal.OneSignal;
 
 import org.json.JSONException;
@@ -45,52 +46,50 @@ public class UploadVideoWorker extends Worker {
         FirebaseStorage storage = FirebaseStorage.getInstance();
         StorageReference storageRef = storage.getReference();
 
-        String videoUri = getInputData().getString("video_uri");
+        String trimmedVideoPath = getInputData().getString("video_uri");
+
         String uid = getInputData().getString("uid");
         String description = getInputData().getString("description");
         String tags = getInputData().getString("tags");
 
-        String videoPath = "videos/" + uid + "/" + videoUri;
+        String videoPath = "videos/" + uid + "/" + Uri.parse(trimmedVideoPath).getLastPathSegment();
         StorageReference videoRef = storageRef.child(videoPath);
 
         MediaMetadataRetriever retriever = new MediaMetadataRetriever();
-        retriever.setDataSource(getApplicationContext(), Uri.parse(videoUri));  // videoUri - это URI вашего видео
-        Bitmap bitmap = retriever.getFrameAtTime(1000000, MediaMetadataRetriever.OPTION_CLOSEST); // получить кадр в 1 секунду
+        retriever.setDataSource(getApplicationContext(), Uri.parse(trimmedVideoPath));
+        Bitmap bitmap = retriever.getFrameAtTime(1000000, MediaMetadataRetriever.OPTION_CLOSEST);
         try {
-            retriever.release();  // не забывайте освободить ресурсы
+            retriever.release();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
-        // получить NotificationManagerNotificationManager
         NotificationManager notificationManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
-        // для версий Android Oreo и выше требуется канал уведомлений
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             NotificationChannel channel = new NotificationChannel("uploadChannel", "Upload", NotificationManager.IMPORTANCE_DEFAULT);
             notificationManager.createNotificationChannel(channel);
         }
-        // создаем уведомление
         final NotificationCompat.Builder notification = new NotificationCompat.Builder(getApplicationContext(), "uploadChannel").setContentTitle("Загрузка видео")
                 .setContentText("Загрузка в процессе. Не закрывайте приложение").setSmallIcon(R.mipmap.ic_launcher)
                 .setPriority(NotificationCompat.PRIORITY_LOW).setOngoing(true)
                 .setOnlyAlertOnce(true).setProgress(100, 0, false);
         notificationManager.notify(1, notification.build());
-        // теперь, когда вы загружаете файл, вы можете обновить прогресс в уведомлении
-        UploadTask uploadTask = videoRef.putFile(Uri.parse(videoUri));
+
+        UploadTask uploadTask = videoRef.putFile(Uri.parse(trimmedVideoPath));
         uploadTask.addOnProgressListener(taskSnapshot -> {
             double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
             notification.setProgress(100, (int) progress, false);
             notificationManager.notify(1, notification.build());
         });
+
         uploadTask.addOnSuccessListener(taskSnapshot -> {
             notification.setContentText("Загрузка завершена")
                     .setProgress(0, 0, false).setOngoing(false);
             notificationManager.notify(1, notification.build());
 
-            // Создание файла в каталоге кэша приложения
             File thumbnailFile = new File(getApplicationContext().getCacheDir(), "thumb" + System.currentTimeMillis() + ".jpg");
-            // преобразование bitmap в файл для загрузки в Firebase
-            FileOutputStream fos = null;
+
+            FileOutputStream fos;
             try {
                 fos = new FileOutputStream(thumbnailFile);
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
@@ -99,7 +98,6 @@ public class UploadVideoWorker extends Worker {
                 throw new RuntimeException(e);
             }
 
-            // загрузка в Firebase
             StorageReference thumbnailRef = storageRef.child("thumbnails/" + uid + "/" + thumbnailFile.getName());
             UploadTask uploadThumbnailTask = thumbnailRef.putFile(Uri.fromFile(thumbnailFile));
 
@@ -109,26 +107,25 @@ public class UploadVideoWorker extends Worker {
             videoData.put("uri", videoPath);
 
             uploadThumbnailTask.addOnFailureListener(exception -> {
-                Toast.makeText(getApplicationContext(), "Возникли проблемы с нашей стороны. Возможно стоит попробовать попозже", Toast.LENGTH_SHORT).show();// Handle unsuccessful uploads
-            }).addOnSuccessListener(taskSnapshot1 -> {    // taskSnapshot.getMetadata() contains file metadata such as size, content-type, and download URL.
+                Toast.makeText(getApplicationContext(), "Возникли проблемы с нашей стороны. Возможно стоит попробовать попозже", Toast.LENGTH_SHORT).show();
+            }).addOnSuccessListener(taskSnapshot1 -> {
                 thumbnailRef.getDownloadUrl().addOnSuccessListener(uri -> {
                     String thumbnailUrl = uri.toString();
-                    // добавление thumbnailUrl в videoData
-                    videoData.put("captureUrl", thumbnailUrl);        // сохранение videoData в базе данных
+                    videoData.put("captureUrl", thumbnailUrl);
+
+                    db.collection("video-posts").add(new Video(description, tags, videoPath, thumbnailUrl)).addOnSuccessListener(documentReference -> {
+                        db.collection("users").document(uid).update("videoposts", FieldValue.arrayUnion(documentReference.getId()));
+                        db.collection("video-posts").document(documentReference.getId()).update("uid", documentReference.getId());
+
+                        try {
+                            if (!preferences.getString("player", "").equals("")) {
+                                OneSignal.postNotification(new JSONObject("{'contents': {'en':'Video upload complete'}, 'include_player_ids': ['"+ preferences.getString("player", "") +"']}"), null);
+                            }
+                        } catch (JSONException e) {
+                            throw new RuntimeException(e);
+                        }
+                    });
                 });
-            });
-
-            db.collection("video-posts").add(videoData).addOnSuccessListener(documentReference -> {
-                db.collection("users").document(uid).update("videoposts", FieldValue.arrayUnion(documentReference.getId()));
-                db.collection("video-posts").document(documentReference.getId()).update("uid", documentReference.getId());
-
-                try {
-                    if (!preferences.getString("player", "").equals("")) {
-                        OneSignal.postNotification(new JSONObject("{'contents': {'en':'Video upload complete'}, 'include_player_ids': ['"+ preferences.getString("player", "") +"']}"), null);
-                    }
-                } catch (JSONException e) {
-                    throw new RuntimeException(e);
-                }
             });
         });
         uploadTask.addOnFailureListener(taskSnapshot -> {

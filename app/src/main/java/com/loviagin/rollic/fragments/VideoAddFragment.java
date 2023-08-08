@@ -16,6 +16,8 @@ import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 import android.widget.VideoView;
+import android.provider.MediaStore;
+import android.database.Cursor;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -29,7 +31,6 @@ import com.loviagin.rollic.activities.AddActivity;
 import com.loviagin.rollic.activities.MainActivity;
 import com.loviagin.rollic.adapters.AddPostTabAdapter;
 import com.loviagin.rollic.workers.UploadVideoWorker;
-
 
 public class VideoAddFragment extends Fragment {
 
@@ -77,45 +78,39 @@ public class VideoAddFragment extends Fragment {
             }
         };
 
-        /**
-         * It's temp
-         */
-//        buttonAdd.setOnClickListener(listener);
-//        videoView.setOnClickListener(listener);
+        buttonAdd.setOnClickListener(listener);
+        videoView.setOnClickListener(listener);
 
         buttonCancel.setOnClickListener(v -> startActivity(new Intent(getActivity(), MainActivity.class)));
-        /**
-         * It's temp
-         */
-//        buttonPublish.setOnClickListener(view1 -> {
-//            if (isVideoClick) {
-//                progressBar.setVisibility(View.VISIBLE);
-//                getActivity().getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
-//                        WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-//
-//                // Создайте Data объект, содержащий URL вашего видео и другие данные
-//                Data videoData = new Data.Builder()
-//                        .putString("video_uri", urlVideo.getLastPathSegment())
-//                        .putString("uid", uid)  // uid должен быть объявлен и инициализирован
-//                        .putString("description", editTextDescription.getText().toString())
-//                        .putString("tags", editTextTags.getText().toString())
-//                        .build();
-//
-//                // Создайте объект OneTimeWorkRequest для запуска вашего UploadVideoWorker
-//                OneTimeWorkRequest uploadVideoRequest = new OneTimeWorkRequest.Builder(UploadVideoWorker.class)
-//                        .setInputData(videoData)
-//                        .build();
-//
-//                // Запустите вашего Worker'a
-//                WorkManager.getInstance(getContext()).enqueue(uploadVideoRequest);
-//
-//                getActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-//                progressBar.setVisibility(View.GONE);
-//                startActivity(new Intent(getActivity(), AccountActivity.class));
-//            } else {
-//                Toast.makeText(getActivity(), "Видео обязательно к добавлению", Toast.LENGTH_SHORT).show();
-//            }
-//        });
+        buttonPublish.setOnClickListener(view1 -> {
+            if (isVideoClick) {
+                progressBar.setVisibility(View.VISIBLE);
+                getActivity().getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+                        WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+
+                // Создайте Data объект, содержащий URL вашего видео и другие данные
+                Data videoData = new Data.Builder()
+                        .putString("video_uri", urlVideo.toString())
+                        .putString("uid", uid)  // uid должен быть объявлен и инициализирован
+                        .putString("description", editTextDescription.getText().toString())
+                        .putString("tags", editTextTags.getText().toString())
+                        .build();
+
+                // Создайте объект OneTimeWorkRequest для запуска вашего UploadVideoWorker
+                OneTimeWorkRequest uploadVideoRequest = new OneTimeWorkRequest.Builder(UploadVideoWorker.class)
+                        .setInputData(videoData)
+                        .build();
+
+                // Запустите вашего Worker'a
+                WorkManager.getInstance(getContext()).enqueue(uploadVideoRequest);
+
+                getActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+                progressBar.setVisibility(View.GONE);
+                startActivity(new Intent(getActivity(), AccountActivity.class));
+            } else {
+                Toast.makeText(getActivity(), "Видео обязательно к добавлению", Toast.LENGTH_SHORT).show();
+            }
+        });
 
         return view;
     }
@@ -126,3 +121,4 @@ public class VideoAddFragment extends Fragment {
         VideoAddFragment.videoView.start();
     }
 }
+

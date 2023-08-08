@@ -1,7 +1,5 @@
 package com.loviagin.rollic.fragments;
 
-import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
-
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -30,9 +28,10 @@ public class VideoFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_user_posts, container, false);
-        RecyclerView recyclerView = view.findViewById(R.id.rvUserPosts);
+        View view = inflater.inflate(R.layout.fragment_video, container, false);
+        RecyclerView recyclerView = view.findViewById(R.id.rvVideoPost);
         recyclerView.setLayoutManager(new GridLayoutManager(view.getContext(), 3));
+        Log.e("TAG2456", videoList.toString());
         adapter = new GalleryVideoAdapter(videoList);
         adapter.setListener(new GalleryVideoAdapter.OnGalleryVideoClickListener() {
             @Override
@@ -41,6 +40,7 @@ public class VideoFragment extends Fragment {
             }
         });
         recyclerView.setAdapter(adapter);
+        Log.e("TAG2456", "OK");
         return view;
     }
 }

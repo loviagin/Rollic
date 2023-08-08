@@ -19,50 +19,92 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical|end"
         android:layout_marginTop="20dp"
-        android:background="@drawable/ground_box"
-        android:backgroundTint="@color/black20"
-        android:backgroundTintMode="src_in"
+        android:background="@color/transparent"
         android:orientation="vertical">
+        <!--        android:background="@drawable/ground_box"-->
+        <!--        android:backgroundTint="@color/black20"-->
+        <!--        android:backgroundTintMode="src_in"-->
 
-        <Button
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/ivAvatarVideo"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_gravity="center_vertical|start"
+            android:layout_margin="10dp"
+            android:layout_weight="2"
+            android:padding="2dp"
+            android:scaleType="centerCrop"
+            app:shapeAppearanceOverlay="@style/ImageCircle"
+            app:srcCompat="@drawable/fav"
+            app:strokeColor="@color/blue50"
+            app:strokeWidth="3dp" />
+
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/bLikeVideo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="15dp"
+            android:layout_marginTop="10dp"
             android:background="@color/transparent"
-            android:paddingHorizontal="15dp"
-            android:text="Like"
+            android:paddingHorizontal="0dp"
             android:textSize="16sp"
             app:icon="@drawable/fi_rr_like"
             app:iconGravity="top"
             app:iconSize="22dp" />
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/bCommentVideo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginVertical="15dp"
             android:background="@color/transparent"
-            android:paddingHorizontal="15dp"
-            android:text="Comment"
+            android:paddingHorizontal="0dp"
             android:textSize="16sp"
             app:icon="@drawable/fi_rr_messages"
             app:iconGravity="top"
             app:iconSize="22dp" />
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/bRepostVideo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="15dp"
             android:background="@color/transparent"
-            android:paddingHorizontal="15dp"
-            android:text="Share"
+            android:paddingHorizontal="0dp"
             android:textSize="16sp"
             app:icon="@drawable/fi_rr_repost"
             app:iconGravity="top"
             app:iconSize="22dp" />
 
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="start|bottom"
+        android:layout_marginStart="10dp"
+        android:layout_marginBottom="25dp"
+        android:background="@color/transparent"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tvNicknameVideo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/transparent"
+            android:text="\@username"
+            android:textColor="@color/white"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvDescriptionVideo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:background="@color/transparent"
+            android:text="Long description"
+            android:textColor="@color/white"
+            android:textSize="18sp" />
 
     </LinearLayout>
 
@@ -70,6 +112,11 @@
         android:id="@+id/seekBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom" />
+        android:layout_gravity="bottom"
+        android:progressBackgroundTint="@color/white"
+        android:progressTint="@color/white"
+        android:progressTintMode="screen"
+        android:secondaryProgressTint="@color/white"
+        android:secondaryProgressTintMode="screen" />
 
 </FrameLayout>

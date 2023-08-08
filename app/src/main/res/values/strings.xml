@@ -9,7 +9,7 @@
     <string name="subscribe_str">  Subscribe  </string>
     <string name="bio_example_str">This Huge Huge Huge Huge Huge Huge Description - Profile Bio.</string>
     <string name="my_posts_str">My posts</string>
-    <string name="liked_str">Liked</string>
+    <string name="liked_str">🔒Liked</string>
     <string name="in_dev_str">In development</string>
     <string name="welcome_text">Welcome to the new photo and video social network Rollic!</string>
     <string name="describe_welcome_text">You can fill in additional information about yourself or do it later in your profile settings.</string>

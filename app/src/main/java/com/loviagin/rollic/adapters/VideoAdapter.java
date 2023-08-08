@@ -1,26 +1,60 @@
 package com.loviagin.rollic.adapters;
 
+import static com.loviagin.rollic.Constants.USER_STR;
+import static com.loviagin.rollic.UserData.uid;
+
+import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.SeekBar;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.OptIn;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.Player;
+import androidx.media3.common.util.UnstableApi;
 import androidx.media3.exoplayer.ExoPlayer;
+import androidx.media3.ui.AspectRatioFrameLayout;
 import androidx.media3.ui.PlayerView;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.imageview.ShapeableImageView;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.loviagin.rollic.R;
+import com.loviagin.rollic.activities.AccountActivity;
+import com.loviagin.rollic.activities.MainActivity;
+import com.loviagin.rollic.models.Video;
+import com.squareup.picasso.Picasso;
 
 import java.util.List;
+
 public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHolder> {
 
-    private List<String> videoUrls;
+    private List<Video> videoUrls;
 
-    public VideoAdapter(List<String> videoUrls) {
+    public VideoAdapter(List<Video> videoUrls) {
         this.videoUrls = videoUrls;
+    }
+
+    public void addVideo(Video video) {
+        this.videoUrls.add(video);
+        notifyItemInserted(videoUrls.size() - 1);
+    }
+
+    public void addVideo(int ignored, Video video) {
+        this.videoUrls.add(0, video);
+        notifyItemInserted(0);
     }
 
     @NonNull
@@ -32,7 +66,48 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
 
     @Override
     public void onBindViewHolder(@NonNull VideoViewHolder holder, int position) {
-        holder.setVideoUrl(videoUrls.get(position));
+        Video video = videoUrls.get(position);
+        holder.setVideoUrl(video);
+
+        if (video.getLikes().contains(uid)) {
+            holder.buttonLike.setIcon(holder.itemView.getContext().getResources().getDrawable(R.drawable.fi_rr_heart_fill));
+        } else {
+            holder.buttonLike.setIcon(holder.itemView.getContext().getResources().getDrawable(R.drawable.fi_rr_like));
+        }
+
+        holder.buttonLike.setText(video.getLikes().size() + "");
+        holder.buttonComment.setText(video.getComments().size() + "");
+
+        if (video.getDescription() != null && !video.getDescription().equals("")) {
+            holder.textViewDescription.setVisibility(View.VISIBLE);
+            holder.textViewDescription.setText(video.getDescription());
+        } else {
+            holder.textViewDescription.setVisibility(View.GONE);
+        }
+
+        holder.textViewName.setText(String.format("@%s", video.getAuthorNickname()));
+
+        if (video.getAuthorAvatarUrl() != null && !video.getAuthorAvatarUrl().equals("")) {
+            FirebaseStorage storage = FirebaseStorage.getInstance();
+            StorageReference storageRef = storage.getReference();
+
+            storageRef.child(video.getAuthorAvatarUrl()).getDownloadUrl()
+                    .addOnSuccessListener(uri -> Picasso.get().load(uri).into(holder.imageView));
+        }
+        holder.imageView.setOnClickListener(view -> holder.itemView.getContext().startActivity(new Intent(holder.itemView.getContext(), AccountActivity.class).putExtra(USER_STR, video.getUidAuthor())));
+
+        holder.buttonLike.setOnClickListener(view -> {
+            FirebaseFirestore db = FirebaseFirestore.getInstance();
+            if (!video.getLikes().contains(uid)) {
+                db.collection("video-posts").document(video.getUid()).update("likes", FieldValue.arrayUnion(uid));
+                holder.buttonLike.setText(String.valueOf(video.getLikes().size() + 1));
+                holder.buttonLike.setIcon(holder.itemView.getContext().getResources().getDrawable(R.drawable.fi_rr_heart_fill));
+            } else { // TODO realise if user click unlike
+                db.collection("video-posts").document(video.getUid()).update("likes", FieldValue.arrayRemove(uid));
+                holder.buttonLike.setText(String.valueOf(video.getLikes().size() - 1));
+                holder.buttonLike.setIcon(holder.itemView.getContext().getResources().getDrawable(R.drawable.fi_rr_like));
+            }
+        });
     }
 
     @Override
@@ -44,13 +119,22 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
 
         private PlayerView playerView;
         private ExoPlayer exoPlayer;
-        private String videoUrl;
+        private Video videoUrl;
         private SeekBar seekBar;
+        private MaterialButton buttonLike, buttonComment, buttonRepost;
+        private ShapeableImageView imageView;
+        private TextView textViewName, textViewDescription;
 
         VideoViewHolder(@NonNull View itemView) {
             super(itemView);
             playerView = itemView.findViewById(R.id.video_view);
             seekBar = itemView.findViewById(R.id.seekBar);
+            buttonLike = itemView.findViewById(R.id.bLikeVideo);
+            buttonComment = itemView.findViewById(R.id.bCommentVideo);
+            buttonRepost = itemView.findViewById(R.id.bRepostVideo);
+            imageView = itemView.findViewById(R.id.ivAvatarVideo);
+            textViewName = itemView.findViewById(R.id.tvNicknameVideo);
+            textViewDescription = itemView.findViewById(R.id.tvDescriptionVideo);
 
             seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                 @Override
@@ -71,19 +155,12 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
                 }
             });
 
-            playerView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (exoPlayer.getPlayWhenReady()) {
-                        exoPlayer.setPlayWhenReady(false);
-                    } else {
-                        exoPlayer.setPlayWhenReady(true);
-                    }
-                }
+            playerView.setOnClickListener(v -> {
+                exoPlayer.setPlayWhenReady(!exoPlayer.getPlayWhenReady());
             });
         }
 
-        void setVideoUrl(String videoUrl) {
+        void setVideoUrl(Video videoUrl) {
             this.videoUrl = videoUrl;
             if (this.videoUrl != null) {
                 initializePlayer();
@@ -92,11 +169,15 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
             }
         }
 
+        @OptIn(markerClass = androidx.media3.common.util.UnstableApi.class)
         public void initializePlayer() {
             if (exoPlayer == null) {
                 exoPlayer = new ExoPlayer.Builder(playerView.getContext()).build();
+
+                playerView.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FIT);
+
                 playerView.setPlayer(exoPlayer);
-                MediaItem mediaItem = MediaItem.fromUri(videoUrl);
+                MediaItem mediaItem = MediaItem.fromUri(videoUrl.getVideoUrl());
                 exoPlayer.setMediaItem(mediaItem);
                 exoPlayer.prepare();
 

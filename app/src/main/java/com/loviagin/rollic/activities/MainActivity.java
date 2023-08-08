@@ -62,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
 
     public static final String TAG = "Main_Activity_TAG";
     private static final int NOTIFICATION_PERMISSION_REQUEST_CODE = 1022;
-    private ImageButton buttonHome, buttonAccount, buttonExplore, buttonStore, buttonNotification;
+    private ImageButton buttonHome, buttonAccount, buttonExplore, buttonStore, buttonNotification, buttonSearch;
     private FloatingActionButton buttonAdd;
     private PostsAdapter postsAdapter;
     private RecyclerView recyclerViewPosts;
@@ -93,6 +93,7 @@ public class MainActivity extends AppCompatActivity {
         buttonNotification = findViewById(R.id.bNotifications);
         textViewSubscriptions = findViewById(R.id.tvSubscriptionsMain);
         textViewPaid = findViewById(R.id.tvPaidMain);
+        buttonSearch = findViewById(R.id.bSearch);
 
         Intent intent = getIntent();
         showNotificationPermissionDialog();
@@ -206,7 +207,7 @@ public class MainActivity extends AppCompatActivity {
         buttonAccount = findViewById(R.id.bAccount);
         buttonAdd = findViewById(R.id.bAdd);
         recyclerViewPosts = findViewById(R.id.rvPostsMain);
-        buttonExplore = findViewById(R.id.bDiscover);
+        buttonExplore = findViewById(R.id.bVideo);
         buttonStore = findViewById(R.id.bStore);
         textViewEnd = findViewById(R.id.tvEndMain);
 
@@ -223,9 +224,10 @@ public class MainActivity extends AppCompatActivity {
         textViewSubscriptions.setOnClickListener(view -> Toast.makeText(this, R.string.in_dev_str, Toast.LENGTH_SHORT).show());
         textViewPaid.setOnClickListener(view -> Toast.makeText(this, R.string.in_dev_str, Toast.LENGTH_SHORT).show());
         buttonAdd.setOnClickListener(v -> startActivity(new Intent(this, AddActivity.class)));
+        buttonSearch.setOnClickListener(v -> startActivity(new Intent(this, SearchActivity.class)));
         buttonStore.setOnClickListener(v -> Toast.makeText(this, R.string.in_dev_str, Toast.LENGTH_SHORT).show());
         buttonNotification.setOnClickListener(view -> startActivity(new Intent(this, NotificationActivity.class)));
-        buttonExplore.setOnClickListener(v -> startActivity(new Intent(this, ExploreActivity.class)));
+        buttonExplore.setOnClickListener(v -> startActivity(new Intent(this, VideoActivity.class)));
 
         postList = new LinkedList<>();
         postsAdapter = new PostsAdapter(postList);

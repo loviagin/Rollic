@@ -19,4 +19,5 @@ public class Constants {
     public static final String EDIT_POST = "ep_uid";
     public static final String LANGUAGE = "language";
     public static final String POST_UID = "pstUid";
+    public static final String VIDEO_POSTS = "video-posts";
 }

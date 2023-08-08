@@ -9,12 +9,14 @@ import static com.loviagin.rollic.Constants.SUBSCRIBERS_STR;
 import static com.loviagin.rollic.Constants.SUBSCRIPTIONS_STR;
 import static com.loviagin.rollic.Constants.USERS_COLLECTION;
 import static com.loviagin.rollic.Constants.USER_STR;
+import static com.loviagin.rollic.Constants.USER_UID;
 import static com.loviagin.rollic.UserData.name;
+import static com.loviagin.rollic.UserData.subscribers;
 import static com.loviagin.rollic.UserData.subscriptions;
 import static com.loviagin.rollic.UserData.uid;
 import static com.loviagin.rollic.UserData.urlAvatar;
 import static com.loviagin.rollic.UserData.username;
-import static com.loviagin.rollic.activities.MainActivity.TAG;
+import static com.loviagin.rollic.models.Objects.preferences;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -36,6 +38,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
@@ -45,9 +49,12 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.loviagin.rollic.R;
 import com.loviagin.rollic.adapters.CommentAdapter;
+import com.loviagin.rollic.adapters.PostsAdapter;
 import com.loviagin.rollic.models.Comment;
 import com.loviagin.rollic.models.Notification;
+import com.loviagin.rollic.models.Objects;
 import com.loviagin.rollic.models.Post;
+import com.loviagin.rollic.models.User;
 import com.onesignal.OneSignal;
 import com.squareup.picasso.Picasso;
 
@@ -59,6 +66,7 @@ import java.util.List;
 
 public class PostActivity extends AppCompatActivity {
 
+    private static final String TAG = "Post_Activity_TAG";
     private ImageView imageViewAvatar, imageView1, imageViewSelfAvatar;
     private TextView textViewName, textViewNickname, textViewTitle, textViewDescription;
     private EditText editText;
@@ -98,13 +106,26 @@ public class PostActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.rvPost);
         buttonSubscribe = findViewById(R.id.bSubscribePost);
         buttonBack = findViewById(R.id.bNotifications);
+
+        buttonBack.setOnClickListener(v -> finish());
         Intent intent = getIntent();
-        if (intent.hasExtra(POST_UID)) {
-            String postUid = intent.getStringExtra(POST_UID);
-            uri = Uri.parse(intent.getStringExtra(AVATAR_URL));
-            if (uri != null && !uri.equals("")) {
-                Picasso.get().load(uri).into(imageViewAvatar);
+        Uri data = getIntent().getData();
+
+        if (intent.hasExtra(POST_UID) || data != null) {
+            String postUid;
+            if (data != null) {
+                postUid = data.getQueryParameter("u");
+                buttonBack.setOnClickListener(view -> startActivity(new Intent(PostActivity.this, MainActivity.class)));
+            } else {
+                postUid = intent.getStringExtra(POST_UID);
             }
+            if (intent.hasExtra(AVATAR_URL)) {
+                uri = Uri.parse(intent.getStringExtra(AVATAR_URL));
+                if (uri != null && !uri.equals("")) {
+                    Picasso.get().load(uri).into(imageViewAvatar);
+                }
+            }
+            Log.e(TAG, postUid + " 1");
             FirebaseFirestore db = FirebaseFirestore.getInstance();
             commentsList = new LinkedList<>();
             adapter = new CommentAdapter(commentsList);
@@ -114,16 +135,30 @@ public class PostActivity extends AppCompatActivity {
             db.collection(POSTS_STR).document(postUid).get().addOnSuccessListener(documentSnapshot -> {
                 Post post = documentSnapshot.toObject(Post.class);
                 buttonSend.setOnClickListener(view -> sendComment(postUid, post));
-
+                Log.e(TAG, postUid + " 2");
+                if (post != null && !intent.hasExtra(AVATAR_URL) && post.getAuthorAvatarUrl() != null) {
+                    uri = Uri.parse(post.getAuthorAvatarUrl());
+                    if (uri != null && !uri.equals("")) {
+                        Log.e(TAG, postUid + " 3");
+                        FirebaseStorage storage = FirebaseStorage.getInstance();
+                        StorageReference storageRef = storage.getReference();
+                        storageRef.child(post.getAuthorAvatarUrl()).getDownloadUrl()
+                                .addOnSuccessListener(uri -> {
+                                    Picasso.get().load(uri).into(imageViewAvatar);
+                                });
+                    }
+                }
+                Log.e(TAG, adapter.getItemCount() + " -40");
                 db.collection(COMMENTS_STR).whereEqualTo("pstUid", postUid).get().addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             commentsList.add(document.toObject(Comment.class));
                             adapter.notifyItemInserted(adapter.getItemCount());
                         }
+                        Log.e(TAG, adapter.getItemCount() + " -36");
                     }
                 });
-
+                Log.e(TAG, adapter.getItemCount() + " -50");
                 if (post.getTitle().equals("")) { // photo post
                     imageView1.setVisibility(View.VISIBLE);
                     FirebaseStorage storage = FirebaseStorage.getInstance();
@@ -147,9 +182,32 @@ public class PostActivity extends AppCompatActivity {
                 }
                 textViewNickname.setText(post.getAuthorNickname());
                 textViewDescription.setText(post.getDescription());
-                if (subscriptions.contains(post.getUidAuthor()) || post.getUidAuthor().equals(uid)) {
+                if (subscriptions == null) {
+                    uid = Objects.preferences.getString(USER_UID, "");
+                    db.collection(USERS_COLLECTION).document(uid).get().addOnSuccessListener(documentSnapshot1 -> {
+                        User u0 = documentSnapshot1.toObject(User.class);
+                        subscriptions = u0.getSubscriptions();
+                        subscribers = u0.getSubscribers();
+
+                        if (subscriptions != null && subscriptions.contains(post.getUidAuthor()) || post.getUidAuthor().equals(uid)) {
+                            buttonSubscribe.setVisibility(View.GONE);
+                        } else if (subscriptions != null) {
+                            buttonSubscribe.setVisibility(View.VISIBLE);
+                            buttonSubscribe.setOnClickListener(v -> {
+                                if (!subscriptions.contains(post.getUidAuthor())) {
+                                    subscriptions.add(post.getUidAuthor());
+                                }
+                                FirebaseFirestore db0 = FirebaseFirestore.getInstance();
+                                db0.collection(USERS_COLLECTION).document(uid).update(SUBSCRIPTIONS_STR, FieldValue.arrayUnion(post.getUidAuthor()));
+                                db0.collection(USERS_COLLECTION).document(post.getUidAuthor()).update(SUBSCRIBERS_STR, FieldValue.arrayUnion(uid));
+                                buttonSubscribe.setVisibility(View.GONE);
+                            });
+                        }
+                    });
+                }
+                if (subscriptions != null && subscriptions.contains(post.getUidAuthor()) || post.getUidAuthor().equals(uid)) {
                     buttonSubscribe.setVisibility(View.GONE);
-                } else {
+                } else if (subscriptions != null) {
                     buttonSubscribe.setVisibility(View.VISIBLE);
                     buttonSubscribe.setOnClickListener(v -> {
                         if (!subscriptions.contains(post.getUidAuthor())) {
@@ -162,7 +220,7 @@ public class PostActivity extends AppCompatActivity {
                     });
                 }
                 buttonLike.setText(String.valueOf(post.getLikes().size()));
-                buttonRepost.setText(String.valueOf(post.getRepostCount()));
+//                buttonRepost.setText(String.valueOf(post.getRepostCount()));
 
                 setColorToButton(post);
 
@@ -182,11 +240,12 @@ public class PostActivity extends AppCompatActivity {
                     }
                 });
 
+                buttonRepost.setOnClickListener(view -> shareContent("Посмотри мой новый пост в Роллик", "https://rollic.loviagin.com/ulink?u=" + post.getUid()));
+
                 getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
             });
 
             buttonBack.setImageDrawable(getResources().getDrawable(R.drawable.fi_rr_back));
-            buttonBack.setOnClickListener(v -> finish());
 
             if (urlAvatar != null && !urlAvatar.equals("")) {
                 FirebaseStorage storage = FirebaseStorage.getInstance();
@@ -195,19 +254,16 @@ public class PostActivity extends AppCompatActivity {
                     Picasso.get().load(uri).into(imageViewSelfAvatar);
                 });
             }
-//            commentsList.add(new Comment("Baobab", "bob", "avatars/BMO4uROUQqDpKZt1RhBc1686138105657.jpg", "I'm handsome", "o3Mh1CI9O7egengPz4nF", "0BT7edA8nhHNeieyOLCD"));
-//            commentsList.add(new Comment("Baobab2", "bob2", "avatars/BMO4uROUQqDpKZt1RhBc1686138105657.jpg", "I'm handsome", "o3Mh1CI9O7egengPz4nF", "0BT7edA8nhHNeieyOLCD"));
-//            commentsList.add(new Comment("Baobab3", "bob3", "avatars/BMO4uROUQqDpKZt1RhBc1686138105657.jpg", "I'm handsome", "o3Mh1CI9O7egengPz4nF", "0BT7edA8nhHNeieyOLCD"));
-//            commentsList.add(new Comment("Baobab4", "bob4", "avatars/BMO4uROUQqDpKZt1RhBc1686138105657.jpg", "I'm handsome", "o3Mh1CI9O7egengPz4nF", "0BT7edA8nhHNeieyOLCD"));
-//            commentsList.add(new Comment("Baobab4", "bob4", "avatars/BMO4uROUQqDpKZt1RhBc1686138105657.jpg", "I'm handsome", "o3Mh1CI9O7egengPz4nF", "0BT7edA8nhHNeieyOLCD"));
-//            commentsList.add(new Comment("Baobab4", "bob4", "avatars/BMO4uROUQqDpKZt1RhBc1686138105657.jpg", "I'm handsome", "o3Mh1CI9O7egengPz4nF", "0BT7edA8nhHNeieyOLCD"));
-//            commentsList.add(new Comment("Baobab4", "bob4", "avatars/BMO4uROUQqDpKZt1RhBc1686138105657.jpg", "I'm handsome", "o3Mh1CI9O7egengPz4nF", "0BT7edA8nhHNeieyOLCD"));
-//            commentsList.add(new Comment("Baobab4", "bob4", "avatars/BMO4uROUQqDpKZt1RhBc1686138105657.jpg", "I'm handsome", "o3Mh1CI9O7egengPz4nF", "0BT7edA8nhHNeieyOLCD"));
-//            commentsList.add(new Comment("Baobab4", "bob4", "avatars/BMO4uROUQqDpKZt1RhBc1686138105657.jpg", "I'm handsome", "o3Mh1CI9O7egengPz4nF", "0BT7edA8nhHNeieyOLCD"));
-//            commentsList.add(new Comment("Baobab4", "bob4", "avatars/BMO4uROUQqDpKZt1RhBc1686138105657.jpg", "I'm handsome", "o3Mh1CI9O7egengPz4nF", "0BT7edA8nhHNeieyOLCD"));
-
             progressBar.setVisibility(View.GONE);
         }
+    }
+
+    private void shareContent(String title, String url) {
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.setType("text/plain");
+        shareIntent.putExtra(Intent.EXTRA_SUBJECT, title);
+        shareIntent.putExtra(Intent.EXTRA_TEXT, url);
+        startActivity(Intent.createChooser(shareIntent, "Поделиться постом"));
     }
 
     private void sendComment(String pstUid, Post post) {

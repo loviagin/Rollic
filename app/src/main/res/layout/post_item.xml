@@ -28,9 +28,9 @@
             android:layout_gravity="center_horizontal"
             android:layout_marginVertical="10dp"
             android:background="@color/white"
+            android:contentDescription="@string/main_pic_str"
             android:scaleType="centerInside"
-            app:srcCompat="@drawable/add"
-            android:contentDescription="@string/main_pic_str" />
+            app:srcCompat="@drawable/add" />
 
         <TextView
             android:id="@+id/tvTitlePost"
@@ -100,8 +100,9 @@
                 android:layout_weight="1"
                 android:background="@color/transparent"
                 android:clickable="false"
-                app:srcCompat="@drawable/fi_rr_dislike"
-                android:contentDescription="@string/button_dislike_str" />
+                android:contentDescription="@string/button_dislike_str"
+                android:visibility="invisible"
+                app:srcCompat="@drawable/fi_rr_dislike" />
         </LinearLayout>
 
     </LinearLayout>

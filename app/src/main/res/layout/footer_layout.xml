@@ -34,7 +34,17 @@
                 android:contentDescription="@string/home_screen_str" />
 
             <ImageButton
-                android:id="@+id/bDiscover"
+                android:id="@+id/bSearch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="1"
+                android:background="@color/white"
+                app:srcCompat="@drawable/fi_rr_search"
+                android:contentDescription="Search screen" />
+
+            <ImageButton
+                android:id="@+id/bVideo"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
@@ -50,6 +60,7 @@
                 android:layout_gravity="center_vertical"
                 android:layout_weight="1"
                 android:background="@color/white"
+                android:visibility="gone"
                 app:srcCompat="@drawable/fi_rr_shop"
                 android:contentDescription="@string/store_screen_str" />
 
