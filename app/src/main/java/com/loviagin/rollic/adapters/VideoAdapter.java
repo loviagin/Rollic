@@ -1,7 +1,10 @@
 package com.loviagin.rollic.adapters;
 
+import static com.loviagin.rollic.Constants.USERS_COLLECTION;
 import static com.loviagin.rollic.Constants.USER_STR;
 import static com.loviagin.rollic.UserData.uid;
+import static com.loviagin.rollic.UserData.urlAvatar;
+import static com.loviagin.rollic.UserData.username;
 
 import android.content.Intent;
 import android.content.res.ColorStateList;
@@ -15,6 +18,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.OptIn;
+import androidx.fragment.app.FragmentManager;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.Player;
 import androidx.media3.common.util.UnstableApi;
@@ -34,16 +38,24 @@ import com.google.firebase.storage.StorageReference;
 import com.loviagin.rollic.R;
 import com.loviagin.rollic.activities.AccountActivity;
 import com.loviagin.rollic.activities.MainActivity;
+import com.loviagin.rollic.fragments.CommentsBottomSheet;
+import com.loviagin.rollic.models.Notification;
 import com.loviagin.rollic.models.Video;
+import com.onesignal.OneSignal;
 import com.squareup.picasso.Picasso;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.List;
 
 public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHolder> {
 
     private List<Video> videoUrls;
+    private FragmentManager fragmentManager;
 
-    public VideoAdapter(List<Video> videoUrls) {
+    public VideoAdapter(List<Video> videoUrls, FragmentManager fragmentManager) {
+        this.fragmentManager = fragmentManager;
         this.videoUrls = videoUrls;
     }
 
@@ -52,9 +64,9 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
         notifyItemInserted(videoUrls.size() - 1);
     }
 
-    public void addVideo(int ignored, Video video) {
-        this.videoUrls.add(0, video);
-        notifyItemInserted(0);
+    public void addVideo(int i, Video video) {
+        this.videoUrls.add(i, video);
+        notifyItemInserted(i);
     }
 
     @NonNull
@@ -87,6 +99,12 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
 
         holder.textViewName.setText(String.format("@%s", video.getAuthorNickname()));
 
+        holder.buttonComment.setOnClickListener(v -> {
+            CommentsBottomSheet bottomSheet = new CommentsBottomSheet(video.getUid(), video.getUidAuthor());
+            bottomSheet.show(fragmentManager, bottomSheet.getTag());
+        });
+
+
         if (video.getAuthorAvatarUrl() != null && !video.getAuthorAvatarUrl().equals("")) {
             FirebaseStorage storage = FirebaseStorage.getInstance();
             StorageReference storageRef = storage.getReference();
@@ -102,6 +120,29 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
                 db.collection("video-posts").document(video.getUid()).update("likes", FieldValue.arrayUnion(uid));
                 holder.buttonLike.setText(String.valueOf(video.getLikes().size() + 1));
                 holder.buttonLike.setIcon(holder.itemView.getContext().getResources().getDrawable(R.drawable.fi_rr_heart_fill));
+                db.collection(USERS_COLLECTION).document(video.getUidAuthor()).get().addOnSuccessListener(documentSnapshot -> {
+                    List<String> devices = (List<String>) documentSnapshot.get("deviceTokens");
+                    if (devices != null && devices.size() > 0) {
+                        try {
+                            for (String str : devices) {
+                                JSONObject notificationContent = new JSONObject(
+                                        "{'contents': {'en':'Новый лайк от @" + username + "'}, " +
+                                                "'include_player_ids': ['" + str + "'], " +
+                                                "'data': {'activityToBeOpened': 'NotificationActivity'}}"
+                                );
+                                OneSignal.postNotification(notificationContent, null);
+                            }
+                        } catch (JSONException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                });
+                db.collection("notifications").add(new
+                                Notification("Новый лайк от @" + username, "Теперь их всего " + video.getLikes().size() + 1, urlAvatar, "vl/" + video.getUid()))
+                        .addOnSuccessListener(documentReference ->
+                                db.collection(USERS_COLLECTION).document(video.getUidAuthor()).update("notifications", FieldValue.arrayUnion(documentReference.getId())));
+
+
             } else { // TODO realise if user click unlike
                 db.collection("video-posts").document(video.getUid()).update("likes", FieldValue.arrayRemove(uid));
                 holder.buttonLike.setText(String.valueOf(video.getLikes().size() - 1));

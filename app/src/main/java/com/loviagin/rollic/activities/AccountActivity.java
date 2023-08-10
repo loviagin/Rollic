@@ -67,7 +67,7 @@ import java.util.List;
 public class AccountActivity extends AppCompatActivity {
 
     public static final String TAG = "Account_Activity_TAG";
-    private ImageButton buttonHome, buttonAccount, buttonBack, buttonSettings, buttonExplore, buttonStore;
+    private ImageButton buttonHome, buttonAccount, buttonBack, buttonSettings, buttonExplore, buttonStore, buttonSearch;
     private Button buttonSubscribers, buttonSubscriptions, buttonPosts;
     private ImageView imageViewAvatar;
     private FloatingActionButton buttonAdd;
@@ -108,6 +108,7 @@ public class AccountActivity extends AppCompatActivity {
         imageViewAvatar = findViewById(R.id.ivAvatarAccount);
         progressBar = findViewById(R.id.pbAccount);
         buttonEditProfile = findViewById(R.id.bEditAccount);
+        buttonSearch = findViewById(R.id.bSearch);
         videoIds = new LinkedList<>();
 
         progressBar.setVisibility(View.VISIBLE);
@@ -178,6 +179,7 @@ public class AccountActivity extends AppCompatActivity {
 
         buttonHome.setOnClickListener(v -> startActivity(new Intent(this, MainActivity.class)));
         buttonAccount.setOnClickListener(v -> startActivity(new Intent(AccountActivity.this, AccountActivity.class)));
+        buttonSearch.setOnClickListener(view -> startActivity(new Intent(this, SearchActivity.class)));
         buttonExplore.setOnClickListener(v -> startActivity(new Intent(this, VideoActivity.class)));
         buttonStore.setOnClickListener(v -> Toast.makeText(this, getResources().getString(R.string.hello_blank_fragment), Toast.LENGTH_SHORT).show());
         buttonAdd.setColorFilter(R.color.white);

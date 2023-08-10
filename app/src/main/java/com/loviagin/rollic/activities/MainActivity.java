@@ -227,7 +227,7 @@ public class MainActivity extends AppCompatActivity {
         buttonSearch.setOnClickListener(v -> startActivity(new Intent(this, SearchActivity.class)));
         buttonStore.setOnClickListener(v -> Toast.makeText(this, R.string.in_dev_str, Toast.LENGTH_SHORT).show());
         buttonNotification.setOnClickListener(view -> startActivity(new Intent(this, NotificationActivity.class)));
-        buttonExplore.setOnClickListener(v -> startActivity(new Intent(this, VideoActivity.class)));
+        buttonExplore.setOnClickListener(v -> startActivity(new Intent(this, VideoActivity.class).putExtra("video_uid", "2oley0JnFnYS67RDjZYC")));
 
         postList = new LinkedList<>();
         postsAdapter = new PostsAdapter(postList);
@@ -245,9 +245,8 @@ public class MainActivity extends AppCompatActivity {
 //                db.collection(USERS_COLLECTION).document(uid).update("deviceTokens", FieldValue.arrayUnion(OneSignal.getDeviceState().getUserId()));
 //            }
         });
-
-//        FirebaseFirestore db  = FirebaseFirestore.getInstance();
-//        db.collection(USERS_COLLECTION).document(uid).update("deviceTokens", FieldValue.arrayUnion(OneSignal.getDeviceState().getUserId()));
+        FirebaseFirestore db  = FirebaseFirestore.getInstance();
+        db.collection(USERS_COLLECTION).document(uid).update("deviceTokens", FieldValue.arrayUnion(OneSignal.getDeviceState().getUserId()));
 
         recyclerViewPosts.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         recyclerViewPosts.setAdapter(postsAdapter);

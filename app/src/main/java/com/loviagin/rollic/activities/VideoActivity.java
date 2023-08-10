@@ -7,6 +7,7 @@ import static com.loviagin.rollic.models.Objects.currentUser;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
@@ -39,8 +40,13 @@ public class VideoActivity extends AppCompatActivity {
     private LinearLayoutManager layoutManager;
     private RecyclerView recyclerView;
     public static final String TAG = "Explore_Activity_TAG";
-    private ImageButton buttonHome, buttonExplore, buttonStore, buttonAccount;
+    private ImageButton buttonHome, buttonExplore, buttonStore, buttonAccount, buttonSearch;
     private FloatingActionButton buttonAdd;
+    private boolean isData = false;
+
+    private DocumentSnapshot lastVisibleDocument;
+    private boolean isLoading = false;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +62,7 @@ public class VideoActivity extends AppCompatActivity {
         buttonExplore = findViewById(R.id.bVideo);
         buttonStore = findViewById(R.id.bStore);
         buttonAccount = findViewById(R.id.bAccount);
+        buttonSearch = findViewById(R.id.bSearch);
         buttonAdd = findViewById(R.id.bAdd);
 
         buttonHome.setOnClickListener(v -> startActivity(new Intent(this, MainActivity.class)));
@@ -69,6 +76,7 @@ public class VideoActivity extends AppCompatActivity {
 
         buttonExplore.setColorFilter(R.color.black);
         buttonExplore.setOnClickListener(v -> startActivity(new Intent(this, VideoActivity.class)));
+        buttonSearch.setOnClickListener(view -> startActivity(new Intent(this, SearchActivity.class)));
         buttonStore.setOnClickListener(v -> Toast.makeText(this, getResources().getString(R.string.hello_blank_fragment), Toast.LENGTH_SHORT).show());
         buttonAdd.setColorFilter(R.color.white);
         buttonAdd.setOnClickListener(v -> startActivity(new Intent(this, AddActivity.class)));
@@ -87,8 +95,29 @@ public class VideoActivity extends AppCompatActivity {
 
         // Замените этот список URL-адресами ваших видео
         List<Video> videoUrls = new ArrayList<>();
-        videoAdapter = new VideoAdapter(videoUrls);
+        videoAdapter = new VideoAdapter(videoUrls, getSupportFragmentManager());
         recyclerView.setAdapter(videoAdapter);
+        Intent intent = getIntent();
+        if (intent.hasExtra("video_uid")) {
+            isData = true;
+            String cUid = intent.getStringExtra("video_uid");
+            Log.e(TAG, cUid);
+            FirebaseFirestore db = FirebaseFirestore.getInstance();
+            db.collection("video-posts").document(cUid).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                @Override
+                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                    Video video = documentSnapshot.toObject(Video.class);
+                    if (video != null) {
+                        FirebaseStorage storage = FirebaseStorage.getInstance();
+                        StorageReference videoRef = storage.getReference().child(video.getVideoUrl());
+                        videoRef.getDownloadUrl().addOnSuccessListener(uri -> {
+                            video.setVideoUrl(String.valueOf(uri));
+                            videoAdapter.addVideo(0, video);
+                        });
+                    }
+                }
+            });
+        }
         thread.start();
     }
 
@@ -132,22 +161,23 @@ public class VideoActivity extends AppCompatActivity {
                     if (video != null) {
                         FirebaseStorage storage = FirebaseStorage.getInstance();
                         StorageReference videoRef = storage.getReference().child(video.getVideoUrl());
-                        if (video.getLikes().contains(uid)) {
-                            videoRef.getDownloadUrl().addOnSuccessListener(uri -> {
-                                video.setVideoUrl(String.valueOf(uri));
-                                videoAdapter.addVideo(video);
-                            });
-                        } else {
-                            videoRef.getDownloadUrl().addOnSuccessListener(uri -> {
-                                video.setVideoUrl(String.valueOf(uri));
-                                videoAdapter.addVideo(0, video);
-                            });
-                        }
+                        videoRef.getDownloadUrl().addOnSuccessListener(uri -> {
+                            video.setVideoUrl(String.valueOf(uri));
+                            addVideoBasedOnCondition(video, video.getLikes().contains(uid), isData);
+                        });
                     }
                 }
             });
         }
     });
+
+    public void addVideoBasedOnCondition(Video video, boolean liked, boolean hasVideoUID) {
+        if (liked) {
+            videoAdapter.addVideo(video);
+        } else {
+            videoAdapter.addVideo(hasVideoUID ? 1 : 0, video);
+        }
+    }
 
 //    public void downloadFile(Context context, String url, final String fileName) {
 //        File directory = context.getFilesDir(); // это будет приватной директорией вашего приложения

@@ -55,7 +55,7 @@ import java.util.List;
 public class PostsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private List<Post> posts;
-//    private OnReachListener onReachListener;
+    //    private OnReachListener onReachListener;
     private OnPostClickListener onPostClickListener;
 
     private static final int TYPE_REGULAR = 0;
@@ -261,7 +261,7 @@ public class PostsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         return posts.size() + posts.size() / 5;  // Add an ad after every 5 posts
     }
 
-//    public void setOnReachListener(OnReachListener onReachListener) {
+    //    public void setOnReachListener(OnReachListener onReachListener) {
 //        this.onReachListener = onReachListener;
 //    }
     private void counter(PostsViewHolder holder, Post post) {
@@ -311,7 +311,7 @@ public class PostsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
         public AdsViewHolder(@NonNull View itemView) {
             super(itemView);
-            mAdView = (BannerAdView) itemView.findViewById(R.id.adViewMain);
+            mAdView = itemView.findViewById(R.id.adViewMain);
             mAdView.setAdSize(AdSize.stickySize(itemView.getContext(), 400));
             mAdView.setAdUnitId("R-M-2427151-2");
             mAdView.setBannerAdEventListener(new BannerAdEventListener() {

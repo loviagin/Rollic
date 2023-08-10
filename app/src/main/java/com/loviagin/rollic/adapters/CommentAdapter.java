@@ -39,6 +39,10 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
         comments.add(comment);
     }
 
+    public void addComment(int i, Comment comment) {
+        comments.add(0, comment);
+    }
+
     @NonNull
     @Override
     public CommentViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {

@@ -2,9 +2,50 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:padding="16dp">
 
     <!-- Тут ваши элементы для отображения информации или комментариев -->
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:background="@drawable/ground_box"
+        android:backgroundTint="@color/white"
+        android:backgroundTintMode="screen"
+        android:layout_marginBottom="15dp">
+
+        <EditText
+            android:id="@+id/etCommentVideo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:ems="10"
+            android:layout_marginHorizontal="10dp"
+            android:inputType="textMultiLine"
+            android:maxLines="5"
+            android:maxLength="40"
+            android:hint="Оставить комментарий" />
+
+        <ImageButton
+            android:id="@+id/ibSendCommentVideo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:layout_gravity="center_vertical"
+            android:background="@color/transparent"
+            android:src="@drawable/fi_rr_send" />
+    </LinearLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvVideoItem"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:listitem="@layout/comment_item"
+        tools:itemCount="3">
+
+    </androidx.recyclerview.widget.RecyclerView>
 </LinearLayout>
