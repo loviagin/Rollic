@@ -48,7 +48,6 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:orientation="horizontal"
-        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/include">
@@ -65,6 +64,7 @@
             android:background="@drawable/ground_button"
             android:paddingHorizontal="15dp"
             android:paddingVertical="5dp"
+            android:layout_marginEnd="5dp"
             android:text="Для Вас"
             android:textColor="@color/white" />
 
@@ -76,12 +76,14 @@
             android:background="@drawable/ground_box"
             android:paddingHorizontal="15dp"
             android:paddingVertical="5dp"
+            android:visibility="gone"
             android:text="Подписки" />
 
         <TextView
             android:id="@+id/tvPaidMain"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
             android:background="@drawable/ground_box"
             android:paddingHorizontal="15dp"
             android:paddingVertical="5dp"

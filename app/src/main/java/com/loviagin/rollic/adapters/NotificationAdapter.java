@@ -3,6 +3,7 @@ package com.loviagin.rollic.adapters;
 import static com.loviagin.rollic.Constants.AVATAR_URL;
 import static com.loviagin.rollic.Constants.POST_UID;
 import static com.loviagin.rollic.Constants.USER_STR;
+import static com.loviagin.rollic.Constants.USER_UID;
 
 import android.content.Intent;
 import android.graphics.Typeface;
@@ -15,13 +16,18 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.imageview.ShapeableImageView;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.loviagin.rollic.R;
 import com.loviagin.rollic.activities.AccountActivity;
+import com.loviagin.rollic.activities.MessageActivity;
 import com.loviagin.rollic.activities.PostActivity;
 import com.loviagin.rollic.models.Notification;
+import com.loviagin.rollic.models.User;
 import com.squareup.picasso.Picasso;
 
 import java.util.LinkedList;
@@ -77,6 +83,15 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
                     break;
                 case "p": // subscribe TODO open user page
                     holder.itemView.getContext().startActivity(new Intent(holder.itemView.getContext(), AccountActivity.class).putExtra(USER_STR, postId));
+                    break;
+                case "m": // сообщение
+                    FirebaseFirestore db = FirebaseFirestore.getInstance();
+                    db.collection("users").document(postId).get().addOnSuccessListener(documentSnapshot -> {
+                        User user = documentSnapshot.toObject(User.class);
+                        if (user != null) {
+                            holder.itemView.getContext().startActivity(new Intent(holder.itemView.getContext(), MessageActivity.class).putExtra(USER_UID, postId).putExtra("FIRST_NAME", user.getF_name()).putExtra(AVATAR_URL, user.getAvatarUrl() != null ? user.getAvatarUrl() : "null"));
+                        }
+                    });
                     break;
             }
         });

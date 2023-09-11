@@ -85,6 +85,8 @@
                 android:ems="10"
                 android:hint="@string/name_of_profile_str"
                 android:inputType="text"
+                android:maxLength="30"
+                android:maxLines="1"
                 android:padding="10dp" />
 
             <LinearLayout
@@ -116,6 +118,8 @@
                     android:ems="10"
                     android:hint="@string/your_nickname_str"
                     android:inputType="text"
+                    android:maxLength="30"
+                    android:maxLines="1"
                     android:padding="10dp" />
             </LinearLayout>
 

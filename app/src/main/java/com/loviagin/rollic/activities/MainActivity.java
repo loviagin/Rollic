@@ -11,9 +11,11 @@ import static com.loviagin.rollic.Constants.USER_STR;
 import static com.loviagin.rollic.Constants.USER_UID;
 import static com.loviagin.rollic.UserData.dynPosts;
 import static com.loviagin.rollic.UserData.email;
+import static com.loviagin.rollic.UserData.isPaid;
 import static com.loviagin.rollic.UserData.likPosts;
 import static com.loviagin.rollic.UserData.name;
 import static com.loviagin.rollic.UserData.posts;
+import static com.loviagin.rollic.UserData.self_messages;
 import static com.loviagin.rollic.UserData.subscribers;
 import static com.loviagin.rollic.UserData.subscriptions;
 import static com.loviagin.rollic.UserData.uid;
@@ -37,6 +39,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -48,6 +51,8 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.loviagin.rollic.R;
+import com.loviagin.rollic.UserData;
+import com.loviagin.rollic.activities.pro.PaidFeedActivity;
 import com.loviagin.rollic.adapters.PostsAdapter;
 import com.loviagin.rollic.models.Objects;
 import com.loviagin.rollic.models.Post;
@@ -57,18 +62,20 @@ import com.onesignal.OneSignal;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
     public static final String TAG = "Main_Activity_TAG";
     private static final int NOTIFICATION_PERMISSION_REQUEST_CODE = 1022;
-    private ImageButton buttonHome, buttonAccount, buttonExplore, buttonStore, buttonNotification, buttonSearch;
+    private ImageButton buttonHome, buttonAccount, buttonExplore, buttonStore, buttonNotification, buttonSearch, buttonMessage;
     private FloatingActionButton buttonAdd;
     private PostsAdapter postsAdapter;
     private RecyclerView recyclerViewPosts;
     private ProgressBar progressBar;
     private TextView textViewEnd, textViewSubscriptions, textViewPaid;
     private List<Post> postList;
+//    private int feed = 0; // 0 - all, 1 - sub, 2 - paid
 
     @Override
     protected void onStart() {
@@ -94,6 +101,30 @@ public class MainActivity extends AppCompatActivity {
         textViewSubscriptions = findViewById(R.id.tvSubscriptionsMain);
         textViewPaid = findViewById(R.id.tvPaidMain);
         buttonSearch = findViewById(R.id.bSearch);
+        buttonMessage = findViewById(R.id.bMessage);
+
+        /**
+         * TEMP
+         */
+//        FirebaseFirestore db = FirebaseFirestore.getInstance();
+//
+//// Получение всех документов из коллекции POSTS
+//        db.collection(USERS_COLLECTION).get().addOnCompleteListener(task -> {
+//            if (task.isSuccessful()) {
+//                for (QueryDocumentSnapshot document : task.getResult()) {
+//                    // Проверка на наличие поля paid
+//                    if (!document.contains("paidSubscriptions")) {
+//                        // Обновление документа, добавление поля paid со значением false
+//                        db.collection(USERS_COLLECTION).document(document.getId())
+//                                .update("paidSubscriptions", new LinkedList<>());
+//                    }
+//                }
+//            } else {
+//                System.out.println("Error getting documents: " + task.getException());
+//            }
+//        });
+
+        textViewPaid.setOnClickListener(view -> startActivity(new Intent(this, PaidFeedActivity.class)));
 
         Intent intent = getIntent();
         showNotificationPermissionDialog();
@@ -158,22 +189,53 @@ public class MainActivity extends AppCompatActivity {
             getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
             progressBar.setVisibility(View.GONE);
         } else if (currentUser != null && (uid == null || subscriptions == null)) {
+            findViewById(R.id.llHeadMain).setVisibility(View.VISIBLE);
             Log.d(TAG, Objects.preferences.getString(USER_UID, " - user loaded"));
             FirebaseFirestore db = FirebaseFirestore.getInstance();
             String u = Objects.preferences.getString(USER_UID, "");
             DocumentReference docRef = db.collection(USERS_COLLECTION).document(u);
+            List<Map<String, String>> msgs = new LinkedList<>();
             docRef.get().addOnSuccessListener(documentSnapshot -> {
                 User user = documentSnapshot.toObject(User.class);
                 email = user.getEmail();
                 name = user.getF_name();
                 username = user.getUsername();
+                if (!documentSnapshot.contains("paid")) {
+                    docRef.update("paid", false);
+                    isPaid = false;
+                } else {
+                    UserData.isPaid = user.isPaid();
+                }
+//                if (!documentSnapshot.contains("paidPosts")) {
+//                    docRef.update("paidPosts", msgs);
+//                } else {
+//                    paidPosts = user.getPaidPosts();
+//                }
                 posts = user.getPosts();
+                if (!documentSnapshot.contains("messages")) {
+                    docRef.update("messages", msgs);
+                    self_messages = new LinkedList<>();
+                } else {
+                    self_messages = user.getMessages();
+                }
                 subscriptions = user.getSubscriptions();
                 subscribers = user.getSubscribers();
                 urlAvatar = user.getAvatarUrl();
                 uid = u;
                 postLoading();
             });
+            OneSignal.addSubscriptionObserver(stateChanges -> {
+                String playerId = stateChanges.getTo().getUserId();
+                if (playerId != null) {
+                    db.collection(USERS_COLLECTION).document(uid).update("deviceTokens", FieldValue.arrayUnion(playerId));
+                    preferences.edit().putString("player", playerId).apply();
+                    Log.e(TAG, "PLAYER2 " + playerId);
+                }
+//            else {
+//                db.collection(USERS_COLLECTION).document(uid).update("deviceTokens", FieldValue.arrayUnion(OneSignal.getDeviceState().getUserId()));
+//            }
+            });
+            db.collection(USERS_COLLECTION).document(preferences.getString(USER_UID, "")).update("deviceTokens", FieldValue.arrayUnion(OneSignal.getDeviceState().getUserId()));
         } else {
             postLoading();
         }
@@ -222,31 +284,18 @@ public class MainActivity extends AppCompatActivity {
         });
         buttonAdd.setColorFilter(R.color.white);
         textViewSubscriptions.setOnClickListener(view -> Toast.makeText(this, R.string.in_dev_str, Toast.LENGTH_SHORT).show());
-        textViewPaid.setOnClickListener(view -> Toast.makeText(this, R.string.in_dev_str, Toast.LENGTH_SHORT).show());
+//        textViewPaid.setOnClickListener(view -> Toast.makeText(this, R.string.in_dev_str, Toast.LENGTH_SHORT).show());
         buttonAdd.setOnClickListener(v -> startActivity(new Intent(this, AddActivity.class)));
         buttonSearch.setOnClickListener(v -> startActivity(new Intent(this, SearchActivity.class)));
         buttonStore.setOnClickListener(v -> Toast.makeText(this, R.string.in_dev_str, Toast.LENGTH_SHORT).show());
         buttonNotification.setOnClickListener(view -> startActivity(new Intent(this, NotificationActivity.class)));
-        buttonExplore.setOnClickListener(v -> startActivity(new Intent(this, VideoActivity.class).putExtra("video_uid", "2oley0JnFnYS67RDjZYC")));
+        buttonExplore.setOnClickListener(v -> startActivity(new Intent(this, VideoActivity.class)));
+        buttonMessage.setOnClickListener(view -> startActivity(new Intent(this, ChatActivity.class)));
 
         postList = new LinkedList<>();
         postsAdapter = new PostsAdapter(postList);
 
         thread1.start();
-        OneSignal.addSubscriptionObserver(stateChanges -> {
-            String playerId = stateChanges.getTo().getUserId();
-            FirebaseFirestore db = FirebaseFirestore.getInstance();
-            if (playerId != null) {
-                db.collection(USERS_COLLECTION).document(uid).update("deviceTokens", FieldValue.arrayUnion(playerId));
-                preferences.edit().putString("player", playerId).apply();
-                Log.e(TAG, "PLAYER2 " + playerId);
-            }
-//            else {
-//                db.collection(USERS_COLLECTION).document(uid).update("deviceTokens", FieldValue.arrayUnion(OneSignal.getDeviceState().getUserId()));
-//            }
-        });
-        FirebaseFirestore db  = FirebaseFirestore.getInstance();
-        db.collection(USERS_COLLECTION).document(uid).update("deviceTokens", FieldValue.arrayUnion(OneSignal.getDeviceState().getUserId()));
 
         recyclerViewPosts.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         recyclerViewPosts.setAdapter(postsAdapter);
@@ -287,12 +336,14 @@ public class MainActivity extends AppCompatActivity {
                                 Log.d(TAG, document.getId() + " => " + document.getData());
                                 Post post = document.toObject(Post.class);
                                 post.setUid(document.getId());
-                                if (post.getLikes().contains(uid)) {
-                                    postList.add(post);
-                                    postsAdapter.notifyItemInserted(postsAdapter.getItemCount() - 1);
-                                } else {
-                                    postList.add(0, post);
-                                    postsAdapter.notifyItemInserted(0);
+                                if (!post.isPaid()) {
+                                    if (post.getLikes().contains(uid)) {
+                                        postList.add(post);
+                                        postsAdapter.notifyItemInserted(postsAdapter.getItemCount() - 1);
+                                    } else {
+                                        postList.add(0, post);
+                                        postsAdapter.notifyItemInserted(0);
+                                    }
                                 }
                             }
                         } else {

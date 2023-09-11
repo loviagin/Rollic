@@ -3,8 +3,11 @@
     <string name="hello_blank_fragment">Функционал в разработке</string>
     <string name="name_not_entered_str">Имя не задано</string>
     <string name="subscribe_str">"  Подписаться  "</string>
+    <string name="subscribers_str">%s\nПодписчики</string>
+    <string name="subscriptions_str">%s\nПодписки</string>
+    <string name="posts_str">%s\nПосты</string>
     <string name="bio_example_str">Это огромное огромное огромное огромное огромное огромное описание - био профиля</string>
-    <string name="my_posts_str">Мои посты</string>
+    <string name="my_posts_str">Посты</string>
     <string name="liked_str">🔒Лайкнутое</string>
     <string name="in_dev_str">В разработке</string>
     <string name="welcome_text">Добро пожаловать в новую соцсеть фото и видео Rollic!</string>
@@ -72,6 +75,8 @@
     <string name="about_app_str">О приложении</string>
     <string name="settings_str">Настройки</string>
     <string name="logout_str">Выход</string>
-    <string name="edit_profile_str">Редактировать профиль</string>
+    <string name="edit_profile_str">Редактировать</string>
     <string name="save_str">Сохранить</string>
+    <string name="video_str">Видео</string>
+    <string name="paid_str_u">Платный контент</string>
 </resources>

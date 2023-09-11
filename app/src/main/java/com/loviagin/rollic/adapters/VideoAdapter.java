@@ -97,13 +97,13 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
             holder.textViewDescription.setVisibility(View.GONE);
         }
 
+        holder.buttonRepost.setOnClickListener(view -> shareContent("Посмотри мое новое видео в Роллик", "https://rollic.loviagin.com/video?u=" + video.getUid(), holder));
         holder.textViewName.setText(String.format("@%s", video.getAuthorNickname()));
 
         holder.buttonComment.setOnClickListener(v -> {
             CommentsBottomSheet bottomSheet = new CommentsBottomSheet(video.getUid(), video.getUidAuthor());
             bottomSheet.show(fragmentManager, bottomSheet.getTag());
         });
-
 
         if (video.getAuthorAvatarUrl() != null && !video.getAuthorAvatarUrl().equals("")) {
             FirebaseStorage storage = FirebaseStorage.getInstance();
@@ -149,6 +149,14 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
                 holder.buttonLike.setIcon(holder.itemView.getContext().getResources().getDrawable(R.drawable.fi_rr_like));
             }
         });
+    }
+
+    private void shareContent(String title, String url, VideoViewHolder holder) {
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.setType("text/plain");
+        shareIntent.putExtra(Intent.EXTRA_SUBJECT, title);
+        shareIntent.putExtra(Intent.EXTRA_TEXT, url);
+        holder.itemView.getContext().startActivity(Intent.createChooser(shareIntent, "Поделиться видео"));
     }
 
     @Override

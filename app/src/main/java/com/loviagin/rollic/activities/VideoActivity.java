@@ -6,6 +6,7 @@ import static com.loviagin.rollic.models.Objects.currentUser;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.ImageButton;
@@ -22,6 +23,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -46,6 +48,7 @@ public class VideoActivity extends AppCompatActivity {
 
     private DocumentSnapshot lastVisibleDocument;
     private boolean isLoading = false;
+    private String cUser;
 
 
     @Override
@@ -90,6 +93,9 @@ public class VideoActivity extends AppCompatActivity {
                 } else {
                     pauseCurrentPlayingVideo();
                 }
+                if (layoutManager.findLastVisibleItemPosition() == 4 && !isLoading) {
+                    loadVideos();
+                }
             }
         });
 
@@ -97,28 +103,20 @@ public class VideoActivity extends AppCompatActivity {
         List<Video> videoUrls = new ArrayList<>();
         videoAdapter = new VideoAdapter(videoUrls, getSupportFragmentManager());
         recyclerView.setAdapter(videoAdapter);
+
         Intent intent = getIntent();
-        if (intent.hasExtra("video_uid")) {
+        Uri data = getIntent().getData();
+
+        if (intent.hasExtra("video_uid") || data != null) {
             isData = true;
-            String cUid = intent.getStringExtra("video_uid");
-            Log.e(TAG, cUid);
-            FirebaseFirestore db = FirebaseFirestore.getInstance();
-            db.collection("video-posts").document(cUid).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                @Override
-                public void onSuccess(DocumentSnapshot documentSnapshot) {
-                    Video video = documentSnapshot.toObject(Video.class);
-                    if (video != null) {
-                        FirebaseStorage storage = FirebaseStorage.getInstance();
-                        StorageReference videoRef = storage.getReference().child(video.getVideoUrl());
-                        videoRef.getDownloadUrl().addOnSuccessListener(uri -> {
-                            video.setVideoUrl(String.valueOf(uri));
-                            videoAdapter.addVideo(0, video);
-                        });
-                    }
-                }
-            });
+            if (data != null) {
+                cUser = data.getQueryParameter("u");
+            } else {
+                cUser = intent.getStringExtra("video_uid");
+            }
         }
-        thread.start();
+        loadVideos();
+//        thread.start();
     }
 
     @Override
@@ -151,25 +149,53 @@ public class VideoActivity extends AppCompatActivity {
         }
     }
 
-    Thread thread = new Thread(new Runnable() {
-        @Override
-        public void run() {
-            FirebaseFirestore db = FirebaseFirestore.getInstance();
-            db.collection(VIDEO_POSTS).get().addOnSuccessListener(queryDocumentSnapshots -> {
-                for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots.getDocuments()) {
+    private void loadVideos() {
+        if (isLoading) return;
+
+        isLoading = true;
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        Query videoQuery = db.collection(VIDEO_POSTS).limit(5);
+
+        if (lastVisibleDocument != null) {
+            videoQuery = videoQuery.startAfter(lastVisibleDocument);
+        }
+
+        videoQuery.get().addOnSuccessListener(queryDocumentSnapshots -> {
+            for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots.getDocuments()) {
+                Video video = documentSnapshot.toObject(Video.class);
+                if (video != null) {
+                    FirebaseStorage storage = FirebaseStorage.getInstance();
+                    StorageReference videoRef = storage.getReference().child(video.getVideoUrl());
+                    videoRef.getDownloadUrl().addOnSuccessListener(uri -> {
+                        video.setVideoUrl(String.valueOf(uri));
+                        addVideoBasedOnCondition(video, video.getLikes().contains(uid), isData);
+                    });
+                }
+            }
+            if (isData) {
+                db.collection("video-posts").document(cUser).get().addOnSuccessListener(documentSnapshot -> {
                     Video video = documentSnapshot.toObject(Video.class);
                     if (video != null) {
+                        Log.e(TAG, "loaded");
                         FirebaseStorage storage = FirebaseStorage.getInstance();
                         StorageReference videoRef = storage.getReference().child(video.getVideoUrl());
                         videoRef.getDownloadUrl().addOnSuccessListener(uri -> {
                             video.setVideoUrl(String.valueOf(uri));
-                            addVideoBasedOnCondition(video, video.getLikes().contains(uid), isData);
+                            videoAdapter.addVideo(0, video);
+                            recyclerView.smoothScrollToPosition(0);
                         });
                     }
-                }
-            });
-        }
-    });
+                });
+                isData = false;
+            }
+            int size = queryDocumentSnapshots.size();
+            if (size > 0) {
+                lastVisibleDocument = queryDocumentSnapshots.getDocuments().get(size - 1);
+            }
+            isLoading = false;
+        });
+    }
+
 
     public void addVideoBasedOnCondition(Video video, boolean liked, boolean hasVideoUID) {
         if (liked) {

@@ -1,6 +1,7 @@
 package com.loviagin.rollic.activities;
 
 import static com.loviagin.rollic.Constants.AUTHOR_UID;
+import static com.loviagin.rollic.Constants.AVATAR_URL;
 import static com.loviagin.rollic.Constants.POSTS_STR;
 import static com.loviagin.rollic.Constants.SUBSCRIBERS_STR;
 import static com.loviagin.rollic.Constants.SUBSCRIPTIONS_STR;
@@ -9,6 +10,7 @@ import static com.loviagin.rollic.Constants.USER_STR;
 import static com.loviagin.rollic.Constants.USER_UID;
 import static com.loviagin.rollic.UserData.bio;
 import static com.loviagin.rollic.UserData.dynPosts;
+import static com.loviagin.rollic.UserData.isPaid;
 import static com.loviagin.rollic.UserData.name;
 import static com.loviagin.rollic.UserData.subscribers;
 import static com.loviagin.rollic.UserData.subscriptions;
@@ -21,7 +23,11 @@ import static com.loviagin.rollic.models.Objects.mAuth;
 import static com.loviagin.rollic.models.Objects.preferences;
 
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.os.Bundle;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.style.StyleSpan;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
@@ -39,8 +45,10 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -50,11 +58,14 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.loviagin.rollic.R;
 import com.loviagin.rollic.UserData;
+import com.loviagin.rollic.activities.pro.PaidPostActivity;
+import com.loviagin.rollic.activities.pro.ProActivity;
 import com.loviagin.rollic.adapters.TabAccountAdapter;
 import com.loviagin.rollic.models.Notification;
 import com.loviagin.rollic.models.Post;
 import com.loviagin.rollic.models.User;
 import com.loviagin.rollic.models.Video;
+import com.loviagin.rollic.workers.WebOpener;
 import com.onesignal.OneSignal;
 import com.squareup.picasso.Picasso;
 
@@ -69,12 +80,13 @@ public class AccountActivity extends AppCompatActivity {
     public static final String TAG = "Account_Activity_TAG";
     private ImageButton buttonHome, buttonAccount, buttonBack, buttonSettings, buttonExplore, buttonStore, buttonSearch;
     private Button buttonSubscribers, buttonSubscriptions, buttonPosts;
+    private MaterialButton buttonPro;
     private ImageView imageViewAvatar;
     private FloatingActionButton buttonAdd;
     private TabLayout tabLayout;
     private ViewPager2 viewPager;
     private TabAccountAdapter adapter;
-    private TextView textViewUsername, textViewName, textViewBio, textButtonSubscribe;
+    private TextView textViewUsername, textViewName, textViewBio, textButtonSubscribe, textButtonMessage, textViewPro, textViewAll, textViewPaid;
     private List<String> listPosts;
     private List<String> listVideos;
     private List<String> listSubscriptions;
@@ -102,6 +114,7 @@ public class AccountActivity extends AppCompatActivity {
         buttonStore = findViewById(R.id.bStore);
         tabLayout = findViewById(R.id.tlAccount);
         viewPager = findViewById(R.id.vpAccount);
+        buttonPro = findViewById(R.id.bProAccount);
         textButtonSubscribe = findViewById(R.id.tvSubscribe);
         buttonBack = findViewById(R.id.bNotifications);
         buttonSettings = findViewById(R.id.bMessage);
@@ -109,6 +122,10 @@ public class AccountActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.pbAccount);
         buttonEditProfile = findViewById(R.id.bEditAccount);
         buttonSearch = findViewById(R.id.bSearch);
+        textButtonMessage = findViewById(R.id.tvMessage);
+        textViewPro = findViewById(R.id.tvProAccount);
+        textViewAll = findViewById(R.id.tvAllPostsAccount);
+        textViewPaid = findViewById(R.id.tvPaidPostsAccount);
         videoIds = new LinkedList<>();
 
         progressBar.setVisibility(View.VISIBLE);
@@ -117,9 +134,10 @@ public class AccountActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         Log.e(TAG, intent.hasExtra(USER_STR) + " 1");
-        if (intent.hasExtra(USER_STR) && !intent.getStringExtra(USER_STR).equals(uid)) {
+        if (intent.hasExtra(USER_STR) && !intent.getStringExtra(USER_STR).equals(uid)) {  // not a current user
             FirebaseFirestore db = FirebaseFirestore.getInstance();
             textButtonSubscribe.setVisibility(View.VISIBLE);
+            textButtonMessage.setVisibility(View.VISIBLE);
             if (!subscriptions.contains(intent.getStringExtra(USER_STR))) {
                 subscribe(intent);
             } else {
@@ -127,12 +145,14 @@ public class AccountActivity extends AppCompatActivity {
             }
             usrUid = intent.getStringExtra(USER_STR);
             buttonSettings.setVisibility(View.INVISIBLE);
+            buttonPro.setVisibility(View.GONE);
             db.collection(USERS_COLLECTION).document(usrUid).get().addOnSuccessListener(documentSnapshot -> {
                 User user = documentSnapshot.toObject(User.class);
                 Log.e(TAG, usrUid + " 2");
                 listPosts = user.getPosts();
                 listVideos = user.getVideoposts();
                 listSubscribers = user.getSubscribers();
+                loading(documentSnapshot, user);
                 listSubscriptions = user.getSubscriptions();
                 videoIds = user.getVideoposts();
                 if (user.getBio() != null && user.getBio().length() > 0) {
@@ -142,14 +162,17 @@ public class AccountActivity extends AppCompatActivity {
                 usrName = user.getF_name();
                 usrUrlAvatar = user.getAvatarUrl();
                 usrNickname = user.getUsername();
+                textButtonMessage.setOnClickListener(view ->
+                        startActivity(new Intent(this, MessageActivity.class).putExtra(USER_UID, intent.getStringExtra(USER_STR)).putExtra("FIRST_NAME", usrName).putExtra(AVATAR_URL, usrUrlAvatar != null ? usrUrlAvatar : "null")));
                 listSubscriptions = user.getSubscriptions();
                 listSubscribers = user.getSubscribers();
                 Log.e(TAG, videoIds.toString() + " 3");
                 setInfoTable();
             });
-        } else {
+        } else { // current user
             FirebaseFirestore db = FirebaseFirestore.getInstance();
             textButtonSubscribe.setVisibility(View.GONE);
+            textButtonMessage.setVisibility(View.GONE);
             usrUid = uid;
             buttonEditProfile.setVisibility(View.VISIBLE);
             buttonEditProfile.setOnClickListener(v -> startActivity(new Intent(AccountActivity.this, EditProfileActivity.class)));
@@ -162,6 +185,7 @@ public class AccountActivity extends AppCompatActivity {
                 listSubscribers = user.getSubscribers();
                 listSubscriptions = user.getSubscriptions();
                 videoIds = user.getVideoposts();
+                loading(documentSnapshot, user);
                 if (user.getBio() != null && user.getBio().length() > 0) {
                     bio = user.getBio();
                     textViewBio.setVisibility(View.VISIBLE);
@@ -172,6 +196,10 @@ public class AccountActivity extends AppCompatActivity {
                 usrNickname = username;
                 listSubscriptions = subscriptions;
                 listSubscribers = subscribers;
+                if (!isPaid) {
+                    buttonPro.setVisibility(View.VISIBLE);
+                    buttonPro.setOnClickListener(view -> startActivity(new Intent(this, ProActivity.class)));
+                }
                 buttonAccount.setColorFilter(R.color.black);
                 setInfoTable();
             });
@@ -188,6 +216,25 @@ public class AccountActivity extends AppCompatActivity {
         buttonBack.setOnClickListener(v -> finish());
     }
 
+    private void loading(DocumentSnapshot documentSnapshot, User user) {
+        Log.e(TAG, isPaid + " -----");
+        if (documentSnapshot.contains("paid")) {
+            textViewPro.setVisibility(documentSnapshot.get("paid").equals(true) ? View.VISIBLE : View.GONE);
+        }
+        if (user.isPaid()) {
+            textViewAll.setVisibility(View.VISIBLE);
+            textViewPaid.setVisibility(View.VISIBLE);
+
+            SpannableString spannableString = new SpannableString(textViewAll.getText().toString());
+            spannableString.setSpan(new StyleSpan(Typeface.BOLD), 0, textViewAll.getText().toString().length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            textViewAll.setText(spannableString);
+            textViewPaid.setOnClickListener(view -> startActivity(new Intent(AccountActivity.this, PaidPostActivity.class).putExtra(USER_UID, usrUid)));
+        } else {
+            textViewAll.setVisibility(View.GONE);
+            textViewPaid.setVisibility(View.GONE);
+        }
+    }
+
     private void setInfoTable() {
         LinkedList<Post> lp = new LinkedList<>();
         LinkedList<Video> vp = new LinkedList<>();
@@ -195,10 +242,11 @@ public class AccountActivity extends AppCompatActivity {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection(POSTS_STR).whereEqualTo(AUTHOR_UID, usrUid).get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
-                Log.e(TAG, " 4");
                 for (QueryDocumentSnapshot document : task.getResult()) {
                     Post p0 = document.toObject(Post.class);
-                    lp.add(0, p0);
+                    if (!p0.isPaid()) {
+                        lp.add(0, p0);
+                    }
                     usrPosts.add(0, p0);
                 }
                 if (videoIds != null && !videoIds.isEmpty()) {

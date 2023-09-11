@@ -5,6 +5,7 @@ import static com.loviagin.rollic.Constants.POSTS_STR;
 import static com.loviagin.rollic.Constants.SUBSCRIBERS_STR;
 import static com.loviagin.rollic.Constants.SUBSCRIPTIONS_STR;
 import static com.loviagin.rollic.Constants.USERS_COLLECTION;
+import static com.loviagin.rollic.UserData.isPaid;
 import static com.loviagin.rollic.UserData.subscriptions;
 import static com.loviagin.rollic.UserData.uid;
 import static com.loviagin.rollic.UserData.urlAvatar;
@@ -50,11 +51,13 @@ import com.yandex.mobile.ads.common.ImpressionData;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.LinkedList;
 import java.util.List;
 
 public class PostsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private List<Post> posts;
+    private final List<Post> allPosts;
     //    private OnReachListener onReachListener;
     private OnPostClickListener onPostClickListener;
 
@@ -63,6 +66,7 @@ public class PostsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
     public PostsAdapter(List<Post> posts) {
         this.posts = posts;
+        this.allPosts = posts;
     }
 
 //    public interface OnReachListener {
@@ -79,7 +83,7 @@ public class PostsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
     @Override
     public int getItemViewType(int position) {
-        return position % 6 == 0 && position != 0 ? TYPE_SPECIAL : TYPE_REGULAR;
+        return position % 6 == 0 && position != 0 && !isPaid ? TYPE_SPECIAL : TYPE_REGULAR;
     }
 
     @NonNull
@@ -100,6 +104,18 @@ public class PostsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
     public void setOnPostClickListener(OnPostClickListener onPostClickListener) {
         this.onPostClickListener = onPostClickListener;
+    }
+
+    public void filter(boolean bb) {
+        posts.clear();
+
+        for (Post item : allPosts) {
+            if (item.isPaid() == bb) {
+                posts.add(item);
+            }
+        }
+
+        notifyDataSetChanged();
     }
 
     @Override
@@ -312,6 +328,7 @@ public class PostsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         public AdsViewHolder(@NonNull View itemView) {
             super(itemView);
             mAdView = itemView.findViewById(R.id.adViewMain);
+            mAdView.setVisibility(View.GONE);
             mAdView.setAdSize(AdSize.stickySize(itemView.getContext(), 400));
             mAdView.setAdUnitId("R-M-2427151-2");
             mAdView.setBannerAdEventListener(new BannerAdEventListener() {

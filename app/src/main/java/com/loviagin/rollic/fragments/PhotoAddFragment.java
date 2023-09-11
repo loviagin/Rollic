@@ -25,12 +25,14 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import com.google.android.material.materialswitch.MaterialSwitch;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.loviagin.rollic.R;
+import com.loviagin.rollic.UserData;
 import com.loviagin.rollic.activities.AccountActivity;
 import com.loviagin.rollic.activities.MainActivity;
 import com.loviagin.rollic.adapters.AddPostTabAdapter;
@@ -48,6 +50,8 @@ public class PhotoAddFragment extends Fragment {
     private Button buttonSend, buttonCancel;
     private static ImageView imageView1;
     private ProgressBar progressBar;
+    private MaterialSwitch aSwitch;
+    private boolean isPaid;
 
     private AddPostTabAdapter.OnAddPostClickListener mListener;
     private boolean isImageClick = false;
@@ -76,12 +80,19 @@ public class PhotoAddFragment extends Fragment {
         buttonSend = view.findViewById(R.id.bPublishPhotoAdd);
         imageView1 = view.findViewById(R.id.vvVideoAdd);
         progressBar = view.findViewById(R.id.pbPhotoAdd);
+        aSwitch = view.findViewById(R.id.tsPhotoAdd);
 
         imageView1.setOnClickListener(v -> {
             if (mListener != null) {
                 isImageClick = true;
                 mListener.onImageClick();
             }
+        });
+
+        aSwitch.setVisibility(UserData.isPaid ? View.VISIBLE : View.GONE);
+
+        aSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            isPaid = isChecked;
         });
 
         buttonCancel.setOnClickListener(v -> startActivity(new Intent(getActivity(), MainActivity.class)));
@@ -114,7 +125,7 @@ public class PhotoAddFragment extends Fragment {
                     db.collection(POSTS_STR)
 //                        .document(String.valueOf(postsCount + 1)).set
                             .add(new Post("", editTextDescription.getText().toString().trim(),
-                                    editTextTags.getText().toString().trim(), uid, name, urlAvatar, username, strings, likes, comments, 0))
+                                    editTextTags.getText().toString().trim(), uid, name, urlAvatar, username, strings, likes, comments, 0, isPaid))
                             .addOnSuccessListener(documentReference -> {
                                 db.collection(USERS_COLLECTION).document(uid).update(POSTS_STR, FieldValue.arrayUnion(documentReference.getId()));
 

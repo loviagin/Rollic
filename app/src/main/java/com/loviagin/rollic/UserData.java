@@ -5,6 +5,7 @@ import com.loviagin.rollic.models.Video;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 public class UserData {
     public static String email, username, uid, name, urlAvatar, bio;
@@ -15,6 +16,9 @@ public class UserData {
     public static List<Post> dynPosts = new LinkedList<>();
     public static List<Video> dynVideos = new LinkedList<>();
     public static List<Post> likPosts = new LinkedList<>();
+    public static List<Map<String, String>> self_messages = new LinkedList<>();
+    public static boolean isPaid = false;
+
 
     public static void remove() {
         email = "";

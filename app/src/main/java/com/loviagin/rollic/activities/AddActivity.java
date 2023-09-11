@@ -1,5 +1,7 @@
 package com.loviagin.rollic.activities;
 
+import static com.loviagin.rollic.UserData.isPaid;
+
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -198,7 +200,7 @@ public class AddActivity extends AppCompatActivity implements AddPostTabAdapter.
                         throw new RuntimeException(e);
                     }
 
-                    if (timeInMillisec > 15000) {
+                    if (!isPaid && timeInMillisec > 15000) {
                         Toast.makeText(this, "Видео длиннее 15 секунд", Toast.LENGTH_SHORT).show();
                         //                                .setTitle("Video Duration")
 //                                .setMessage("The video is longer than 15 seconds. Would you like to trim it?")
@@ -211,6 +213,8 @@ public class AddActivity extends AppCompatActivity implements AddPostTabAdapter.
 //                                    // Do nothing.
 //                                })
 //                                .show();
+                    } else if (isPaid && timeInMillisec > 180000) {
+                        Toast.makeText(this, "Видео длиннее 3 минут", Toast.LENGTH_SHORT).show();
                     } else {
                         VideoAddFragment.setVideoView(selectedVideoUri);
                     }

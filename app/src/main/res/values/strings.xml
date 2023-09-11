@@ -1,14 +1,14 @@
 <resources>
     <string name="app_name" translatable="false">Rollic</string>
     <string name="hello_blank_fragment">Functionality in development</string>
-    <string name="subscribers_str" translatable="false">%s\nSubscribers</string>
-    <string name="subscriptions_str" translatable="false">%s\nSubscriptions</string>
-    <string name="posts_str" translatable="false">%s\nPosts</string>
+    <string name="subscribers_str">%s\nSubscribers</string>
+    <string name="subscriptions_str">%s\nSubscriptions</string>
+    <string name="posts_str">%s\nPosts</string>
     <string name="name_not_entered_str">Name not set</string>
     <string name="nicknameofuser_str" translatable="false">\@%s</string>
     <string name="subscribe_str">  Subscribe  </string>
     <string name="bio_example_str">This Huge Huge Huge Huge Huge Huge Description - Profile Bio.</string>
-    <string name="my_posts_str">My posts</string>
+    <string name="my_posts_str">Posts</string>
     <string name="liked_str">🔒Liked</string>
     <string name="in_dev_str">In development</string>
     <string name="welcome_text">Welcome to the new photo and video social network Rollic!</string>
@@ -90,7 +90,8 @@
     <string name="logout_str">Log out</string>
     <string name="edit_profile_str">Edit profile</string>
     <string name="save_str">Save</string>
-    <string name="video_str">Видео</string>
+    <string name="video_str">Video</string>
+    <string name="paid_str_u">Paid posts</string>
     <string-array name="languages_array" translatable="false">
         <item>English</item>
         <item>Русский</item>

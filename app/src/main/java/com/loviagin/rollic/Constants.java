@@ -6,6 +6,7 @@ public class Constants {
     public static final String USER_EMAIL = "email";
     public static final String USER_STR = "user";
     public static final String POSTS_STR = "posts";
+    public static final String MESSAGES_STR = "messages";
     public static final String AUTHOR_UID = "uidAuthor";
     public static final String SUBSCRIPTIONS_STR = "subscriptions";
     public static final String SUBSCRIBERS_STR = "subscribers";

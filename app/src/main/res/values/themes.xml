@@ -12,4 +12,7 @@
     <style name="AccountInfo">
         <item name="android:background">@color/white</item>
     </style>
+    <style name="CustomSearchView" parent="Widget.AppCompat.SearchView">
+        <item name="android:paddingStart">0dp</item>
+    </style>
 </resources>

@@ -125,7 +125,6 @@ public class PostActivity extends AppCompatActivity {
                     Picasso.get().load(uri).into(imageViewAvatar);
                 }
             }
-            Log.e(TAG, postUid + " 1");
             FirebaseFirestore db = FirebaseFirestore.getInstance();
             commentsList = new LinkedList<>();
             adapter = new CommentAdapter(commentsList);
@@ -135,7 +134,6 @@ public class PostActivity extends AppCompatActivity {
             db.collection(POSTS_STR).document(postUid).get().addOnSuccessListener(documentSnapshot -> {
                 Post post = documentSnapshot.toObject(Post.class);
                 buttonSend.setOnClickListener(view -> sendComment(postUid, post));
-                Log.e(TAG, postUid + " 2");
                 if (post != null && !intent.hasExtra(AVATAR_URL) && post.getAuthorAvatarUrl() != null) {
                     uri = Uri.parse(post.getAuthorAvatarUrl());
                     if (uri != null && !uri.equals("")) {
@@ -148,17 +146,14 @@ public class PostActivity extends AppCompatActivity {
                                 });
                     }
                 }
-                Log.e(TAG, adapter.getItemCount() + " -40");
                 db.collection(COMMENTS_STR).whereEqualTo("pstUid", postUid).get().addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             commentsList.add(document.toObject(Comment.class));
                             adapter.notifyItemInserted(adapter.getItemCount());
                         }
-                        Log.e(TAG, adapter.getItemCount() + " -36");
                     }
                 });
-                Log.e(TAG, adapter.getItemCount() + " -50");
                 if (post.getTitle().equals("")) { // photo post
                     imageView1.setVisibility(View.VISIBLE);
                     FirebaseStorage storage = FirebaseStorage.getInstance();

@@ -8,9 +8,11 @@ public class Post {
     private List<String> likes;
     private List<String> imagesUrls;
     private List<String> comments;
+    private boolean paid;
 
     //post add
-    public Post(String uid, String title, String description, String tags, String uidAuthor, String authorName, String authorAvatarUrl, String authorNickname) {
+    public Post(String uid, String title, String description, String tags, String uidAuthor, String authorName, String authorAvatarUrl, String authorNickname,
+                boolean paid) {
         this.title = title;
         this.description = description;
         this.tags = tags;
@@ -19,9 +21,11 @@ public class Post {
         this.authorAvatarUrl = authorAvatarUrl;
         this.authorNickname = authorNickname;
         this.uid = uid;
+        this.paid = paid;
     }
 
-    public Post(String title, String description, String tags, String uidAuthor, String authorName, String authorAvatarUrl, String authorNickname, List<String> imagesUrls, List<String> likes, List<String> comments, int repostCount) {
+    public Post(String title, String description, String tags, String uidAuthor, String authorName, String authorAvatarUrl, String authorNickname,
+                List<String> imagesUrls, List<String> likes, List<String> comments, int repostCount, boolean paid) {
         this.title = title;
         this.description = description;
         this.tags = tags;
@@ -33,6 +37,7 @@ public class Post {
         this.repostCount = repostCount;
         this.likes = likes;
         this.comments = comments;
+        this.paid = paid;
     }
 
     public Post() {
@@ -46,6 +51,14 @@ public class Post {
         this.imagesUrls = imagesUrls;
         this.authorNickname = authorNickname;
         this.uid = uid;
+    }
+
+    public boolean isPaid() {
+        return paid;
+    }
+
+    public void setPaid(boolean paid) {
+        this.paid = paid;
     }
 
     public List<String> getComments() {

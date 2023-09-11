@@ -28,7 +28,7 @@ public class StoreActivity extends AppCompatActivity {
         buttonSearch.setOnClickListener(view -> startActivity(new Intent(this, SearchActivity.class)));
         buttonVideo.setOnClickListener(view -> startActivity(new Intent(this, VideoActivity.class)));
         buttonAccount.setOnClickListener(view -> startActivity(new Intent(this, AccountActivity.class)));
-        buttonMessages.setOnClickListener(view -> startActivity(new Intent(this, MessagesActivity.class)));
+        buttonMessages.setOnClickListener(view -> startActivity(new Intent(this, ChatActivity.class)));
         buttonNotifications.setOnClickListener(view -> startActivity(new Intent(this, NotificationActivity.class)));
     }
 }
