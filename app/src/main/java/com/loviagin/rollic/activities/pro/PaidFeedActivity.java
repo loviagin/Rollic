@@ -82,7 +82,7 @@ public class PaidFeedActivity extends AppCompatActivity {
                                 if (task.isSuccessful()) {
                                     for (QueryDocumentSnapshot document : task.getResult()) {
                                         User user = document.toObject(User.class);
-                                        adapter.addPaidPost(new PaidPost(user.getF_name(), user.getPosts()));
+                                        adapter.addPaidPost(new PaidPost(user.getF_name(), user.getPosts(), user.getAvatarUrl()));
                                     }
                                 }
                             }

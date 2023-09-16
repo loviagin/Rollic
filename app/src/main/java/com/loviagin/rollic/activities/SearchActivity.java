@@ -15,6 +15,7 @@ import android.widget.ImageButton;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.loviagin.rollic.R;
+import com.loviagin.rollic.UserData;
 import com.loviagin.rollic.adapters.TopUsersAdapter;
 import com.loviagin.rollic.models.User;
 import com.yandex.mobile.ads.banner.AdSize;
@@ -64,44 +65,49 @@ public class SearchActivity extends AppCompatActivity {
         buttonAdd.setColorFilter(R.color.white);
         buttonAdd.setOnClickListener(v -> startActivity(new Intent(this, AddActivity.class)));
 
-        mAdView = (BannerAdView) findViewById(R.id.adViewMain);
-        mAdView.setAdSize(AdSize.stickySize(this, 500));
-        mAdView.setAdUnitId("R-M-2427151-2");
+        mAdView = findViewById(R.id.adViewMain);
+        if (UserData.isPaid) {
+            mAdView.setVisibility(View.GONE);
+            findViewById(R.id.tvAdViewMain).setVisibility(View.GONE);
+        } else {
+            mAdView.setAdSize(AdSize.stickySize(this, 500));
+            mAdView.setAdUnitId("R-M-2427151-2");
 
-        mAdView.setBannerAdEventListener(new BannerAdEventListener() {
-            @Override
-            public void onAdLoaded() {
-                mAdView.setVisibility(View.VISIBLE);
-            }
+            mAdView.setBannerAdEventListener(new BannerAdEventListener() {
+                @Override
+                public void onAdLoaded() {
+                    mAdView.setVisibility(View.VISIBLE);
+                }
 
-            @Override
-            public void onAdFailedToLoad(@NonNull AdRequestError adRequestError) {
-                mAdView.setVisibility(View.GONE);
-                Log.e("ERROR", "ERROOOOOOOOOOOOOOOR");
-            }
+                @Override
+                public void onAdFailedToLoad(@NonNull AdRequestError adRequestError) {
+                    mAdView.setVisibility(View.GONE);
+                    Log.e("ERROR", "ERROOOOOOOOOOOOOOOR");
+                }
 
-            @Override
-            public void onAdClicked() {
+                @Override
+                public void onAdClicked() {
 
-            }
+                }
 
-            @Override
-            public void onLeftApplication() {
+                @Override
+                public void onLeftApplication() {
 
-            }
+                }
 
-            @Override
-            public void onReturnedToApplication() {
+                @Override
+                public void onReturnedToApplication() {
 
-            }
+                }
 
-            @Override
-            public void onImpression(@Nullable ImpressionData impressionData) {
+                @Override
+                public void onImpression(@Nullable ImpressionData impressionData) {
 
-            }
-        });
+                }
+            });
 
-        mAdView.loadAd(new AdRequest.Builder().build());
+            mAdView.loadAd(new AdRequest.Builder().build());
+        }
 
         List<User> userList = new ArrayList<>();
         userList.add(new User("loviagin", "Ilia", "https://firebasestorage.googleapis.com/v0/b/workisland.appspot.com/o/avatars%2FdJKR73600Bq8G4SqH0Zk1689922285574.jpg?alt=media&token=ae31af90-4d3f-4528-8f18-39173a215c2c", "loviagin.ilya@ya.ru"));

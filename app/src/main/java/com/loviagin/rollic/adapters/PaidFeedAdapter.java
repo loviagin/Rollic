@@ -15,13 +15,17 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.imageview.ShapeableImageView;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.loviagin.rollic.R;
 import com.loviagin.rollic.activities.MainActivity;
 import com.loviagin.rollic.models.PaidPost;
 import com.loviagin.rollic.models.Post;
+import com.squareup.picasso.Picasso;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -53,6 +57,16 @@ public class PaidFeedAdapter extends RecyclerView.Adapter<PaidFeedAdapter.PaidFe
         holder.textView.setText(post.getName());
         List<Post> postList = new LinkedList<>();
         FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        FirebaseStorage storage = FirebaseStorage.getInstance();
+        StorageReference storageRef = storage.getReference();
+
+        if (post.getUrlAvatar() != null && !post.getUrlAvatar().equals("")) {
+            storageRef.child(post.getUrlAvatar()).getDownloadUrl()
+                    .addOnSuccessListener(uri -> {
+                        Picasso.get().load(uri).into(holder.imageView);
+                    });
+        }
         db.collection("posts").whereIn("uid", post.getPosts()).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -84,12 +98,14 @@ public class PaidFeedAdapter extends RecyclerView.Adapter<PaidFeedAdapter.PaidFe
     class PaidFeedViewHolder extends RecyclerView.ViewHolder {
         private RecyclerView recyclerView;
         private TextView textView;
+        private ShapeableImageView imageView;
 
         public PaidFeedViewHolder(@NonNull View itemView) {
             super(itemView);
 
             textView = itemView.findViewById(R.id.tvPaidFeed);
             recyclerView = itemView.findViewById(R.id.rvPaidFeed);
+            imageView = itemView.findViewById(R.id.ivAvatarPaidFeed);
         }
     }
 }

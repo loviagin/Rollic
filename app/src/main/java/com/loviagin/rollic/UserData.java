@@ -12,6 +12,7 @@ public class UserData {
     public static List<String> posts;
     public static List<String> subscribers;
     public static List<String> subscriptions;
+    public static List<String> paidSub = new LinkedList<>();
     public static List<Post> usrPosts = new LinkedList<>();
     public static List<Post> dynPosts = new LinkedList<>();
     public static List<Video> dynVideos = new LinkedList<>();
@@ -31,6 +32,10 @@ public class UserData {
         subscribers = null;
         subscriptions = null;
         usrPosts = new LinkedList<>();
+        dynVideos = new LinkedList<>();
         dynPosts = new LinkedList<>();
+        paidSub = new LinkedList<>();
+        likPosts = new LinkedList<>();
+        self_messages = new LinkedList<>();
     }
 }

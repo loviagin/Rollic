@@ -14,6 +14,7 @@ import static com.loviagin.rollic.UserData.email;
 import static com.loviagin.rollic.UserData.isPaid;
 import static com.loviagin.rollic.UserData.likPosts;
 import static com.loviagin.rollic.UserData.name;
+import static com.loviagin.rollic.UserData.paidSub;
 import static com.loviagin.rollic.UserData.posts;
 import static com.loviagin.rollic.UserData.self_messages;
 import static com.loviagin.rollic.UserData.subscribers;
@@ -106,28 +107,36 @@ public class MainActivity extends AppCompatActivity {
         /**
          * TEMP
          */
-//        FirebaseFirestore db = FirebaseFirestore.getInstance();
-//
-//// Получение всех документов из коллекции POSTS
-//        db.collection(USERS_COLLECTION).get().addOnCompleteListener(task -> {
-//            if (task.isSuccessful()) {
-//                for (QueryDocumentSnapshot document : task.getResult()) {
-//                    // Проверка на наличие поля paid
-//                    if (!document.contains("paidSubscriptions")) {
-//                        // Обновление документа, добавление поля paid со значением false
-//                        db.collection(USERS_COLLECTION).document(document.getId())
-//                                .update("paidSubscriptions", new LinkedList<>());
-//                    }
-//                }
-//            } else {
-//                System.out.println("Error getting documents: " + task.getException());
-//            }
-//        });
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+// Получение всех документов из коллекции POSTS
+        db.collection(USERS_COLLECTION).get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                for (QueryDocumentSnapshot document : task.getResult()) {
+                    // Проверка на наличие поля paid
+                    if (!document.contains("paid")) {
+                        // Обновление документа, добавление поля paid со значением false
+                        db.collection(USERS_COLLECTION).document(document.getId())
+                                .update("paid", false);
+                    }
+                }
+            } else {
+                System.out.println("Error getting documents: " + task.getException());
+            }
+        });
 
         textViewPaid.setOnClickListener(view -> startActivity(new Intent(this, PaidFeedActivity.class)));
 
         Intent intent = getIntent();
         showNotificationPermissionDialog();
+        if (Intent.ACTION_VIEW.equals(intent.getAction())){
+            Uri uri = intent.getData();
+            if (uri != null) {
+                Toast.makeText(this, ""+uri.getPath(), Toast.LENGTH_SHORT).show();
+                // Обработка URI здесь
+                // Например: uri.getAuthority(), uri.getPath(), uri.getQueryParameter("some_param")
+            }
+        }
         if (intent.hasExtra(POSITION)) {
             findViewById(R.id.llHeadMain).setVisibility(View.GONE);
             if (intent.hasExtra("like")) {
@@ -191,7 +200,7 @@ public class MainActivity extends AppCompatActivity {
         } else if (currentUser != null && (uid == null || subscriptions == null)) {
             findViewById(R.id.llHeadMain).setVisibility(View.VISIBLE);
             Log.d(TAG, Objects.preferences.getString(USER_UID, " - user loaded"));
-            FirebaseFirestore db = FirebaseFirestore.getInstance();
+//            FirebaseFirestore db = FirebaseFirestore.getInstance();
             String u = Objects.preferences.getString(USER_UID, "");
             DocumentReference docRef = db.collection(USERS_COLLECTION).document(u);
             List<Map<String, String>> msgs = new LinkedList<>();
@@ -212,6 +221,7 @@ public class MainActivity extends AppCompatActivity {
 //                    paidPosts = user.getPaidPosts();
 //                }
                 posts = user.getPosts();
+                paidSub = user.getPaidSubscriptions();
                 if (!documentSnapshot.contains("messages")) {
                     docRef.update("messages", msgs);
                     self_messages = new LinkedList<>();

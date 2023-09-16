@@ -12,6 +12,7 @@ import static com.loviagin.rollic.UserData.bio;
 import static com.loviagin.rollic.UserData.dynPosts;
 import static com.loviagin.rollic.UserData.isPaid;
 import static com.loviagin.rollic.UserData.name;
+import static com.loviagin.rollic.UserData.paidSub;
 import static com.loviagin.rollic.UserData.subscribers;
 import static com.loviagin.rollic.UserData.subscriptions;
 import static com.loviagin.rollic.UserData.uid;
@@ -59,6 +60,7 @@ import com.google.firebase.storage.StorageReference;
 import com.loviagin.rollic.R;
 import com.loviagin.rollic.UserData;
 import com.loviagin.rollic.activities.pro.PaidPostActivity;
+import com.loviagin.rollic.activities.pro.PayUserActivity;
 import com.loviagin.rollic.activities.pro.ProActivity;
 import com.loviagin.rollic.adapters.TabAccountAdapter;
 import com.loviagin.rollic.models.Notification;
@@ -166,7 +168,6 @@ public class AccountActivity extends AppCompatActivity {
                         startActivity(new Intent(this, MessageActivity.class).putExtra(USER_UID, intent.getStringExtra(USER_STR)).putExtra("FIRST_NAME", usrName).putExtra(AVATAR_URL, usrUrlAvatar != null ? usrUrlAvatar : "null")));
                 listSubscriptions = user.getSubscriptions();
                 listSubscribers = user.getSubscribers();
-                Log.e(TAG, videoIds.toString() + " 3");
                 setInfoTable();
             });
         } else { // current user
@@ -228,7 +229,15 @@ public class AccountActivity extends AppCompatActivity {
             SpannableString spannableString = new SpannableString(textViewAll.getText().toString());
             spannableString.setSpan(new StyleSpan(Typeface.BOLD), 0, textViewAll.getText().toString().length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             textViewAll.setText(spannableString);
-            textViewPaid.setOnClickListener(view -> startActivity(new Intent(AccountActivity.this, PaidPostActivity.class).putExtra(USER_UID, usrUid)));
+            if (usrUid.equals(uid)){ // current
+                textViewPaid.setOnClickListener(view -> startActivity(new Intent(AccountActivity.this, PaidPostActivity.class).putExtra(USER_UID, usrUid)));
+            } else { // прописать есть ли подписка на данного пользователя
+                if (paidSub.contains(usrUid)) {
+                    textViewPaid.setOnClickListener(view -> startActivity(new Intent(AccountActivity.this, PaidPostActivity.class).putExtra(USER_UID, usrUid)));
+                } else {
+                    textViewPaid.setOnClickListener(view -> startActivity(new Intent(AccountActivity.this, PayUserActivity.class).putExtra(USER_UID, usrUid).putExtra("name", usrName).putExtra("nickname", usrNickname).putExtra("avatar", usrUrlAvatar.toString())));
+                }
+            }
         } else {
             textViewAll.setVisibility(View.GONE);
             textViewPaid.setVisibility(View.GONE);

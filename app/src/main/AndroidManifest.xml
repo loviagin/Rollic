@@ -24,7 +24,11 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Rollic"
-        tools:targetApi="31">
+        tools:targetApi="31"
+        android:networkSecurityConfig="@xml/ym_network_security_config">
+        <activity
+            android:name=".activities.pro.PayUserActivity"
+            android:exported="false" />
         <activity
             android:name=".activities.pro.PaidFeedActivity"
             android:exported="false" />
@@ -87,9 +91,9 @@
         <activity
             android:name=".activities.EditProfileActivity"
             android:exported="false" />
-        <activity
-            android:name=".activities.PaydPostAddActivity"
-            android:exported="false" />
+        <meta-data
+            android:name="com.google.android.gms.wallet.api.enabled"
+            tools:node="remove" />
         <activity
             android:name=".activities.SubscribersActivity"
             android:exported="false"
@@ -135,6 +139,14 @@
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="rollic" />
             </intent-filter>
         </activity>
         <activity

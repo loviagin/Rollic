@@ -30,8 +30,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.imageview.ShapeableImageView;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
@@ -39,6 +41,7 @@ import com.google.firebase.storage.StorageReference;
 import com.loviagin.rollic.R;
 import com.loviagin.rollic.models.Notification;
 import com.loviagin.rollic.models.Post;
+import com.loviagin.rollic.models.User;
 import com.onesignal.OneSignal;
 import com.squareup.picasso.Picasso;
 import com.yandex.mobile.ads.banner.AdSize;
@@ -106,17 +109,17 @@ public class PostsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         this.onPostClickListener = onPostClickListener;
     }
 
-    public void filter(boolean bb) {
-        posts.clear();
-
-        for (Post item : allPosts) {
-            if (item.isPaid() == bb) {
-                posts.add(item);
-            }
-        }
-
-        notifyDataSetChanged();
-    }
+//    public void filter(boolean bb) {
+//        posts.clear();
+//
+//        for (Post item : allPosts) {
+//            if (item.isPaid() == bb) {
+//                posts.add(item);
+//            }
+//        }
+//
+//        notifyDataSetChanged();
+//    }
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
@@ -136,6 +139,19 @@ public class PostsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                 viewHolder.textViewName.setVisibility(View.VISIBLE);
                 viewHolder.textViewName.setText(post.getAuthorName());
             }
+
+            FirebaseFirestore dd = FirebaseFirestore.getInstance();
+            dd.collection("users").document(post.getUidAuthor()).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                @Override
+                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                    User uu = documentSnapshot.toObject(User.class);
+                    if (uu.isPaid()){
+                        viewHolder.textViewPro.setVisibility(View.VISIBLE);
+                    } else {
+                        viewHolder.textViewPro.setVisibility(View.GONE);
+                    }
+                }
+            });
 
             viewHolder.buttonRepost.setOnClickListener(view -> shareContent("Посмотри мой новый пост в Роллик", "https://rollic.loviagin.com/ulink?u=" + post.getUid(), viewHolder));
 
@@ -297,7 +313,7 @@ public class PostsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     class PostsViewHolder extends RecyclerView.ViewHolder {
 
         private ShapeableImageView imageViewAvatar;
-        private TextView textViewName, textViewNickname, textViewDescription, textViewTitle;
+        private TextView textViewName, textViewNickname, textViewDescription, textViewTitle, textViewPro;
         private ImageView imageView1;
         private Button buttonLike, buttonComment, buttonRepost;
         private ImageButton buttonDislike, buttonSubscribe;
@@ -318,6 +334,7 @@ public class PostsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             textViewDescription = itemView.findViewById(R.id.tvDescriptionPost);
             layout = itemView.findViewById(R.id.llPostMain);
             buttonSubscribe = itemView.findViewById(R.id.bSubscribePost);
+            textViewPro = itemView.findViewById(R.id.tvProPost);
         }
     }
 

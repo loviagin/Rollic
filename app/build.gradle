@@ -27,6 +27,7 @@ android {
         targetSdk 33
         versionCode 19
         versionName '0.3 - beta'
+        resValue "string", "ym_app_scheme", "rollic"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         signingConfig signingConfigs.release
@@ -60,9 +61,9 @@ dependencies {
 //    implementation 'com.timehop.stickyheadersrecyclerview:library:0.4.3'
     implementation 'com.commit451:PhotoView:1.2.4'
     implementation 'com.google.android.material:material:1.7.0'
-//    implementation "ru.yoomoney.sdk.kassa.payments:yookassa-android-sdk:6.8.0"
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'com.yandex.android:mobileads:5.10.0'
+    implementation 'ru.yoomoney.sdk.kassa.payments:yookassa-android-sdk:6.8.0'
     implementation 'com.onesignal:OneSignal:[4.0.0, 4.99.99]'
     api 'com.theartofdev.edmodo:android-image-cropper:2.8.0'
     implementation 'com.squareup.picasso:picasso:2.71828'
