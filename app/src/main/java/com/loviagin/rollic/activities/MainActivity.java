@@ -40,7 +40,6 @@ import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -54,6 +53,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.loviagin.rollic.R;
 import com.loviagin.rollic.UserData;
 import com.loviagin.rollic.activities.pro.PaidFeedActivity;
+import com.loviagin.rollic.activities.pro.UserPaidActivity;
 import com.loviagin.rollic.adapters.PostsAdapter;
 import com.loviagin.rollic.models.Objects;
 import com.loviagin.rollic.models.Post;
@@ -92,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_main2);
 
         progressBar = findViewById(R.id.pbMain);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,

@@ -44,8 +44,8 @@ import com.loviagin.rollic.models.Post;
 import com.loviagin.rollic.models.User;
 import com.onesignal.OneSignal;
 import com.squareup.picasso.Picasso;
-import com.yandex.mobile.ads.banner.AdSize;
 import com.yandex.mobile.ads.banner.BannerAdEventListener;
+import com.yandex.mobile.ads.banner.BannerAdSize;
 import com.yandex.mobile.ads.banner.BannerAdView;
 import com.yandex.mobile.ads.common.AdRequest;
 import com.yandex.mobile.ads.common.AdRequestError;
@@ -54,7 +54,6 @@ import com.yandex.mobile.ads.common.ImpressionData;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.LinkedList;
 import java.util.List;
 
 public class PostsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
@@ -346,7 +345,7 @@ public class PostsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             super(itemView);
             mAdView = itemView.findViewById(R.id.adViewMain);
             mAdView.setVisibility(View.GONE);
-            mAdView.setAdSize(AdSize.stickySize(itemView.getContext(), 400));
+            mAdView.setAdSize(BannerAdSize.stickySize(itemView.getContext(), 400));
             mAdView.setAdUnitId("R-M-2427151-2");
             mAdView.setBannerAdEventListener(new BannerAdEventListener() {
                 @Override

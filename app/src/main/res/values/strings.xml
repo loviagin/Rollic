@@ -1,4 +1,21 @@
 <resources>
+    <string name="app_scheme" translatable="false">rollic</string>
+    <string name="redirectUrl" translatable="false">https://yoo_money_invoice.ym/return</string>
+    <string name="baseUrl" translatable="false">https://sr.rollic.ru/api/payments/</string>
+
+    <string name="testAccessToken" translatable="false">m6B?3Kwg4dX5rPv3B18d?qTEXz5ao8ZTURIGh6/lg-lyNsVN=PWZ5FQzyAI73J8b</string>
+    <string name="liveAccessToken" translatable="false">-R2Tx-RLOKEnJx1-hcCyS35Dqtj8f6kFrwGtBW-H1=3!5oM/T-p2HhK4T/vtyOJC</string>
+
+    <string name="client_id" translatable="false">v1j97m5mmfij22kmerocs8ah3cv3kt05</string>
+
+    <!--    test keys    -->
+    <!--    <string name="shopId">257888</string>-->
+    <!--    <string name="client_key">test_MjU3ODg4xpKXX3WNRh1OHyR_hKNbB8cC6F2kqXRvVhw</string>-->
+
+    <!--    live keys    -->
+    <string name="shopId" translatable="false">250021</string>
+    <string name="client_key" translatable="false">live_MjUwMDIx65a3FhMyJYmfuZ9BHJS7yvmdbzrTFFfkMe0</string>
+
     <string name="app_name" translatable="false">Rollic</string>
     <string name="hello_blank_fragment">Functionality in development</string>
     <string name="subscribers_str">%s\nSubscribers</string>

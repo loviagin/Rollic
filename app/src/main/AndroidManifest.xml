@@ -18,14 +18,52 @@
         android:name=".App"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
+        android:enableOnBackInvokedCallback="true"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Rollic"
-        tools:targetApi="31"
-        android:networkSecurityConfig="@xml/ym_network_security_config">
+        android:usesCleartextTraffic="true"
+        tools:targetApi="31">
+        <activity
+            android:name=".activities.pro.UserPaidActivity"
+            android:exported="false" />
+        <activity
+            android:name=".presentation.main.MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".presentation.confirmation.ConfirmationActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <!-- Accepts URIs that begin with "example://yoo_money” -->
+                <data
+                    android:host="invoicing"
+                    android:scheme="@string/app_scheme" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <!-- Accepts URIs that begin with "example://yoo_money” -->
+                <data
+                    android:host="yoo_money_invoice.ym"
+                    android:scheme="https://" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".presentation.SecureWebViewActivity" />
         <activity
             android:name=".activities.pro.PayUserActivity"
             android:exported="false" />
@@ -91,9 +129,11 @@
         <activity
             android:name=".activities.EditProfileActivity"
             android:exported="false" />
+
         <meta-data
             android:name="com.google.android.gms.wallet.api.enabled"
             tools:node="remove" />
+
         <activity
             android:name=".activities.SubscribersActivity"
             android:exported="false"

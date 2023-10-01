@@ -16,10 +16,11 @@ import android.widget.ImageButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.loviagin.rollic.R;
 import com.loviagin.rollic.UserData;
+import com.loviagin.rollic.activities.pro.UserPaidActivity;
 import com.loviagin.rollic.adapters.TopUsersAdapter;
 import com.loviagin.rollic.models.User;
-import com.yandex.mobile.ads.banner.AdSize;
 import com.yandex.mobile.ads.banner.BannerAdEventListener;
+import com.yandex.mobile.ads.banner.BannerAdSize;
 import com.yandex.mobile.ads.banner.BannerAdView;
 import com.yandex.mobile.ads.common.AdRequest;
 import com.yandex.mobile.ads.common.AdRequestError;
@@ -70,7 +71,7 @@ public class SearchActivity extends AppCompatActivity {
             mAdView.setVisibility(View.GONE);
             findViewById(R.id.tvAdViewMain).setVisibility(View.GONE);
         } else {
-            mAdView.setAdSize(AdSize.stickySize(this, 500));
+            mAdView.setAdSize(BannerAdSize.stickySize(this, 500));
             mAdView.setAdUnitId("R-M-2427151-2");
 
             mAdView.setBannerAdEventListener(new BannerAdEventListener() {
@@ -117,5 +118,8 @@ public class SearchActivity extends AppCompatActivity {
         topUsersAdapter = new TopUsersAdapter(userList);
         recyclerViewUsers.setLayoutManager(new GridLayoutManager(this, 3));
         recyclerViewUsers.setAdapter(topUsersAdapter);
+//
+//        startActivity(new Intent(this, UserPaidActivity.class)
+//                .putExtra("cud", "dJKR73600Bq8G4SqH0Zk"));
     }
 }

@@ -15,6 +15,9 @@ import com.onesignal.OneSignal;
 import com.yandex.metrica.YandexMetrica;
 import com.yandex.metrica.YandexMetricaConfig;
 
+import dagger.hilt.android.HiltAndroidApp;
+
+@HiltAndroidApp
 public class App extends Application {
 
     private static final String ONESIGNAL_APP_ID = "0d1565d4-4727-4ae9-a689-3e5959a2c66c";
