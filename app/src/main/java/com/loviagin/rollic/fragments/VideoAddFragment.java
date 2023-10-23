@@ -70,16 +70,19 @@ public class VideoAddFragment extends Fragment {
         buttonPublish = view.findViewById(R.id.bPublishVideoAdd);
         progressBar = view.findViewById(R.id.pbVideoAdd);
 
-        View.OnClickListener listener = view12 -> {
-            if (onAddPostClickListener != null) {
-                onAddPostClickListener.onVideoClick();
-                isVideoClick = true;
-                buttonAdd.setVisibility(View.GONE);
-            }
-        };
-
-        buttonAdd.setOnClickListener(listener);
-        videoView.setOnClickListener(listener);
+        /**
+         * This is temp
+         */
+//        View.OnClickListener listener = view12 -> {
+//            if (onAddPostClickListener != null) {
+//                onAddPostClickListener.onVideoClick();
+//                isVideoClick = true;
+//                buttonAdd.setVisibility(View.GONE);
+//            }
+//        };
+//
+//        buttonAdd.setOnClickListener(listener);
+//        videoView.setOnClickListener(listener);
 
         buttonCancel.setOnClickListener(v -> startActivity(new Intent(getActivity(), MainActivity.class)));
         buttonPublish.setOnClickListener(view1 -> {

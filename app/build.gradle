@@ -10,13 +10,13 @@ plugins {
 android {
     signingConfigs {
         debug {
-            storeFile file('/Users/ilialoviagin/Documents/projects/Rollic project/rollic-lov.jks')
+            storeFile file('/Users/ilialoviagin/Library/Mobile Documents/com~apple~CloudDocs/Documents/Android projects/rollic-lov.jks')
             storePassword 'Loviliausbste23$'
             keyAlias 'key0'
             keyPassword 'Loviliausbste23$'
         }
         release {
-            storeFile file('/Users/ilialoviagin/Documents/projects/Rollic project/rollic-lov.jks')
+            storeFile file('/Users/ilialoviagin/Library/Mobile Documents/com~apple~CloudDocs/Documents/Android projects/rollic-lov.jks')
             storePassword 'Loviliausbste23$'
             keyPassword 'Loviliausbste23$'
             keyAlias 'key0'
@@ -29,8 +29,8 @@ android {
         applicationId "com.loviagin.rollic"
         minSdk 26
         targetSdk 33
-        versionCode 19
-        versionName '0.3 - beta'
+        versionCode 28
+        versionName '0.5 - beta'
         resValue "string", "ym_app_scheme", "rollic"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -84,17 +84,17 @@ dependencies {
     implementation 'com.commit451:PhotoView:1.2.4'
     implementation 'com.google.android.material:material:1.7.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-    implementation 'com.yandex.android:mobileads:6.0.1'
+    implementation 'com.yandex.android:mobileads:6.1.0'
     implementation 'ru.yoomoney.sdk.kassa.payments:yookassa-android-sdk:6.8.0'
     implementation 'com.onesignal:OneSignal:[4.0.0, 4.99.99]'
     api 'com.theartofdev.edmodo:android-image-cropper:2.8.0'
     implementation 'com.squareup.picasso:picasso:2.71828'
-    implementation platform('com.google.firebase:firebase-bom:32.1.1')
+    implementation platform('com.google.firebase:firebase-bom:32.4.0')
     implementation 'com.google.firebase:firebase-storage'
     implementation 'com.google.firebase:firebase-auth'
     implementation 'com.google.firebase:firebase-messaging'
     implementation 'com.google.firebase:firebase-firestore'
-    implementation 'com.google.android.gms:play-services-auth:20.6.0'
+    implementation 'com.google.android.gms:play-services-auth:20.7.0'
     implementation "androidx.media3:media3-exoplayer:1.1.0"
     implementation "androidx.media3:media3-exoplayer-dash:1.1.0"
     implementation "androidx.media3:media3-ui:1.1.0"

@@ -84,39 +84,44 @@ public class VideoActivity extends AppCompatActivity {
         buttonAdd.setColorFilter(R.color.white);
         buttonAdd.setOnClickListener(v -> startActivity(new Intent(this, AddActivity.class)));
 
-        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
-                super.onScrollStateChanged(recyclerView, newState);
-                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                    playCurrentVisibleVideo();
-                } else {
-                    pauseCurrentPlayingVideo();
-                }
-                if (layoutManager.findLastVisibleItemPosition() == 4 && !isLoading) {
-                    loadVideos();
-                }
-            }
-        });
+        /**
+         * This is temp
+         */
+//        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+//            @Override
+//            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+//                super.onScrollStateChanged(recyclerView, newState);
+//                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+//                    playCurrentVisibleVideo();
+//                } else {
+//                    pauseCurrentPlayingVideo();
+//                }
+//                if (layoutManager.findLastVisibleItemPosition() == 4 && !isLoading) {
+//                    loadVideos();
+//                }
+//            }
+//        });
 
         // Замените этот список URL-адресами ваших видео
-        List<Video> videoUrls = new ArrayList<>();
-        videoAdapter = new VideoAdapter(videoUrls, getSupportFragmentManager());
-        recyclerView.setAdapter(videoAdapter);
-
-        Intent intent = getIntent();
-        Uri data = getIntent().getData();
-
-        if (intent.hasExtra("video_uid") || data != null) {
-            isData = true;
-            if (data != null) {
-                cUser = data.getQueryParameter("u");
-            } else {
-                cUser = intent.getStringExtra("video_uid");
-            }
-        }
-        loadVideos();
-//        thread.start();
+        /**
+         * This is temp
+         */
+//        List<Video> videoUrls = new ArrayList<>();
+//        videoAdapter = new VideoAdapter(videoUrls, getSupportFragmentManager());
+//        recyclerView.setAdapter(videoAdapter);
+//
+//        Intent intent = getIntent();
+//        Uri data = getIntent().getData();
+//
+//        if (intent.hasExtra("video_uid") || data != null) {
+//            isData = true;
+//            if (data != null) {
+//                cUser = data.getQueryParameter("u");
+//            } else {
+//                cUser = intent.getStringExtra("video_uid");
+//            }
+//        }
+//        loadVideos();
     }
 
     @Override

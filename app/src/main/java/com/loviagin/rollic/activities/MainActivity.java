@@ -107,23 +107,23 @@ public class MainActivity extends AppCompatActivity {
         /**
          * TEMP
          */
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-
-// Получение всех документов из коллекции POSTS
-        db.collection(USERS_COLLECTION).get().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                for (QueryDocumentSnapshot document : task.getResult()) {
-                    // Проверка на наличие поля paid
-                    if (!document.contains("paid")) {
-                        // Обновление документа, добавление поля paid со значением false
-                        db.collection(USERS_COLLECTION).document(document.getId())
-                                .update("paid", false);
-                    }
-                }
-            } else {
-                System.out.println("Error getting documents: " + task.getException());
-            }
-        });
+//        FirebaseFirestore db = FirebaseFirestore.getInstance();
+//
+//// Получение всех документов из коллекции POSTS
+//        db.collection(USERS_COLLECTION).get().addOnCompleteListener(task -> {
+//            if (task.isSuccessful()) {
+//                for (QueryDocumentSnapshot document : task.getResult()) {
+//                    // Проверка на наличие поля paid
+//                    if (!document.contains("paid")) {
+//                        // Обновление документа, добавление поля paid со значением false
+//                        db.collection(USERS_COLLECTION).document(document.getId())
+//                                .update("paid", false);
+//                    }
+//                }
+//            } else {
+//                System.out.println("Error getting documents: " + task.getException());
+//            }
+//        });
 
         textViewPaid.setOnClickListener(view -> startActivity(new Intent(this, PaidFeedActivity.class)));
 
@@ -200,7 +200,7 @@ public class MainActivity extends AppCompatActivity {
         } else if (currentUser != null && (uid == null || subscriptions == null)) {
             findViewById(R.id.llHeadMain).setVisibility(View.VISIBLE);
             Log.d(TAG, Objects.preferences.getString(USER_UID, " - user loaded"));
-//            FirebaseFirestore db = FirebaseFirestore.getInstance();
+            FirebaseFirestore db = FirebaseFirestore.getInstance();
             String u = Objects.preferences.getString(USER_UID, "");
             DocumentReference docRef = db.collection(USERS_COLLECTION).document(u);
             List<Map<String, String>> msgs = new LinkedList<>();
